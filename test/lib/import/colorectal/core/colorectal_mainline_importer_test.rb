@@ -2,13 +2,18 @@ require 'test_helper'
 
 class ColorectalMainlineImporterTest < ActiveSupport::TestCase
   test 'ensure load creates expected records and logging' do
+    assert Pseudo::GeneticTestResult.count.zero?
+    assert Pseudo::GeneticSequenceVariant.count.zero?
+
     e_batch  = e_batch(:colorectal_batch)
     filename = SafePath.new('test_files', e_batch.original_filename)
     importer = Import::Colorectal::Core::ColorectalMainlineImporter.new(filename, e_batch)
-    assert_difference('Pseudo::GeneticTestResult.count', + 2) do
-      assert_difference('Pseudo::GeneticSequenceVariant.count', + 1) do
-        @importer_stdout, @importer_stderr = capture_io do
-          importer.load
+    assert_difference('Pseudo::MolecularData.count', + 2) do
+      assert_difference('Pseudo::GeneticTestResult.count', + 2) do
+        assert_difference('Pseudo::GeneticSequenceVariant.count', + 1) do
+          @importer_stdout, @importer_stderr = capture_io do
+            importer.load
+          end
         end
       end
     end
@@ -38,14 +43,24 @@ class ColorectalMainlineImporterTest < ActiveSupport::TestCase
 
     expected_logs.each { |expected_log| assert_includes(logs, expected_log) }
 
-    positive_test = Pseudo::GeneticTestResult.find_by(teststatus: 1)
-    assert_equal '1432', positive_test.gene
-    assert positive_test.genetic_sequence_variants.count.zero?
+    molecular_data_record_one = Pseudo::MolecularData.find_by(servicereportidentifier: 'ABC123')
+    assert_equal 'Provider One', molecular_data_record_one.providercode
+    assert_equal 'Consultant One', molecular_data_record_one.practitionercode
+    assert_equal 45, molecular_data_record_one.age
 
-    negative_test = Pseudo::GeneticTestResult.find_by(teststatus: 2)
-    assert_equal '2744', negative_test.gene
-    assert negative_test.genetic_sequence_variants.one?
-    variant = negative_test.genetic_sequence_variants.first
+    molecular_data_record_two = Pseudo::MolecularData.find_by(servicereportidentifier: 'XYZ789')
+    assert_equal 'Provider Two', molecular_data_record_two.providercode
+    assert_equal 'Consultant Two', molecular_data_record_two.practitionercode
+    assert_equal 70, molecular_data_record_two.age
+
+    negative_test = Pseudo::GeneticTestResult.find_by(teststatus: 1)
+    assert_equal '1432', negative_test.gene
+    assert negative_test.genetic_sequence_variants.count.zero?
+
+    positive_test = Pseudo::GeneticTestResult.find_by(teststatus: 2)
+    assert_equal '2744', positive_test.gene
+    assert positive_test.genetic_sequence_variants.one?
+    variant = positive_test.genetic_sequence_variants.first
     assert_equal 'c.67del', variant.codingdnasequencechange
     assert_equal 'p.Glu23LysfsTer13', variant.proteinimpact
     assert_equal 5, variant.variantpathclass
