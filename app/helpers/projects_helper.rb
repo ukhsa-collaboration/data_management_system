@@ -282,4 +282,9 @@ module ProjectsHelper
   def new_application_text(project)
     "New #{I18n.t(:project_types)[project.project_type_name.downcase.to_sym]}"
   end
+
+  def boolean_text_conversion(project)
+    return if project.onwardly_share.nil?
+    project.onwardly_share ? 'Yes' : 'No'
+  end
 end
