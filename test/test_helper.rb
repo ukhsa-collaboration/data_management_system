@@ -131,7 +131,7 @@ module ActiveSupport
     # Something about MBIS doesn't like parallel testing. Very noticeable on the CI
     # platform, occassionally also developing locally. For now, will disable parallel
     # testing unless the `PARALLEL_WORKERS` variable is explicitly set.
-    parallelize(workers: ENV.fetch('PARALLEL_WORKERS', 1).to_i)
+    parallelize(workers: :number_of_processors)
 
     # Re-bootstrap for the multi process case:
     parallelize_setup do
@@ -162,11 +162,6 @@ module ActiveSupport
       within :xpath, "//table//tr[td[contains(.,\"#{text}\")]]" do
         yield
       end
-    end
-
-    # You shouldn't need this...
-    def snooze(seconds)
-      sleep(seconds) unless ENV.key?('WAKEY_WAKEY')
     end
 
     require 'mocha/mini_test'
