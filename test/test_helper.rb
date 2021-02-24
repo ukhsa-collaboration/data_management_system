@@ -25,10 +25,9 @@ require_relative 'download_helpers'
 
 Capybara.server = :puma, { Silent: true }
 
-# Test switch is flakey on CI; looking at logs, many requests there taking
-# longer than the default 2 second wait, meaning a good chance (some of)
-# the flakiness might be being caused by that...
-Capybara.default_max_wait_time = 5.seconds
+# When running in parallel, there can be occassional chokes, so this accounts for that.
+# This shouldn't slow down tests that are well-written.
+Capybara.default_max_wait_time = 10.seconds
 
 # Devise support for functional / integration test
 module ActionDispatch
