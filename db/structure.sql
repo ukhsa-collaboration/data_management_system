@@ -132,8 +132,8 @@ ALTER SEQUENCE public.amendment_types_id_seq OWNED BY public.amendment_types.id;
 CREATE TABLE public.ar_internal_metadata (
     key character varying NOT NULL,
     value character varying,
-    created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
 );
 
 
@@ -2109,13 +2109,13 @@ CREATE TABLE public.molecular_data (
     providercode text,
     practitionercode text,
     patienttype text,
+    moleculartestingtype integer,
     requesteddate date,
     collecteddate date,
     receiveddate date,
     authoriseddate date,
     indicationcategory integer,
     clinicalindication text,
-    moleculartestingtype integer,
     organisationcode_testresult text,
     servicereportidentifier text,
     specimentype integer,
@@ -2688,12 +2688,12 @@ CREATE TABLE public.project_attachments (
     comments character varying,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
+    attachment_contents bytea,
+    digest character varying,
     attachment_file_name character varying,
     attachment_content_type character varying,
     attachment_file_size integer,
     attachment_updated_at timestamp without time zone,
-    attachment_contents bytea,
-    digest character varying,
     workflow_project_state_id bigint,
     attachable_type character varying,
     attachable_id bigint
@@ -3554,38 +3554,6 @@ CREATE SEQUENCE public.security_assurances_id_seq
 --
 
 ALTER SEQUENCE public.security_assurances_id_seq OWNED BY public.security_assurances.id;
-
-
---
--- Name: snomedct; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.snomedct (
-    providercode character varying(200),
-    providername character varying(200),
-    e_batchid bigint,
-    e_base_recordid bigint,
-    diagnosisdate character varying(12),
-    klass character varying(50),
-    field character varying(50),
-    val character varying(200)
-);
-
-
---
--- Name: snomedct_path; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.snomedct_path (
-    providercode character varying(200),
-    providername character varying(200),
-    e_batchid bigint,
-    e_base_recordid bigint,
-    diagnosisdate character varying(12),
-    klass character varying(50),
-    field character varying(50),
-    val character varying(200)
-);
 
 
 --
@@ -7963,6 +7931,6 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20210208111919'),
 ('20210208112318'),
 ('20210208172519'),
-('20210221131304');
+('20210311083858');
 
 

@@ -41,5 +41,7 @@ module Mbis
     elsif !Rails.env.test?
       $stderr.puts 'Warning: Missing config/smtp_settings.yml -- some services may not work.'
     end
+
+    config.active_job.queue_adapter = :delayed_job
   end
 end
