@@ -440,3 +440,10 @@ cas_access_and_dataset_approver:
   username: cda
   directorate_id: 1
   division_id: 1
+
+developer:
+  username: super.user
+  email: super.user@phe.gov.uk
+  first_name: Super
+  last_name: User
+  z_user_status: active_user_status
