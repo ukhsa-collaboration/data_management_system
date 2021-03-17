@@ -1,12 +1,11 @@
 require 'core/provider_handler'
-require 'core/extraction_utilities'
+require 'import/extraction_utilities'
 require 'pry'
 require 'possibly'
 
 module Manchester
   # Process Manchester-specific record details into generalized internal genotype format
   class ManchesterHandler < Import::Brca::Core::ProviderHandler
-    include Utility
     PASS_THROUGH_FIELDS = %w[ age consultantcode
                               receiveddate
                               authoriseddate

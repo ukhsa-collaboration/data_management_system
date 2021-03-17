@@ -1,7 +1,7 @@
 require 'import/genotype'
 require 'core/provider_handler'
 require 'possibly'
-require 'core/extraction_utilities'
+require 'import/extraction_utilities'
 require 'providers/newcastle/newcastle_storage_manager'
 
 module Import
@@ -10,7 +10,7 @@ module Import
       module Newcastle
         # Process Newcastle-specific record details into generalized internal genotype format
         class NewcastleHandler < Import::Brca::Core::ProviderHandler
-          include Utility
+          include ExtractionUtilities
           TEST_SCOPE_MAP = { 'brca-ng'           => :full_screen,
                              'brca-rapid screen' => :full_screen,
                              'brca top up'       => :full_screen,

@@ -3,7 +3,7 @@ require 'import/genotype'
 require 'import/storage_manager/persister'
 require 'core/provider_handler'
 require 'pry'
-require 'core/extraction_utilities'
+require 'import/extraction_utilities'
 
 module Import
   module Brca
@@ -45,7 +45,7 @@ module Import
           CDNA_REGEX = /c\.(?<cdna>.*)/i.freeze
 
           def initialize(batch)
-            @ex = LocationExtractor.new
+            @ex = Import::ExtractionUtilities::LocationExtractor.new
             @failed_genotype_parse_counter = 0
             @genotype_counter = 0
             super
