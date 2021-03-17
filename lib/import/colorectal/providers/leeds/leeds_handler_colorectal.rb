@@ -1,5 +1,5 @@
 require 'import/genotype'
-require 'import/colorectal/providers/leeds/report_extractor'
+# require_relative 'report_extractor'
 require 'import/brca/core/provider_handler'
 require 'pry'
 
@@ -156,7 +156,7 @@ module Import
                                     POLE|PTEN|SMAD4|STK11|GREM1|NTHL1) (?<delmut>deletion|mutation|inversion|duplication)/ix .freeze
 
           def initialize(batch)
-            @extractor = Import::Colorectal::Providers::Leeds::GenotypeAndReportExtractor.new
+            @extractor = ReportExtractor::GenotypeAndReportExtractor.new
             @negative_test = 0 # Added by Francesco
             @positive_test = 0 # Added by Francesco
             super
