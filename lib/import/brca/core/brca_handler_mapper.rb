@@ -33,7 +33,7 @@ module Import
           'RGT' => Import::Brca::Providers::Cambridge::CambridgeHandler,
           'RTH' => Import::Brca::Providers::Oxford::OxfordHandler,
           'RJ7' => StGeorge::StGeorgeHandler,
-          'RPY' => RoyalMarsden::RoyalMarsdenHandler,
+          'RPY' => Import::Brca::Providers::RoyalMarsden::RoyalMarsdenHandler,
           'R1K' => Import::Brca::Providers::LondonKgc::LondonKgcHandler
         }.freeze
 
