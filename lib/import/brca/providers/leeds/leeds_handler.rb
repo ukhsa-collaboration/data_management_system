@@ -1,4 +1,3 @@
-require 'providers/leeds/report_extractor'
 require 'core/provider_handler'
 require 'pry'
 
@@ -116,7 +115,7 @@ module Import
           TESTSTATUS_REGEX = /unaffected|neg|normal/i.freeze
           GENE_CDNA_PROTEIN_REGEX = /(?<brca> BRCA(1|2)) variant (c\.(?<cdna>[0-9]+.>[A-Za-z]+)|c\.(?<cdna>[0-9]+.[0-9]+[A-Za-z]+)) (?:p\.\((?<impact>.\w+\d+\w+)\))|(?<brca> BRCA(1|2)) sequence variant c\.(?<cdna>[0-9]+.>[A-Za-z]+)|c\.(?<cdna>[0-9]+.[0-9]+[A-Za-z]+) (?:p\.\((?<impact>.\w+\d+\w+)\))/i.freeze
           def initialize(batch)
-            @extractor = GenotypeAndReportExtractor.new
+            @extractor = ReportExtractor::GenotypeAndReportExtractor.new
             @negative_test = 0 # Added by Francesco
             @positive_test = 0 # Added by Francesco
             super
