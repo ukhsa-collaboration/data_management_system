@@ -9,7 +9,7 @@ module Import
       # Template for how the preprocess can be hooked in to output a processed version of the
       # original file only, rather than intercepting rawrecords and passing them on to the importer;
       # this is essentially just a tool if you want to see what happened after processing
-      class PreprocessImporter < BrcaBase
+      class PreprocessImporter # < BrcaBase
         def initialize(filename, batch)
           super(filename, batch)
           @preprocessor = Import::Brca::Core::CorrectionPreprocessor.from_batch(batch)
