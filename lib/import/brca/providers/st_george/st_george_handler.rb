@@ -13,7 +13,7 @@ module StGeorge
                              providercode receiveddate sampletype] .freeze
     CDNA_REGEX = /c\.(?<cdna>[0-9]+[^\s]+)|c\.\[(?<cdna>(.*?))\]/i.freeze
     def initialize(batch)
-      @extractor = LocationExtractor.new
+      @extractor = Import::ExtractionUtilities::LocationExtractor.new
       @failed_genotype_parse_counter = 0
       super
     end
