@@ -10,7 +10,6 @@ module Import
       module Newcastle
         # Process Newcastle-specific record details into generalized internal genotype format
         class NewcastleHandler < Import::Brca::Core::ProviderHandler
-          include ExtractionUtilities
           TEST_SCOPE_MAP = { 'brca-ng'           => :full_screen,
                              'brca-rapid screen' => :full_screen,
                              'brca top up'       => :full_screen,
@@ -66,7 +65,7 @@ module Import
             @records_attempted_counter = 0
             @failed_variant_counter    = 0
             @variants_processed_counter = 0
-            @ex = LocationExtractor.new
+            @ex = Import::ExtractionUtilities::LocationExtractor.new
             super
           end
 

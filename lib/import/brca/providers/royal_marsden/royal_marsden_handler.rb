@@ -20,7 +20,7 @@ module Import
           CDNA_REGEX = /c\.(?<cdna>.+);\s|c\.(?<cdna>.+)(?![p\.])$|c\.((?<cdna>.+))\_p\./i.freeze
 
           def initialize(batch)
-            @extractor = LocationExtractor.new
+            @extractor = Import::ExtractionUtilities::LocationExtractor.new
             @failed_genotype_parse_counter = 0
             super
           end
