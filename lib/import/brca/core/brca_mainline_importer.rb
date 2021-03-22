@@ -11,7 +11,7 @@ require 'core/brca'
 require 'import/brca/core/brca_handler_mapping'
 require 'import/central_logger'
 require 'import/import_key'
-require 'import/brca/utility/pseudonymised_file_wrapper'
+require 'import/utility/pseudonymised_file_wrapper'
 
 module Import
   module Brca

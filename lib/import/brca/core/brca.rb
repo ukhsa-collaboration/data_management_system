@@ -10,7 +10,7 @@ $LOAD_PATH.unshift(folder) unless $LOAD_PATH.include?(folder)
 require 'import/brca/core/brca_handler_mapping'
 require 'import/central_logger'
 require 'import/import_key'
-require 'import/brca/utility/pseudonymised_file_wrapper'
+require 'import/utility/pseudonymised_file_wrapper'
 
 module Import
   module Brca
@@ -25,7 +25,7 @@ module Import
           @logger = Log.get_logger(batch.original_filename, batch.provider)
           @logger.info "Initialized import for #{@filename}"
           @logger.debug 'Available fields are: '
-          fw = PseudonymisedFileWrapper.new(@filename)
+          fw = Import::Utility::PseudonymisedFileWrapper.new(@filename)
           fw.process
           fw.available_fields.each do |field|
             @logger.debug "\t#{field}"
