@@ -70,7 +70,7 @@ module Import
           end
 
           def attach_persister(batch)
-            @persister = NewcastlePersister.new(batch)
+            @persister = Import::Brca::Providers::Newcastle::NewcastlePersister.new(batch)
           end
 
           def process_fields(record)
