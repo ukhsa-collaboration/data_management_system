@@ -1,5 +1,5 @@
 require 'import/central_logger'
-require 'core/extraction_utilities'
+require 'import/extraction_utilities'
 require 'core/provider_handler'
 require 'pry'
 require 'possibly'
