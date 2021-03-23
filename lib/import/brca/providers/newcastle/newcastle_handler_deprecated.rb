@@ -1,7 +1,7 @@
 require 'import/genotype'
 require 'core/provider_handler'
 require 'possibly'
-require 'core/extraction_utilities'
+require 'import/extraction_utilities'
 require 'providers/newcastle/newcastle_storage_manager'
 module Newcastle
   # Process Newcastle-specific record details into generalized internal genotype format
