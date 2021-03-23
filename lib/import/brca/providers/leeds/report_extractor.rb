@@ -44,8 +44,7 @@ module Import
               if brcas.size == 1
                 genotype.add_gene(brcas[0])
                 [genotype]
-              elsif
-                genotype2 = genotype.dup
+              elsif genotype2 = genotype.dup
                 genotype.add_gene(brcas[0])
                 genotype2.add_gene(brcas[1])
                 [genotype, genotype2]
@@ -79,7 +78,7 @@ module Import
 
           # Generate records to indicate that both BRCA variants are normal
           class DoubleNormal < GenotypePattern
-            SAFELIST = %w[b1 b2 normal unaffected] .freeze
+            SAFELIST = %w[b1 b2 normal unaffected].freeze
             EXCLUDEABLE = ([' '] + %w[/ NGS MLPA seq and - patient]).map(&:downcase)
 
             def performance_summary
