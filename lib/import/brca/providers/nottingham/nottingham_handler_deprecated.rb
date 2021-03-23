@@ -1,6 +1,6 @@
 require 'import/genotype'
 require 'core/provider_handler'
-require 'core/extraction_utilities'
+require 'import/extraction_utilities'
 require 'possibly'
 module Nottingham
   # Process Nottingham-specific record details into generalized internal genotype format
