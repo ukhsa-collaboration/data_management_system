@@ -1,5 +1,5 @@
 require 'import/brca/core/provider_handler'
-require 'import/brca/core/extraction_utilities'
+require 'import/extraction_utilities'
 require 'possibly'
 
 module Import
