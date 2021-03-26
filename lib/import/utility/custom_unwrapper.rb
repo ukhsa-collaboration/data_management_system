@@ -2,7 +2,6 @@ require 'json'
 require 'csv'
 require 'pry'
 require 'logger'
-# #require 'import/brca/core/central_logger'
 # Similar to the wrapper for .pseudo files, but designed to be used on the CSV
 # output of SQL queries which include the raw records that we want to inspect
 module Import

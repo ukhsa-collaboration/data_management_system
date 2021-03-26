@@ -1,5 +1,3 @@
-#require 'import/central_logger'
-#require 'import/extraction_utilities'
 require 'pry'
 
 module Import

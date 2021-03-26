@@ -7,11 +7,6 @@ require 'csv'
 # folder = File.expand_path('../', __dir__)
 # $LOAD_PATH.unshift(folder) unless $LOAD_PATH.include?(folder)
 
-#require 'import/brca/core/brca'
-#require 'import/brca/core/brca_handler_mapping'
-#require 'import/central_logger'
-#require 'import/import_key'
-#require 'import/utility/pseudonymised_file_wrapper'
 
 module Import
   module Brca

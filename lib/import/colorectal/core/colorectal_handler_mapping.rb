@@ -11,7 +11,6 @@
 # require 'import/colorectal/providers/london_gosh/london_gosh_handler_colorectal'
 # require 'import/colorectal/providers/birmingham/birmingham_handler_colorectal'
 # require 'import/colorectal/providers/oxford/oxford_handler_colorectal'
-#require 'import/central_logger'
 
 module Import
   module Colorectal

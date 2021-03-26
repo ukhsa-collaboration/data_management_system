@@ -1,8 +1,4 @@
 require 'possibly'
-#require 'import/genotype'
-#require 'import/storage_manager/persister'
-#require 'core/provider_handler'
-#require 'import/extraction_utilities'
 require 'pry'
 
 module Import

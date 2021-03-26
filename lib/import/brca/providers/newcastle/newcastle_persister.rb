@@ -1,8 +1,3 @@
-#require 'import/storage_manager/persister'
-#require 'import/database_wrappers/genetic_sequence_variant'
-#require 'import/database_wrappers/genetic_test_result'
-#require 'import/database_wrappers/genetic_test'
-#require 'import/database_wrappers/genotype_wrapper'
 
 module Import
   module Brca

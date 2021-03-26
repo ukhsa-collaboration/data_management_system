@@ -1,7 +1,4 @@
-#require 'import/genotype'
-#require 'core/provider_handler'
 require 'possibly'
-#require 'import/extraction_utilities'
 # require 'import/brca/providers/newcastle/newcastle_storage_manager'
 
 module Import

@@ -1,6 +1,3 @@
-#require 'core/brca'
-#require 'core/correction_preprocessor'
-#require 'core/correction'
 require 'csv'
 
 module Import

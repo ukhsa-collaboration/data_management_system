@@ -1,19 +1,4 @@
 # TODO: Needed?
-#require 'import/brca/providers/leeds/leeds_handler'
-#require 'import/brca/providers/salisbury/salisbury_handler'
-#require 'import/brca/providers/bristol/bristol_handler'
-#require 'import/brca/providers/newcastle/newcastle_handler'
-#require 'import/brca/providers/nottingham/nottingham_handler'
-#require 'import/brca/providers/sheffield/sheffield_handler'
-#require 'import/brca/providers/manchester/manchester_handler'
-#require 'import/brca/providers/st_thomas/st_thomas_handler'
-#require 'import/brca/providers/birmingham/birmingham_handler'
-#require 'import/brca/providers/cambridge/cambridge_handler'
-#require 'import/brca/providers/oxford/oxford_handler'
-#require 'import/brca/providers/st_george/st_george_handler'
-#require 'import/brca/providers/royal_marsden/royal_marsden_handler'
-#require 'import/brca/providers/london_kgc/london_kgc_handler'
-#require 'import/central_logger'
 
 module Import
   module Brca

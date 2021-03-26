@@ -1,5 +1,3 @@
-#require 'import/genotype'
-#require 'core/provider_handler'
 require 'possibly'
 
 module Import

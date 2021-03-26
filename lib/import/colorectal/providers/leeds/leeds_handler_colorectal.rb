@@ -1,6 +1,4 @@
-#require 'import/genotype'
 # require_relative 'report_extractor'
-#require 'import/brca/core/provider_handler'
 require 'pry'
 
 module Import
