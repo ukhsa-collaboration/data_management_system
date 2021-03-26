@@ -1,7 +1,7 @@
 require 'date'
 require 'possibly'
-require 'import/central_logger'
-require 'import/amino_acids'
+#require 'import/central_logger'
+#require 'import/amino_acids'
 module Import
   module Brca
     module Core

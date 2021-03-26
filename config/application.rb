@@ -39,6 +39,9 @@ module Mbis
     ]
     config.enable_dependency_loading = true
 
+    # Weird assets are not Ruby code:
+    Rails.autoloaders.main.ignore("#{config.root}/lib/schema_browser/Template")
+
     config.action_mailer.delivery_method = :smtp
     smtp_fname = config.root.join('config', 'smtp_settings.yml')
     if File.exist?(smtp_fname)

@@ -1,6 +1,6 @@
 require 'date'
 require 'possibly'
-require_relative 'central_logger'
+#require_relative 'central_logger'
 require_relative 'amino_acids'
 module Import
   # This class forms the core intermediary between raw records coming in, and formatted records
@@ -11,7 +11,7 @@ module Import
   # However, each genotype also contains all the information available about test and result
   # level fields, so that the storage processor can match and create the appropriate tables
   class Genotype
-    include AminoAcid
+    include AminoAcids
     def initialize(raw_record, attribute_map = {})
       @pseudo_id1 = raw_record.pseudo_id1
       @pseudo_id2 = raw_record.pseudo_id2

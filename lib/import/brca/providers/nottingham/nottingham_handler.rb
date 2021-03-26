@@ -1,6 +1,6 @@
-require 'import/genotype'
-require 'core/provider_handler'
-require 'import/extraction_utilities'
+#require 'import/genotype'
+#require 'core/provider_handler'
+#require 'import/extraction_utilities'
 require 'possibly'
 
 module Import

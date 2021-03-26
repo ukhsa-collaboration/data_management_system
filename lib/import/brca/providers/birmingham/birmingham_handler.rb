@@ -1,9 +1,9 @@
 require 'possibly'
-require 'import/genotype'
-require 'import/storage_manager/persister'
-require 'core/provider_handler'
+#require 'import/genotype'
+#require 'import/storage_manager/persister'
+#require 'core/provider_handler'
 require 'pry'
-require 'import/extraction_utilities'
+#require 'import/extraction_utilities'
 
 module Import
   module Brca

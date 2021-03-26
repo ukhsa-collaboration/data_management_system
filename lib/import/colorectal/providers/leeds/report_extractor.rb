@@ -1,4 +1,4 @@
-require 'import/central_logger'
+#require 'import/central_logger'
 
 module Import
   include ExtractionUtilities

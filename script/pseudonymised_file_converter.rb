@@ -1,10 +1,12 @@
+require File.expand_path('../../config/application', __FILE__)
+
 require 'optparse'
 require 'pry'
-require 'import/central_logger'
-require 'import/utility/pseudonymised_file_wrapper'
+#require 'import/central_logger'
+#require 'import/utility/pseudonymised_file_wrapper'
 
 # This is run as a standalone, so it does not tie in to the central logger
-logger = Log.get_auxiliary_logger
+logger = Import::Log.get_auxiliary_logger
 options = { mode: :pretty_write,
             direction: :horizontal,
             include_name: true,

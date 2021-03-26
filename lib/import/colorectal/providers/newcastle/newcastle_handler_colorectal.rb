@@ -1,9 +1,9 @@
 require 'pry'
-require 'import/genotype'
-require 'import/brca/core/provider_handler'
+#require 'import/genotype'
+#require 'import/brca/core/provider_handler'
 require 'possibly'
-require 'import/extraction_utilities'
-require 'import/colorectal/providers/newcastle/newcastle_storage_manager'
+#require 'import/extraction_utilities'
+#require 'import/colorectal/providers/newcastle/newcastle_storage_manager'
 
 module Import
   module Colorectal

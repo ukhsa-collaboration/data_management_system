@@ -1,7 +1,7 @@
-require 'import/genotype'
-require 'import/colorectal/core/genotype_mmr'
-require 'import/brca/core/provider_handler'
-require 'import/extraction_utilities'
+#require 'import/genotype'
+#require 'import/colorectal/core/genotype_mmr'
+#require 'import/brca/core/provider_handler'
+#require 'import/extraction_utilities'
 require 'possibly'
 
 module Import
