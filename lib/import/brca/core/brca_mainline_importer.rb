@@ -4,10 +4,10 @@ require 'json'
 require 'pry'
 require 'csv'
 
-folder = File.expand_path('../', __dir__)
-$LOAD_PATH.unshift(folder) unless $LOAD_PATH.include?(folder)
+# folder = File.expand_path('../', __dir__)
+# $LOAD_PATH.unshift(folder) unless $LOAD_PATH.include?(folder)
 
-require 'core/brca'
+require 'import/brca/core/brca'
 require 'import/brca/core/brca_handler_mapping'
 require 'import/central_logger'
 require 'import/import_key'

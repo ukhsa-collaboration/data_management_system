@@ -22,6 +22,8 @@ module Mbis
     # config.i18n.load_path += Dir[Rails.root.join('my', 'locales', '*.{rb,yml}').to_s]
     # config.i18n.default_locale = :de
 
+    config.autoloader = :zeitwerk
+
     # Dump the schema as SQL, rather than Rails migration DSL:
     config.active_record.schema_format = :sql
 
@@ -31,6 +33,10 @@ module Mbis
     # Ideally, we'd just eager_load the lib/ directory, but BRCA code prevents this.
     # Instead, we allow lib/ to autoload, than manually enable autoloading in production.
     config.autoload_paths += %W[#{config.root}/lib]
+    #config.eager_load_paths += %W[#{config.root}/lib]
+    config.eager_load_paths += %W[
+      #{config.root}/lib
+    ]
     config.enable_dependency_loading = true
 
     config.action_mailer.delivery_method = :smtp
