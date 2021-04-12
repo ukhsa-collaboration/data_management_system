@@ -46,7 +46,7 @@ gem 'pry'
 gem 'ndr_support', '~> 5.7.1'
 gem 'ndr_import'
 gem 'ndr_error', '~> 2.0'
-gem 'ndr_workflow', '1.1.6'
+gem 'ndr_workflow', '~> 1.2', '>= 1.2.2'
 gem 'ndr_ui'
 gem 'activemodel-caution', tag: 'rails_6_0_3_5', git: 'https://github.com/PublicHealthEngland/activemodel-caution.git'
 gem 'ndr_pseudonymise', '~> 0.2.6'
@@ -63,19 +63,22 @@ gem 'nokogiri', '~> 1.11'
 gem 'jquery-rails'
 gem 'jquery-ui-rails'
 
+group :test do
+  gem 'simplecov'
+
+  gem 'minitest'
+
+  gem 'mocha'
+  gem "capistrano", ">= 2.5.0", "< 3.0", :require => false # Capistrano 3.0 has some potentially incompatible changes. Leave version unchanged until move to Rails 3 complete
+  gem 'capybara-email'
+end
+
 group :development, :test do
   gem 'pry-rails'
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug'
   gem 'ndr_dev_support', '~> 6.0'
   # gem 'ndr_dev_support', branch: 'flakey_tests', git: 'https://github.com/PublicHealthEngland/ndr_dev_support.git'
-
-  gem 'minitest'
-
-  gem 'simplecov'
-  gem 'mocha'
-  gem 'capybara-email'
-  gem 'capistrano', '~> 2.15.7'
 end
 
 group :development do

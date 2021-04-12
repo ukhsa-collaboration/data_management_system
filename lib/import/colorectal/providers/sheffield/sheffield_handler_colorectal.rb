@@ -1,6 +1,3 @@
-require 'import/central_logger'
-require 'import/brca/core/extraction_utilities'
-require 'import/brca/core/provider_handler'
 require 'pry'
 require 'possibly'
 
@@ -288,7 +285,7 @@ module Import
                       |gene, variant|
                       genocolorectal2 = genocolorectal.dup_colo
                       genocolorectal2.add_gene_colorectal(gene.join)
-                      genocolorectal2.add_gene_location(variant.join.compact)
+                      genocolorectal2.add_gene_location(variant.compact.join)
                       genotypes.append(genocolorectal2)
                     end
                   end
@@ -307,7 +304,7 @@ module Import
                     |gene, variant|
                     genocolorectal2 = genocolorectal.dup_colo
                     genocolorectal2.add_gene_colorectal(gene.join)
-                    genocolorectal2.add_gene_location(variant.join.compact)
+                    genocolorectal2.add_gene_location(variant.compact.join)
                     genotypes.append(genocolorectal2)
                   end
                 end

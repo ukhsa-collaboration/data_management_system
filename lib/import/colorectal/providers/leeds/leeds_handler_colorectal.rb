@@ -1,6 +1,4 @@
-require 'import/genotype'
-require 'import/colorectal/providers/leeds/report_extractor'
-require 'import/brca/core/provider_handler'
+# require_relative 'report_extractor'
 require 'pry'
 
 module Import
@@ -62,6 +60,7 @@ module Import
                                                 PTEN|
                                                 SMAD4|
                                                 STK11|
+                                                GREM1|
                                                 NTHL1)/xi . freeze # Added by Francesco
           PATHVAR_REGEX = /((?<homohet>heterozygous|homozygous)[\w\s]+{0,2})?
                           (?<genes>APC|BMPR1A|EPCAM|GREM1|MLH1|MSH2|MSH6|MUTYH|NTHL1|PMS2|
@@ -94,7 +93,7 @@ module Import
 
           PATH_TWOGENES_VARIANTS = /((heterozygous)?[\s\w]{2,})(?<path>pathogenic).(?<genes>APC|BMPR1A|
                                  EPCAM|
-                                 MLH1|MSH2|MSH6|MUTYH|PMS2|POLD1|POLE|PTEN|SMAD4|STK11|NTHL1).(sequence)?
+                                 MLH1|MSH2|MSH6|MUTYH|PMS2|POLD1|POLE|PTEN|SMAD4|STK11|GREM1|NTHL1).(sequence)?
                                  (mutation|variant)?.c\.(?<cdna>[0-9]+[A-Z]+>[A-Z]+|[0-9]+_[0-9]+[a-z]+|
                                  [0-9]+[a-z]+|[0-9]+[\W][0-9]+[a-z]+>[a-z]+|
                                  [0-9]+_[0-9]+[\W][0-9]+[a-z]+[0-9]+_[0-9]+[a-z]+|
@@ -102,21 +101,21 @@ module Import
                                  [0-9]+[\W][0-9]+[a-z]+|[0-9]+[\W][0-9]+_[0-9]+[\W][0-9]+[a-z]+|
                                  [\W][0-9]+[a-z]+>[a-z]+).+(heterozygous)?[\s\w]{2,}
                                  (?<genes2>APC|BMPR1A|EPCAM|MLH1|MSH2|MSH6|MUTYH|PMS2|POLD1|POLE|PTEN|
-                                 SMAD4|STK11|NTHL1)[\s\w]{2,}
+                                 SMAD4|STK11|GREM1|NTHL1)[\s\w]{2,}
                                  c\.(?<cdna2>[0-9]+[A-Z]+>[A-Z]+|[0-9]+_[0-9]+[a-z]+|[0-9]+[a-z]+|
                                  [0-9]+[\W][0-9]+[a-z]+>[a-z]+|
                                  [0-9]+_[0-9]+[\W][0-9]+[a-z]+[0-9]+_[0-9]+[a-z]+|
                                  [0-9]+[\W][0-9]+_[0-9]+[a-z]+|[0-9]+[\W][0-9]+[a-z]+|
                                  [0-9]+[\W][0-9]+_[0-9]+[\W][0-9]+[a-z]+|[\W][0-9]+[a-z]+>[a-z]+)|
                                  (?<genes>APC|BMPR1A|EPCAM|MLH1|MSH2|MSH6|MUTYH|PMS2|POLD1|POLE|PTEN|
-                                 SMAD4|STK11|NTHL1)[\s\w]{2,}.c\.(?<cdna>[0-9]+[A-Z]+>[A-Z]+|
+                                 SMAD4|STK11|GREM1|NTHL1)[\s\w]{2,}.c\.(?<cdna>[0-9]+[A-Z]+>[A-Z]+|
                                  [0-9]+_[0-9]+[a-z]+|[0-9]+[a-z]+|[0-9]+[\W][0-9]+[a-z]+>[a-z]+|
                                  [0-9]+_[0-9]+[\W][0-9]+[a-z]+[0-9]+_[0-9]+[a-z]+|
                                  [0-9]+[\W][0-9]+_[0-9]+[a-z]+|[0-9]+[\W][0-9]+[a-z]+|
                                  [0-9]+[\W][0-9]+_[0-9]+[\W][0-9]+[a-z]+|
                                  [\W][0-9]+[a-z]+>[a-z]+).+(heterozygous)?[\s\w]{2,}
                                  (?<genes2>APC|BMPR1A|EPCAM|MLH1|MSH2|MSH6|MUTYH|PMS2|POLD1|POLE|PTEN|
-                                 SMAD4|STK11|NTHL1)[\s\w]{2,}c\.(?<cdna2>[0-9]+[A-Z]+>[A-Z]+|
+                                 SMAD4|STK11|GREM1|NTHL1)[\s\w]{2,}c\.(?<cdna2>[0-9]+[A-Z]+>[A-Z]+|
                                  [0-9]+_[0-9]+[a-z]+|[0-9]+[a-z]+|[0-9]+[\W][0-9]+[a-z]+>[a-z]+|
                                  [0-9]+_[0-9]+[\W][0-9]+[a-z]+[0-9]+_[0-9]+[a-z]+|
                                  [0-9]+[\W][0-9]+_[0-9]+[a-z]+|[0-9]+[\W][0-9]+[a-z]+|
@@ -143,19 +142,19 @@ module Import
           NO_DEL_REGEX = /this patient does not have the deletion/i .freeze
           NOMUT_REGEX = /(?<notmut>No mutations were identified in|this patient does not have|has not identified any mutations in this patient|no mutation has been identified|no evidence of a deletion or duplication)|not detected in this patient|did not identify/i .freeze
           EXON_ALTERNATIVE_REGEX = /(heterozygous)?[\s\w]{2,} (?<pathogenic>pathogenic)? (?<genes>APC|BMPR1A|EPCAM|MLH1|MSH2|MSH6|MUTYH|PMS2|POLD1|
-                                    POLE|PTEN|SMAD4|STK11|NTHL1) (?<delmut>deletion|mutation|inversion|duplication)[\s\w]{2,}(?<exons>exon(s).[0-9]+(.?)[0-9]+?)|
+                                    POLE|PTEN|SMAD4|STK11|GREM1|NTHL1) (?<delmut>deletion|mutation|inversion|duplication)[\s\w]{2,}(?<exons>exon(s).[0-9]+(.?)[0-9]+?)|
                                     (pathogenic)? (?<genes>APC|BMPR1A|EPCAM|MLH1|MSH2|MSH6|MUTYH|PMS2|POLD1|
-                                    POLE|PTEN|SMAD4|STK11|NTHL1)[\w\s]{0,2}(?<invdupdel>inversion|duplication|deletion)\s[\w\s]+{0,2}(?<exons>exon(s).[0-9]+(.?)[0-9]+?)|
+                                    POLE|PTEN|SMAD4|STK11|GREM1|NTHL1)[\w\s]{0,2}(?<invdupdel>inversion|duplication|deletion)\s[\w\s]+{0,2}(?<exons>exon(s).[0-9]+(.?)[0-9]+?)|
                                     (pathogenic)? (?<invdupdel>inversion|duplication|deletion)\s[\w\s]+{0,2}(?<exons>exon(s).[0-9]+(.?)[0-9]+?) ([\w\s]+)?
                                     (?<genes>APC|BMPR1A|EPCAM|MLH1|MSH2|MSH6|MUTYH|PMS2|POLD1|
-                                    POLE|PTEN|SMAD4|STK11|NTHL1)[\w\s]{0,2}?|(familial)? pathogenic deletion of 
+                                    POLE|PTEN|SMAD4|STK11|GREM1|NTHL1)[\w\s]{0,2}?|(familial)? pathogenic deletion of 
                                     (?<genes>APC|BMPR1A|EPCAM|MLH1|MSH2|MSH6|MUTYH|PMS2|POLD1|
-                                    POLE|PTEN|SMAD4|STK11|NTHL1) (?<delmut>deletion|mutation|inversion|duplication)[\s\w]{2,}
+                                    POLE|PTEN|SMAD4|STK11|GREM1|NTHL1) (?<delmut>deletion|mutation|inversion|duplication)[\s\w]{2,}
                                     (?<exons>exon(s).[0-9]+(.?)[0-9]+?)|(familial)? pathogenic (?<genes>APC|BMPR1A|EPCAM|MLH1|MSH2|MSH6|MUTYH|PMS2|POLD1|
-                                    POLE|PTEN|SMAD4|STK11|NTHL1) (?<delmut>deletion|mutation|inversion|duplication)/ix .freeze
+                                    POLE|PTEN|SMAD4|STK11|GREM1|NTHL1) (?<delmut>deletion|mutation|inversion|duplication)/ix .freeze
 
           def initialize(batch)
-            @extractor = Import::Colorectal::Providers::Leeds::GenotypeAndReportExtractor.new
+            @extractor = ReportExtractor::GenotypeAndReportExtractor.new
             @negative_test = 0 # Added by Francesco
             @positive_test = 0 # Added by Francesco
             super
