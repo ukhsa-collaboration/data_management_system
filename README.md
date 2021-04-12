@@ -143,7 +143,7 @@ state must be for user to make that change).
 
 ### Background Processing
 DMS uses ActiveJob for asyncronous/background processing. This is configured to use `delayed_job`
-as its backend (development/production only) and like Webpacker, it is reliant upon an additional,
+as its backend (development/production only) and is reliant upon an additional,
 external process to be started. There is a binstub for controlling this process (`bin/delayed_job`):
 
 - Start the process in the background:
