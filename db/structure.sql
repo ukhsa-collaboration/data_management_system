@@ -3278,7 +3278,6 @@ CREATE TABLE public.projects (
     onwardly_share boolean DEFAULT false,
     onwardly_share_detail text,
     data_already_held_detail text,
-    programme_support boolean DEFAULT false,
     programme_support_detail text,
     scrn_id character varying,
     programme_approval_date timestamp without time zone,
@@ -7935,6 +7934,8 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20210312171649'),
 ('20210315142901'),
 ('20210316142127'),
-('20210331115138');
+('20210331115138'),
+('20210408152005'),
+('20210414134929');
 
 

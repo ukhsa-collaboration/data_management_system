@@ -447,3 +447,13 @@ developer:
   first_name: Super
   last_name: User
   z_user_status: active_user_status
+
+non_phe_user:
+  email: test@test.com
+  first_name: test
+  last_name: Access-Dataset-Approver
+  z_user_status: active_user_status
+  location: Cambridge
+  username: test_test
+  directorate_id: 1
+  division_id: 1
