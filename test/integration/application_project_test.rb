@@ -37,7 +37,7 @@ class ApplicationProjectTest < ActionDispatch::IntegrationTest
     click_button 'Reject DPIA'
     assert_emails 1 do
       within_modal(selector: '#modal-dpia_rejected') do
-        select @user.full_name, from: 'project[assigned_user_id]'
+        select @user.full_name, from: 'project[project_state][assigned_user_id]'
         fill_in 'project_comments_attributes_0_body', with: 'not today!'
         click_button 'Save'
       end
@@ -72,7 +72,7 @@ class ApplicationProjectTest < ActionDispatch::IntegrationTest
     click_button('Send for Moderation')
     assert_emails 1 do
       within_modal(selector: '#modal-dpia_moderation') do
-        select @senior.full_name, from: 'project[assigned_user_id]'
+        select @senior.full_name, from: 'project[project_state][assigned_user_id]'
         fill_in 'project_comments_attributes_0_body', with: 'looks good'
         click_button 'Save'
       end
@@ -329,7 +329,7 @@ class ApplicationProjectTest < ActionDispatch::IntegrationTest
   def reassign_for_moderation_to(user)
     click_button 'Send for Peer Review'
     within_modal(selector: '#modal-dpia_review') do
-      select user.full_name, from: 'project[assigned_user_id]'
+      select user.full_name, from: 'project[project_state][assigned_user_id]'
       click_button 'Save'
     end
 

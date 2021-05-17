@@ -306,15 +306,19 @@ module Workflow
         can :create, ProjectState, state: { id: %w[DPIA_REJECTED] },
                                    project: {
                                      project_type: { name: 'Application' },
-                                     assigned_user_id: @user.id,
-                                     current_state: { id: 'DPIA_REVIEW' }
+                                     current_project_state: {
+                                       state_id: 'DPIA_REVIEW',
+                                       assigned_user_id: @user.id
+                                     }
                                    }
 
         can :create, ProjectState, state: { id: %w[DPIA_MODERATION] },
                                    project: {
                                      project_type: { name: 'Application' },
-                                     assigned_user_id: @user.id,
-                                     current_state: { id: 'DPIA_REVIEW' }
+                                     current_project_state: {
+                                       state_id: 'DPIA_REVIEW',
+                                       assigned_user_id: @user.id
+                                     }
                                    }
 
         can :create, ProjectState, state: { id: 'AMEND' },
@@ -394,15 +398,19 @@ module Workflow
         can :create, ProjectState, state: { id: %w[DPIA_REJECTED] },
                                    project: {
                                      project_type: { name: 'Application' },
-                                     assigned_user_id: @user.id,
-                                     current_state: { id: 'DPIA_MODERATION' }
+                                     current_project_state: {
+                                       state_id: 'DPIA_MODERATION',
+                                       assigned_user_id: @user.id
+                                     }
                                    }
 
         can :create, ProjectState, state: { id: %w[CONTRACT_DRAFT] },
                                    project: {
                                      project_type: { name: 'Application' },
-                                     assigned_user_id: @user.id,
-                                     current_state: { id: 'DPIA_MODERATION' }
+                                     current_project_state: {
+                                       state_id: 'DPIA_MODERATION',
+                                       assigned_user_id: @user.id
+                                     }
                                    }
         can :create, ProjectState, state: { id: %w[
                                                   DPIA_START

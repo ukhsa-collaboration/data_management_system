@@ -21,11 +21,9 @@ class ProjectsNotifier
       )
     end
 
-    def project_dpia_updated(project:, status:, id_of_user_to_notify:, comment: nil)
+    def project_dpia_updated(project:, status:, user_to_notify:, comment: nil)
       return unless status.in? %w[DPIA_REJECTED DPIA_MODERATION]
-      return unless id_of_user_to_notify
-
-      user_to_notify = User.find(id_of_user_to_notify)
+      return unless user_to_notify
 
       if status == 'DPIA_REJECTED'
         return unless user_to_notify&.application_manager?
