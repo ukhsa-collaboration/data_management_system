@@ -44,5 +44,18 @@ module Workflow
 
       refute_includes @assignment.errors.details[:assigning_user], error: :blank
     end
+
+    test 'triggers a project to refresh cached state information on commit' do
+      project_state = @assignment.project_state
+      project       = @assignment.project
+
+      project.expects(:refresh_workflow_state_information)
+
+      Assignment.create(
+        project_state: project_state,
+        assigned_user: users(:application_manager_two),
+        assigning_user: users(:application_manager_one)
+      )
+    end
   end
 end

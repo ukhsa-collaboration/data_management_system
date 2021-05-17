@@ -10,6 +10,8 @@ module Workflow
       belongs_to :assigning_user, optional: true
     end
 
+    after_commit -> { project.refresh_workflow_state_information }
+
     delegate :project, to: :project_state, allow_nil: true
   end
 end

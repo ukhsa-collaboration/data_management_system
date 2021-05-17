@@ -156,6 +156,27 @@ module Workflow
       end
     end
 
+    test 'refreshes cached workflow state information' do
+      @project.transition_to!(workflow_states(:step_one))
+
+      assert_changes -> { @project.current_state } do
+        assert_changes -> { @project.current_project_state } do
+          assert_changes -> { @project.transitionable_states.count } do
+            @project.project_states.create!(state: workflow_states(:step_two))
+
+            @project.refresh_workflow_state_information
+          end
+        end
+      end
+    end
+
+    test 'refreshes cached workflow state information on transition' do
+      state = workflow_states(:step_one)
+
+      @project.expects(:refresh_workflow_state_information)
+      @project.transition_to(state)
+    end
+
     test 'should publish state changes' do
       state   = workflow_states(:step_one)
       payload = { project: @project, transition: [@project.current_state, state] }

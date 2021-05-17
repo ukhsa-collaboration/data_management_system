@@ -94,6 +94,12 @@ module Workflow
       previous_state&.state_id
     end
 
+    def refresh_workflow_state_information
+      reload_current_state
+      reload_current_project_state
+      transitionable_states.reset
+    end
+
     private
 
     # To set specific critera for a given state, define
@@ -112,8 +118,7 @@ module Workflow
 
     def refresh_current_state(*)
       yield
-      reload_current_state
-      transitionable_states.reset
+      refresh_workflow_state_information
     end
 
     # Use pub/sub to provide a means for any interested parties to respond to the change of state.
