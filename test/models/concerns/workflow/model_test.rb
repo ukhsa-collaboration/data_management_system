@@ -186,6 +186,7 @@ module Workflow
       @project.transition_to(state)
     end
 
+    # FIXME: This test is failing in isolation. Related to changes introduced in #22203 ?
     test 'returning to draft should reset approvals' do
       project = projects(:rejected_project)
       assert_changes -> { project.details_approved }, from: false, to: nil do
