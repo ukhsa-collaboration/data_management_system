@@ -27,6 +27,10 @@ module Workflow
       assert_instance_of State, @project.transitionable_states.first
     end
 
+    test 'should have a temporally_assigned_user delegate' do
+      assert_equal users(:standard_user1), @project.temporally_assigned_user
+    end
+
     test 'transitionable_states should be scoped to project type' do
       Transition.create(
         project_type: project_types(:project),

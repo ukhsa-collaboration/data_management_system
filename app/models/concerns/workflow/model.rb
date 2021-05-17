@@ -39,6 +39,9 @@ module Workflow
       after_transition_to  :reset_approval_fields
 
       validate :ensure_ready_for_transition, on: :transition
+
+      delegate :assigned_user, to: :current_project_state,    prefix: 'temporally'
+      delegate :full_name,     to: :temporally_assigned_user, prefix: true, allow_nil: true
     end
 
     def initialize_workflow(user = nil)

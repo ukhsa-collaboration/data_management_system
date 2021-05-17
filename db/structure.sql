@@ -4016,13 +4016,21 @@ CREATE VIEW public.workflow_current_project_states AS
     t.project_id,
     p.state_id,
     p.user_id,
+    u.assigned_user_id,
+    u.assigning_user_id,
     p.created_at,
     p.updated_at
-   FROM (( SELECT workflow_project_states.project_id,
+   FROM ((( SELECT workflow_project_states.project_id,
             max(workflow_project_states.id) AS id
            FROM public.workflow_project_states
           GROUP BY workflow_project_states.project_id) t
-     LEFT JOIN public.workflow_project_states p ON ((p.id = t.id)));
+     LEFT JOIN public.workflow_project_states p ON ((p.id = t.id)))
+     LEFT JOIN LATERAL ( SELECT workflow_assignments.assigned_user_id,
+            workflow_assignments.assigning_user_id
+           FROM public.workflow_assignments
+          WHERE (workflow_assignments.project_state_id = t.id)
+          ORDER BY workflow_assignments.id DESC
+         LIMIT 1) u ON (true));
 
 
 --
@@ -8027,6 +8035,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20210408152005'),
 ('20210414134929'),
 ('20210415143021'),
-('20210513095643');
+('20210513095643'),
+('20210514110933');
 
 
