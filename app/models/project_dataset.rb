@@ -10,6 +10,8 @@ class ProjectDataset < ApplicationRecord
                                      roleable_id: DatasetRole.fetch(:approver).id }
   }, class_name: 'Grant'
   has_many :approvers, through: :approver_grants, class_name: 'User', source: :user
+  has_many :project_dataset_levels, dependent: :destroy
+  accepts_nested_attributes_for :project_dataset_levels
 
   # Allow for auditing/version tracking of TeamDataSource
   has_paper_trail
