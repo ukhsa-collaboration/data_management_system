@@ -1,11 +1,10 @@
-    <div class='row form-group'>
-      <label class="control-label col-md-3" for="project_start_date">Data already held for this project / purpose ?</label>
-      <div class='col-md-3'>
-        <%= form.select :data_already_held_for_project, [['Yes',true],['No',false]], {include_blank: true, required: true} %>
-      </div>
+  <div class='row form-group'>
+    <label class="control-label col-md-3" for="project_start_date">Data already held for this project / purpose ?</label>
+    <div class='col-md-3'>
+      <%= form.select :data_already_held_for_project, [['Yes',true],['No',false]], {include_blank: true, required: true} %>
     </div>
-    <%= render 'projects/project_owner_grant', form: form %>
-  </fieldset>
+  </div>
+  <%= render 'projects/project_owner_grant', form: form %>
 
   <fieldset>
 	<legend>Data specification</legend>
