@@ -99,7 +99,10 @@ class ProjectsController < ApplicationController
 
   def new
     @project.project_type ||= ProjectType.find_by(name: 'Project')
-    @project.build_cas_application_fields if @project.project_type_name == 'CAS'
+    if @project.project_type_name == 'CAS'
+      @project.build_cas_application_fields
+      @available_datasets = Dataset.cas_extras.dataset_with_available_levels
+    end
     @project.add_default_dataset
     @full_form = true
   end
@@ -112,6 +115,7 @@ class ProjectsController < ApplicationController
       @project = @team.projects.build(project_params)
       @project.send(:add_current_user_as_contributor, current_user)
     end
+    binding.pry
     @project.initialize_workflow(current_user)
 
     if @project.save
@@ -317,8 +321,11 @@ class ProjectsController < ApplicationController
                                     dataset_ids: [],
                                     owner_grant_attributes: %i[id user_id project_id
                                                                roleable_id roleable_type],
-                                    project_datasets_attributes: %i[id project_id dataset_id
-                                                                    terms_accepted _destroy],
+                                    project_datasets_attributes: [:id, :project_id, :dataset_id,
+                                                                  :terms_accepted, :_destroy,
+                                                                  project_dataset_levels_attributes:
+                                                                  [:id, :project_dataset_id, :level,
+                                                                   :expiry_date]],
                                     project_attachments_attributes: %i[name attachment],
                                     # CAS
                                     cas_application_fields_attributes: cas_fields)

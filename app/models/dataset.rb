@@ -59,8 +59,8 @@ class Dataset < ApplicationRecord
       where(filters.first).or(where(filters.last))
     end
 
-    def dataset_with_available_levels(scope)
-      datasets = Dataset.send(scope).pluck(:name, :levels)
+    def dataset_with_available_levels
+      datasets = pluck(:name, :levels)
       datasets.map do |dataset|
         available_levels = [1, 2, 3].map { |level| (level.in? dataset.last) ? level : nil }
         [dataset.first, available_levels]
