@@ -107,13 +107,16 @@ class ProjectsController < ApplicationController
   # POST /projects
   def create
     # TODO: can we do this elsewhere
+    @project = Project.new(cas_params) if @project.project_type_name == 'CAS'
+
     unless @project.project_type_name == 'CAS'
       @team = @project.team
       @project = @team.projects.build(project_params)
       @project.send(:add_current_user_as_contributor, current_user)
     end
-    binding.pry
-    raise
+
+    # binding.pry
+    # raise
     @project.initialize_workflow(current_user)
 
     if @project.save
@@ -260,6 +263,9 @@ class ProjectsController < ApplicationController
     params.permit(:data_source_id)
   end
 
+  def cas_params
+    CasDatasetLevel.new(project_params).call
+  end
   # Only allow a trusted parameter 'white list' through.
   def project_params
     params.require(:project).permit(:alternative_data_access_address,
