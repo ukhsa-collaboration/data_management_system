@@ -27,6 +27,37 @@ SET default_tablespace = '';
 SET default_with_oids = false;
 
 --
+-- Name: access_levels; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.access_levels (
+    id bigint NOT NULL,
+    value character varying,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: access_levels_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.access_levels_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: access_levels_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.access_levels_id_seq OWNED BY public.access_levels.id;
+
+
+--
 -- Name: addresses; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -2933,8 +2964,8 @@ ALTER SEQUENCE public.project_data_source_items_id_seq OWNED BY public.project_d
 
 CREATE TABLE public.project_dataset_levels (
     id bigint NOT NULL,
-    project_dataset_id integer,
-    level integer,
+    project_dataset_id bigint,
+    access_level_id integer,
     expiry_date date,
     approved boolean
 );
@@ -4410,6 +4441,13 @@ CREATE TABLE public.zuser (
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
+ALTER TABLE ONLY public.access_levels ALTER COLUMN id SET DEFAULT nextval('public.access_levels_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
 ALTER TABLE ONLY public.addresses ALTER COLUMN id SET DEFAULT nextval('public.addresses_id_seq'::regclass);
 
 
@@ -5125,6 +5163,14 @@ ALTER TABLE ONLY public.z_team_statuses ALTER COLUMN id SET DEFAULT nextval('pub
 --
 
 ALTER TABLE ONLY public.z_user_statuses ALTER COLUMN id SET DEFAULT nextval('public.z_user_statuses_id_seq'::regclass);
+
+
+--
+-- Name: access_levels_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.access_levels
+    ADD CONSTRAINT access_levels_pkey PRIMARY KEY (id);
 
 
 --
@@ -6500,6 +6546,13 @@ CREATE INDEX index_project_data_source_items_on_data_source_item_id ON public.pr
 --
 
 CREATE INDEX index_project_data_source_items_on_project_id ON public.project_data_source_items USING btree (project_id);
+
+
+--
+-- Name: index_project_dataset_levels_on_project_dataset_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_project_dataset_levels_on_project_dataset_id ON public.project_dataset_levels USING btree (project_dataset_id);
 
 
 --
@@ -8112,6 +8165,8 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20210506093309'),
 ('20210518103646'),
 ('20210518150518'),
-('20210519144851');
+('20210519161222'),
+('20210519161356'),
+('20210521102230');
 
 
