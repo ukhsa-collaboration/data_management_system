@@ -60,10 +60,8 @@ class Dataset < ApplicationRecord
     end
 
     def dataset_with_available_levels
-      datasets = pluck(:name, :levels)
-      datasets.map do |dataset|
-        available_levels = [1, 2, 3].map { |level| (level.in? dataset.last) ? level : nil }
-        [dataset.first, available_levels]
+      self.all.map do |dataset|
+        [dataset, Lookups::AccessLevel.where(id: dataset.levels)]
       end
     end
 

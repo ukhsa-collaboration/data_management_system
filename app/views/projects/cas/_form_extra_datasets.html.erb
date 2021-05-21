@@ -1,25 +1,23 @@
 <h1>TEST</h1>
 <fieldset>
   <table class="table table-hover">
-    <thead>
-      <tr>
-        <th>Dataset name</th>
-        <th>1</th>
-        <th>2</th>
-        <th>3</th>
-      </tr>
-    </thead>
     <tbody>
       <!-- TODO: You might need to redefine the matrix returned so that it returns dataset as a class -->
-      <% Dataset.cas.each do |dataset| %>
+      <!-- [
+        { Dataset.first => [Lookup::DatasetLevel.where(value: [1,2]) ] },
+        { Dataset.second => [Lookup::DatasetLevel.where(value: [2,3])  },
+        { Dataset.third => [Lookup::DatasetLevel.where(value: [1,2, 3])  }
+      ] -->
+      <% Dataset.cas_extras.dataset_with_available_levels.each do |dataset, levels| %>
         <%= form.fields_for :project_datasets, @project.project_datasets.build do |pd| %>
           <tr>
           <%= pd.hidden_field :dataset_id, value: dataset.id %>
           <td><%= dataset.name %></td>
-          <%= pd.collection_check_boxes(:access_level_ids, Lookups::AccessLevel.all, :id, :value) do |b| %>
+          <!-- TODO: build the empty TD cell -->
+          <%= pd.collection_check_boxes(:access_level_ids, levels, :id, :value) do |b| %>
           <td>
             <div class="checkbox">
-              <%= b.label { b.check_box } %>
+              <%= b.label { b.check_box + b.text } %>
             </div>
           </td>
           <% end %>
