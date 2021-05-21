@@ -2,6 +2,14 @@
 <fieldset>
   <table class="table table-hover">
     <tbody>
+      <thead>
+        <tr>
+          <th>Dataset name</th>
+          <th>1</th>
+          <th>2</th>
+          <th>3</th>
+        </tr>
+      </thead>
       <!-- TODO: You might need to redefine the matrix returned so that it returns dataset as a class -->
       <!-- [
         { Dataset.first => [Lookup::DatasetLevel.where(value: [1,2]) ] },
@@ -16,8 +24,9 @@
           <!-- TODO: build the empty TD cell -->
           <%= pd.collection_check_boxes(:access_level_ids, levels, :id, :value) do |b| %>
           <td>
+            <div><%= b.text %></div>
             <div class="checkbox">
-              <%= b.label { b.check_box + b.text } %>
+              <%= b.label { b.check_box } %>
             </div>
           </td>
           <% end %>
