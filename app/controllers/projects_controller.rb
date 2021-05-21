@@ -112,6 +112,8 @@ class ProjectsController < ApplicationController
       @project = @team.projects.build(project_params)
       @project.send(:add_current_user_as_contributor, current_user)
     end
+    binding.pry
+    raise
     @project.initialize_workflow(current_user)
 
     if @project.save
@@ -317,8 +319,11 @@ class ProjectsController < ApplicationController
                                     dataset_ids: [],
                                     owner_grant_attributes: %i[id user_id project_id
                                                                roleable_id roleable_type],
-                                    project_datasets_attributes: %i[id project_id dataset_id
-                                                                    terms_accepted _destroy],
+                                    project_datasets_attributes: [
+                                                                   :id, :project_id, :dataset_id,
+                                                                   :terms_accepted, :_destroy,
+                                                                   project_dataset_levels_attributes: %i[level]
+                                                                 ],
                                     project_attachments_attributes: %i[name attachment],
                                     # CAS
                                     cas_application_fields_attributes: cas_fields)

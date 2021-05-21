@@ -10,6 +10,7 @@
     <%= bootstrap_form_for @project, horizontal: true, remote: remote, readonly: readonly do |form| %>
       <%= form.error_and_warning_alert_boxes %>
       <%= form.hidden_field(:project_type_id) %>
+      <%= render partial: 'projects/cas/form_extra_datasets', locals: { form: form } %>
 
       <%= form.fields_for :owner_grant, @project.owner_grant || Grant.new do |builder| %>
         <%= builder.hidden_field :user_id, value: current_user.id %>
@@ -21,7 +22,7 @@
         <%= render partial: 'projects/cas/form_permissions_section',       locals: { form: cas } %>
       <% end %>
 
-      <%= render partial: 'projects/cas/form_extra_datasets', locals: { form: form } %>
+
 
       <%= form.fields_for :cas_application_fields do |cas| %>
         <% if !@project.persisted? || @project.owner == current_user %>

@@ -133,8 +133,8 @@ ALTER SEQUENCE public.amendment_types_id_seq OWNED BY public.amendment_types.id;
 CREATE TABLE public.ar_internal_metadata (
     key character varying NOT NULL,
     value character varying,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
 );
 
 
@@ -2146,13 +2146,13 @@ CREATE TABLE public.molecular_data (
     providercode text,
     practitionercode text,
     patienttype text,
-    moleculartestingtype integer,
     requesteddate date,
     collecteddate date,
     receiveddate date,
     authoriseddate date,
     indicationcategory integer,
     clinicalindication text,
+    moleculartestingtype integer,
     organisationcode_testresult text,
     servicereportidentifier text,
     specimentype integer,
@@ -2726,12 +2726,12 @@ CREATE TABLE public.project_attachments (
     comments character varying,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    attachment_contents bytea,
-    digest character varying,
     attachment_file_name character varying,
     attachment_content_type character varying,
     attachment_file_size integer,
     attachment_updated_at timestamp without time zone,
+    attachment_contents bytea,
+    digest character varying,
     workflow_project_state_id bigint,
     attachable_type character varying,
     attachable_id bigint
@@ -2923,6 +2923,38 @@ CREATE SEQUENCE public.project_data_source_items_id_seq
 --
 
 ALTER SEQUENCE public.project_data_source_items_id_seq OWNED BY public.project_data_source_items.id;
+
+
+--
+-- Name: project_dataset_levels; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.project_dataset_levels (
+    id bigint NOT NULL,
+    project_dataset_id bigint,
+    level integer,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: project_dataset_levels_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.project_dataset_levels_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: project_dataset_levels_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.project_dataset_levels_id_seq OWNED BY public.project_dataset_levels.id;
 
 
 --
@@ -4852,6 +4884,13 @@ ALTER TABLE ONLY public.project_data_source_items ALTER COLUMN id SET DEFAULT ne
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
+ALTER TABLE ONLY public.project_dataset_levels ALTER COLUMN id SET DEFAULT nextval('public.project_dataset_levels_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
 ALTER TABLE ONLY public.project_datasets ALTER COLUMN id SET DEFAULT nextval('public.project_datasets_id_seq'::regclass);
 
 
@@ -5671,6 +5710,14 @@ ALTER TABLE ONLY public.project_data_source_items
 
 
 --
+-- Name: project_dataset_levels_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.project_dataset_levels
+    ADD CONSTRAINT project_dataset_levels_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: project_datasets_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -6454,6 +6501,13 @@ CREATE INDEX index_project_data_source_items_on_project_id ON public.project_dat
 
 
 --
+-- Name: index_project_dataset_levels_on_project_dataset_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_project_dataset_levels_on_project_dataset_id ON public.project_dataset_levels USING btree (project_dataset_id);
+
+
+--
 -- Name: index_project_datasets_on_dataset_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -7004,6 +7058,14 @@ ALTER TABLE ONLY public.projects
 
 ALTER TABLE ONLY public.e_workflow
     ADD CONSTRAINT fk_rails_2df7f418f6 FOREIGN KEY (provider) REFERENCES public.zprovider(zproviderid);
+
+
+--
+-- Name: fk_rails_2f912bd782; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.project_dataset_levels
+    ADD CONSTRAINT fk_rails_2f912bd782 FOREIGN KEY (project_dataset_id) REFERENCES public.project_datasets(id);
 
 
 --
@@ -8052,6 +8114,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20210408152005'),
 ('20210414134929'),
 ('20210415143021'),
-('20210506093309');
+('20210506093309'),
+('20210520183013');
 
 
