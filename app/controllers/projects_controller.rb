@@ -109,6 +109,7 @@ class ProjectsController < ApplicationController
   # POST /projects
   def create
     @project = Project.new(cas_params) if @project.project_type_name == 'CAS'
+    binding.pry
     # TODO: can we do this elsewhere
     unless @project.project_type_name == 'CAS'
       @team = @project.team

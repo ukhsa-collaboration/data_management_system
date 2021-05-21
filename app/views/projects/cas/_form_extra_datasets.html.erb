@@ -15,12 +15,11 @@
           <%= pd.hidden_field :dataset_id, value: dataset.id %>
           <tr>
             <td><%= dataset.name %></td>
-            <!-- TODO Convert the lookup.value to 1,2,3 and add description column - change lines 36 -->
             <% Lookups::AccessLevel.all.each do |level| %>
               <%= pd.fields_for :project_dataset_levels, ProjectDatasetLevel.new do |pdl| %>
-                <% if dataset.levels.include? level.id %>
-                  <td><%= pdl.check_box :access_level_id, {}, level.id %></td>
-                  <td><%= pdl.datepicker_field :expiry_date %></td>
+                <% if dataset.levels.include? level.value.to_i %>
+                  <td><%= pdl.check_box :access_level_id, {}, level.id %>
+                    <%= pdl.datepicker_field :expiry_date %></td>
                 <% else %>
                   <td></td>
                 <% end %>
