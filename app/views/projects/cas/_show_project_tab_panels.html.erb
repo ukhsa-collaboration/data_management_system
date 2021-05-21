@@ -8,8 +8,10 @@
         </div>
       </div>
     </div>
+    <% binding.pry%>
     <%= render "projects/#{@project.project_type_name.downcase}/form", readonly: true %>
   </div>
+    <% binding.pry%>
 
   <%= render 'project_datasets_cas', project: @project %>
 

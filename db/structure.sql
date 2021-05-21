@@ -27,37 +27,6 @@ SET default_tablespace = '';
 SET default_with_oids = false;
 
 --
--- Name: access_levels; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.access_levels (
-    id bigint NOT NULL,
-    value character varying,
-    created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
-);
-
-
---
--- Name: access_levels_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.access_levels_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: access_levels_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.access_levels_id_seq OWNED BY public.access_levels.id;
-
-
---
 -- Name: addresses; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -2959,38 +2928,6 @@ ALTER SEQUENCE public.project_data_source_items_id_seq OWNED BY public.project_d
 
 
 --
--- Name: project_dataset_levels; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.project_dataset_levels (
-    id bigint NOT NULL,
-    project_dataset_id bigint,
-    access_level_id integer,
-    expiry_date date,
-    approved boolean
-);
-
-
---
--- Name: project_dataset_levels_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.project_dataset_levels_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: project_dataset_levels_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.project_dataset_levels_id_seq OWNED BY public.project_dataset_levels.id;
-
-
---
 -- Name: project_datasets; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -4441,13 +4378,6 @@ CREATE TABLE public.zuser (
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.access_levels ALTER COLUMN id SET DEFAULT nextval('public.access_levels_id_seq'::regclass);
-
-
---
--- Name: id; Type: DEFAULT; Schema: public; Owner: -
---
-
 ALTER TABLE ONLY public.addresses ALTER COLUMN id SET DEFAULT nextval('public.addresses_id_seq'::regclass);
 
 
@@ -4924,13 +4854,6 @@ ALTER TABLE ONLY public.project_data_source_items ALTER COLUMN id SET DEFAULT ne
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.project_dataset_levels ALTER COLUMN id SET DEFAULT nextval('public.project_dataset_levels_id_seq'::regclass);
-
-
---
--- Name: id; Type: DEFAULT; Schema: public; Owner: -
---
-
 ALTER TABLE ONLY public.project_datasets ALTER COLUMN id SET DEFAULT nextval('public.project_datasets_id_seq'::regclass);
 
 
@@ -5163,14 +5086,6 @@ ALTER TABLE ONLY public.z_team_statuses ALTER COLUMN id SET DEFAULT nextval('pub
 --
 
 ALTER TABLE ONLY public.z_user_statuses ALTER COLUMN id SET DEFAULT nextval('public.z_user_statuses_id_seq'::regclass);
-
-
---
--- Name: access_levels_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.access_levels
-    ADD CONSTRAINT access_levels_pkey PRIMARY KEY (id);
 
 
 --
@@ -5755,14 +5670,6 @@ ALTER TABLE ONLY public.project_data_passwords
 
 ALTER TABLE ONLY public.project_data_source_items
     ADD CONSTRAINT project_data_source_items_pkey PRIMARY KEY (id);
-
-
---
--- Name: project_dataset_levels_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.project_dataset_levels
-    ADD CONSTRAINT project_dataset_levels_pkey PRIMARY KEY (id);
 
 
 --
@@ -6549,13 +6456,6 @@ CREATE INDEX index_project_data_source_items_on_project_id ON public.project_dat
 
 
 --
--- Name: index_project_dataset_levels_on_project_dataset_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_project_dataset_levels_on_project_dataset_id ON public.project_dataset_levels USING btree (project_dataset_id);
-
-
---
 -- Name: index_project_datasets_on_dataset_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -7106,14 +7006,6 @@ ALTER TABLE ONLY public.projects
 
 ALTER TABLE ONLY public.e_workflow
     ADD CONSTRAINT fk_rails_2df7f418f6 FOREIGN KEY (provider) REFERENCES public.zprovider(zproviderid);
-
-
---
--- Name: fk_rails_2f912bd782; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.project_dataset_levels
-    ADD CONSTRAINT fk_rails_2f912bd782 FOREIGN KEY (project_dataset_id) REFERENCES public.project_datasets(id);
 
 
 --
@@ -8164,9 +8056,6 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20210415143021'),
 ('20210506093309'),
 ('20210518103646'),
-('20210518150518'),
-('20210519161222'),
-('20210519161356'),
-('20210521102230');
+('20210518150518');
 
 

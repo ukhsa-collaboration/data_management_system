@@ -108,9 +108,8 @@ class ProjectsController < ApplicationController
 
   # POST /projects
   def create
-    # TODO: can we do this elsewhere
     @project = Project.new(cas_params) if @project.project_type_name == 'CAS'
-    binding.pry
+    # TODO: can we do this elsewhere
     unless @project.project_type_name == 'CAS'
       @team = @project.team
       @project = @team.projects.build(project_params)
@@ -327,7 +326,10 @@ class ProjectsController < ApplicationController
                                                                roleable_id roleable_type],
                                     project_datasets_attributes: [:id, :project_id, :dataset_id,
                                                                   :terms_accepted, :_destroy,
-                                                                  access_level_ids: []],
+                                                                  project_dataset_levels_attributes:
+                                                                  [:project_dataset_id, 
+                                                                   :access_level_id,
+                                                                   :expiry_date ]],
                                     project_attachments_attributes: %i[name attachment],
                                     # CAS
                                     cas_application_fields_attributes: cas_fields)

@@ -5,8 +5,11 @@ class CasDatasetLevel
   end
   def call
     clean_params = @params.to_h
-    binding.pry
-    clean_params['project_datasets_attributes'].reject! { |k, v| v['access_level_ids'].all?(&:blank?) }
+    clean_params['project_datasets_attributes'].reject! do |k, v|
+      v['project_dataset_levels_attributes'].all? do |kk, vv|
+        vv['access_level_id'].to_i.zero?
+      end
+    end
     clean_params
   end
 end
