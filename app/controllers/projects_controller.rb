@@ -27,7 +27,9 @@ class ProjectsController < ApplicationController
                                     accessible_by(current_ability, :read).
                                     send(dashboard_projects_by_role(current_user)).
                                     order(updated_at: :desc)
-    @my_projects                  = current_user.projects.my_projects_search(search_params).
+    @my_projects                  = current_user.projects.
+                                    through_grant_of(ProjectRole.fetch(:owner)).
+                                    my_projects_search(search_params).
                                     order(updated_at: :desc)
     @assigned_projects            = @projects.assigned_to(current_user)
     @unassigned_projects          = @projects.unassigned
