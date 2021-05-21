@@ -101,7 +101,6 @@ class ProjectsController < ApplicationController
     @project.project_type ||= ProjectType.find_by(name: 'Project')
     if @project.project_type_name == 'CAS'
       @project.build_cas_application_fields
-      @available_datasets = Dataset.cas_extras.dataset_with_available_levels
     end
     @project.add_default_dataset
     @full_form = true

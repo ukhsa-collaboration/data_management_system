@@ -59,12 +59,6 @@ class Dataset < ApplicationRecord
       where(filters.first).or(where(filters.last))
     end
 
-    def dataset_with_available_levels
-      self.all.map do |dataset|
-        [dataset, Lookups::AccessLevel.where(id: dataset.levels)]
-      end
-    end
-
     private
 
     def field_filter(field, text)

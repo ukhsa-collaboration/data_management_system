@@ -10,25 +10,22 @@
           <th>3</th>
         </tr>
       </thead>
-      <!-- TODO: You might need to redefine the matrix returned so that it returns dataset as a class -->
-      <!-- [
-        { Dataset.first => [Lookup::DatasetLevel.where(value: [1,2]) ] },
-        { Dataset.second => [Lookup::DatasetLevel.where(value: [2,3])  },
-        { Dataset.third => [Lookup::DatasetLevel.where(value: [1,2, 3])  }
-      ] -->
-      <% Dataset.cas_extras.dataset_with_available_levels.each do |dataset, levels| %>
+      <% Dataset.cas_extras.each do |dataset| %>
         <%= form.fields_for :project_datasets, @project.project_datasets.build do |pd| %>
           <tr>
           <%= pd.hidden_field :dataset_id, value: dataset.id %>
           <td><%= dataset.name %></td>
-          <!-- TODO: build the empty TD cell -->
-          <%= pd.collection_check_boxes(:access_level_ids, levels, :id, :value) do |b| %>
-          <td>
-            <div><%= b.text %></div>
-            <div class="checkbox">
-              <%= b.label { b.check_box } %>
-            </div>
-          </td>
+
+          <%= pd.collection_check_boxes(:access_level_ids, Lookups::AccessLevel.all, :id, :value) do |b| %>
+            <% if dataset.levels.include? b.value %>
+              <td>
+                <div class="checkbox">
+                  <%= b.label { b.check_box } %>
+                </div>
+              </td>
+            <% else %>
+              <td></td>
+            <% end %>
           <% end %>
         <% end %>
       <% end %>
