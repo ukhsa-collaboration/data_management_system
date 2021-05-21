@@ -4,8 +4,11 @@
 class ProjectDataset < ApplicationRecord
   belongs_to :project
   belongs_to :dataset
+
   has_many :project_dataset_levels, dependent: :destroy
   accepts_nested_attributes_for :project_dataset_levels
+  has_many :zdataset_levels, through: :project_dataset_levels
+  
   has_many :approver_grants, lambda {
     joins(:datasets).where grants: { roleable_type: 'DatasetRole',
                                      roleable_id: DatasetRole.fetch(:approver).id }

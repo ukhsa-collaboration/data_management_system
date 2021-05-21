@@ -13,15 +13,16 @@
       <!-- TODO: You might need to redefine the matrix returned so that it returns dataset as a class -->
       <% Dataset.cas.each do |dataset| %>
         <%= form.fields_for :project_datasets, @project.project_datasets.build do |pd| %>
-          <%= pd.hidden_field :dataset_id, value: dataset.id %>
           <tr>
-            <td><%= dataset.name %></td>
-            <% [1,2,3].each do |level| %>
-              <%= pd.fields_for :project_dataset_levels, pd.object.project_dataset_levels.build do |pdl| %>
-                <td><%= pdl.check_box :level, {}, level %></td>
-              <% end %>
-            <% end %>
-          </tr>
+          <%= pd.hidden_field :dataset_id, value: dataset.id %>
+          <td><%= dataset.name %></td>
+          <%= pd.collection_check_boxes(:zdataset_level_ids, Lookups::ZdatasetLevel.all, :id, :value) do |b| %>
+          <td>
+            <div class="checkbox">
+              <%= b.label { b.check_box } %>
+            </div>
+          </td>
+          <% end %>
         <% end %>
       <% end %>
     </tbody>

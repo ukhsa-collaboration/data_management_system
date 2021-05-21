@@ -322,7 +322,7 @@ class ProjectsController < ApplicationController
                                     project_datasets_attributes: [
                                                                    :id, :project_id, :dataset_id,
                                                                    :terms_accepted, :_destroy,
-                                                                   project_dataset_levels_attributes: %i[level]
+                                                                   zdataset_level_ids: []
                                                                  ],
                                     project_attachments_attributes: %i[name attachment],
                                     # CAS

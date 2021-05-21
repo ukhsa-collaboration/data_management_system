@@ -891,6 +891,38 @@ ALTER SEQUENCE public.data_sources_id_seq OWNED BY public.data_sources.id;
 
 
 --
+-- Name: dataset_levels; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.dataset_levels (
+    id bigint NOT NULL,
+    value character varying,
+    description character varying,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: dataset_levels_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.dataset_levels_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: dataset_levels_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.dataset_levels_id_seq OWNED BY public.dataset_levels.id;
+
+
+--
 -- Name: dataset_roles; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -2934,7 +2966,8 @@ CREATE TABLE public.project_dataset_levels (
     project_dataset_id bigint,
     level integer,
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    zdataset_level_id integer
 );
 
 
@@ -4330,6 +4363,38 @@ ALTER SEQUENCE public.z_user_statuses_id_seq OWNED BY public.z_user_statuses.id;
 
 
 --
+-- Name: zdataset_levels; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.zdataset_levels (
+    id bigint NOT NULL,
+    value character varying,
+    description character varying,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: zdataset_levels_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.zdataset_levels_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: zdataset_levels_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.zdataset_levels_id_seq OWNED BY public.zdataset_levels.id;
+
+
+--
 -- Name: ze_actiontype; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -4556,6 +4621,13 @@ ALTER TABLE ONLY public.data_source_items ALTER COLUMN id SET DEFAULT nextval('p
 --
 
 ALTER TABLE ONLY public.data_sources ALTER COLUMN id SET DEFAULT nextval('public.data_sources_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dataset_levels ALTER COLUMN id SET DEFAULT nextval('public.dataset_levels_id_seq'::regclass);
 
 
 --
@@ -5126,6 +5198,13 @@ ALTER TABLE ONLY public.z_user_statuses ALTER COLUMN id SET DEFAULT nextval('pub
 
 
 --
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.zdataset_levels ALTER COLUMN id SET DEFAULT nextval('public.zdataset_levels_id_seq'::regclass);
+
+
+--
 -- Name: addresses_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -5315,6 +5394,14 @@ ALTER TABLE ONLY public.data_source_items
 
 ALTER TABLE ONLY public.data_sources
     ADD CONSTRAINT data_sources_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: dataset_levels_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dataset_levels
+    ADD CONSTRAINT dataset_levels_pkey PRIMARY KEY (id);
 
 
 --
@@ -6011,6 +6098,14 @@ ALTER TABLE ONLY public.z_team_statuses
 
 ALTER TABLE ONLY public.z_user_statuses
     ADD CONSTRAINT z_user_statuses_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: zdataset_levels_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.zdataset_levels
+    ADD CONSTRAINT zdataset_levels_pkey PRIMARY KEY (id);
 
 
 --
@@ -8115,6 +8210,10 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20210414134929'),
 ('20210415143021'),
 ('20210506093309'),
-('20210520183013');
+('20210520183013'),
+('20210521073454'),
+('20210521074801'),
+('20210521075241'),
+('20210521075411');
 
 
