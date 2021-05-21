@@ -3,8 +3,10 @@
   <%= form.label :extra_datasets %>
   <%= form.fields_for :project_datasets, @project.project_datasets.build do |builder| %>
     <%= builder.select(:dataset_id, Dataset.cas_extras.map { |dataset| [dataset.name, dataset.id] }) %>
-    <%= builder.fields_for :project_dataset_levels, builder.object.project_dataset_levels.build do |pdl| %>
-      <%= render 'projects/project_dataset_level', form: pdl %>
+    <% [1, 2, 3].each do |level| %>
+    <%= builder.fields_for :project_dataset_levels, builder.object.project_dataset_levels.build(level: level) do |pdl| %>
+      <%= pdl.check_box(:level) %>
     <% end %>
+  <% end %>
   <% end %>
 </fieldset>
