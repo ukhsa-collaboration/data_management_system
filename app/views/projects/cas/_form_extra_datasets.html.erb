@@ -1,13 +1,17 @@
-<h1>TEST</h1>
+<% readonly_value = @project.project_datasets.any? ? safe_join(dataset_level_readonly(@project), raw('<br />')) : '' %>
 <fieldset>
+  <legend>Extra Datasets</legend>
+  <% if @readonly %>
+    <%= readonly_value %>
+  <% else %>
   <table class="table table-hover">
     <tbody>
       <thead>
         <tr>
-          <th>Dataset name</th>
-          <th>1</th>
-          <th>2</th>
-          <th>3</th>
+          <th width="42%" style="border-top: 0px;">Dataset name</th>
+          <th colspan="2" style="text-align:center; border-top: 0px;">Level 1</th>
+          <th colspan="2" style="text-align:center; border-top: 0px;">Level 2</th>
+          <th colspan="2" style="text-align:center; border-top: 0px;">Level 3</th>
         </tr>
       </thead>
       <% Dataset.cas_extras.each do |dataset| %>
@@ -18,9 +22,10 @@
             <% Lookups::AccessLevel.all.each do |level| %>
               <%= pd.fields_for :project_dataset_levels, ProjectDatasetLevel.new do |pdl| %>
                 <% if dataset.levels.include? level.value.to_i %>
-                  <td><%= pdl.check_box :access_level_id, {}, level.id %>
-                    <%= pdl.datepicker_field :expiry_date %></td>
+                  <td><%= pdl.check_box :access_level_id, {}, level.id %></td>
+                  <td><%= pdl.datepicker_field :expiry_date, placeholder: "Expiry date" %></td>
                 <% else %>
+                  <td></td>
                   <td></td>
                 <% end %>
               <% end %>
@@ -30,4 +35,5 @@
       <% end %>
     </tbody>
   </table>
+  <% end %>
 </fieldset>

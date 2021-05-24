@@ -362,4 +362,14 @@ module ProjectsHelper
   def project_form_path(project)
     "#{project_sub_type_path_prefix(project)}/form"
   end
+
+  def dataset_level_readonly(project)
+    project.project_datasets.map do |pd| 
+      pd.project_dataset_levels.map do |pdl| 
+        Dataset.find(pd.dataset_id).name + ' ' +
+        Lookups::AccessLevel.find(pdl.access_level_id).description + ' ' +
+        pdl.expiry_date.strftime("Expiry Date: %d/%m/%Y").to_s
+      end
+    end
+  end
 end
