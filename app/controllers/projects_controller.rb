@@ -239,7 +239,8 @@ class ProjectsController < ApplicationController
           payload[:errors] = project.errors.full_messages
         end
       rescue => e
-        payload[:errors] << e.message
+        fingerprint, _log = capture_exception(e)
+        payload[:errors] << t('projects.import.ndr_error.message_html', fingerprint: fingerprint.id)
       end
     else
       payload[:errors] << 'Unpermitted file type'
