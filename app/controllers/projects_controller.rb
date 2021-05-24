@@ -9,6 +9,7 @@ class ProjectsController < ApplicationController
   # include late to ensure correct callback order
   include Workflow::Controller
   include ProjectsHelper
+  include UTF8Encoding
 
   respond_to :js, :html
 
@@ -227,6 +228,7 @@ class ProjectsController < ApplicationController
 
           acroform_data.transform_keys(&:underscore).each do |attribute, value|
             attribute = "article_#{attribute}" if attribute =~ /\A\d\w\z/
+            coerce_utf8!(value) if value.is_a?(String)
             resource.try("#{attribute}=", value)
           end
 
