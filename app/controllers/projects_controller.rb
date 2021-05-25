@@ -84,7 +84,7 @@ class ProjectsController < ApplicationController
   def cas_approvals
     @projects = Project.my_projects_search(search_params).accessible_by(current_ability, :read).
                 order(updated_at: :desc)
-    @my_dataset_approvals = @projects.cas_dataset_approval(current_user, nil).
+    @my_dataset_approvals = @projects.cas_dataset_approval(current_user, [nil]).
                             order(updated_at: :desc)
     @my_access_approvals = @projects.cas_access_approval.order(updated_at: :desc)
 

@@ -3,12 +3,16 @@ require 'test_helper'
 class CasDatasetApprovalTest < ActionDispatch::IntegrationTest
   test 'should be able to approve and reject datasets' do
     user = users(:cas_dataset_approver)
-    ProjectDatasetsController.any_instance.expects(:valid_otp?).twice.returns(false).then.returns(true)
+    # ProjectDatasetLevelsController.any_instance.expects(:valid_otp?).twice.returns(false).then.returns(true)
     sign_in user
 
     project = create_cas_project(owner: users(:standard_user2))
     dataset = Dataset.find_by(name: 'Extra CAS Dataset One')
-    project.project_datasets << ProjectDataset.new(dataset: dataset, terms_accepted: true)
+    pd = ProjectDataset.create(dataset: dataset, terms_accepted: true)
+    project.project_datasets << pd
+    pdl = ProjectDatasetLevel.new(access_level_id: 1, expiry_date: Time.zone.today + 1.week)
+    pd.project_dataset_levels << pdl
+    pd.project_dataset_levels << ProjectDatasetLevel.new(access_level_id: 2, expiry_date: Time.zone.today + 2.weeks)
 
     project.transition_to!(workflow_states(:submitted))
     visit cas_approvals_projects_path
@@ -20,18 +24,16 @@ class CasDatasetApprovalTest < ActionDispatch::IntegrationTest
 
     assert has_content?('Extra CAS Dataset One')
 
-    assert_nil project.project_datasets.first.approved
+    assert_nil pdl.approved
 
-    project_dataset = project.project_datasets.first
-
-    assert_changes -> { project_dataset.reload.approved }, from: nil, to: true do
-      within('#approvals') do
-        find("#approval_project_dataset_#{project_dataset.id}").click
-      end
-      within_modal(selector: '#yubikey-challenge') do
-        fill_in 'ndr_authenticate[otp]', with: 'defo a yubikey'
-        click_button 'Submit'
-      end
+    assert_changes -> { pdl.reload.approved }, from: nil, to: true do
+      binding.pry
+      find("#approval_project_dataset_level_#{pdl.id}").click
+        # within_modal(selector: '#yubikey-challenge') do
+      #   fill_in 'ndr_authenticate[otp]', with: 'defo a yubikey'
+      #   click_button 'Submit'
+      # end
+      binding.pry
       assert has_content?('APPROVED')
     end
 
@@ -41,9 +43,9 @@ class CasDatasetApprovalTest < ActionDispatch::IntegrationTest
 
     assert find('.btn-danger')
     assert find('.btn-success')
-    assert_nil project_dataset.reload.approved
+    assert_nil project_dataset_level.reload.approved
 
-    assert_changes -> { project_dataset.reload.approved }, from: nil, to: false do
+    assert_changes -> { project_dataset_level.reload.approved }, from: nil, to: false do
       find('.btn-danger').click
       assert has_content?('DECLINED')
     end

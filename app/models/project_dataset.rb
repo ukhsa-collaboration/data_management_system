@@ -20,11 +20,11 @@ class ProjectDataset < ApplicationRecord
   # TODO: approved only applies to CAS so far
 
   scope :dataset_approval, lambda { |user, approved_values = [nil, true, false]|
-    joins(dataset: :grants).where(approved: approved_values).where(
+    joins(dataset: :grants).where(
       grants: { user_id: user.id,
                 roleable_type: 'DatasetRole',
                 roleable_id: DatasetRole.fetch(:approver).id }
-    )
+    ).select { |pd| pd.project_dataset_levels.any? { |pdl| approved_values.include? pdl.approved } }
   }
 
   # data_source_name

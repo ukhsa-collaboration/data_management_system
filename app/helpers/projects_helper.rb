@@ -372,4 +372,9 @@ module ProjectsHelper
       end
     end
   end
+  
+  def level_expiry_date(project_dataset_level)
+    project_dataset_level.approved ? project_dataset_level.expiry_date.strftime("%d/%m/%Y (expiry)") :
+    project_dataset_level.expiry_date.strftime("%d/%m/%Y (requested)")
+  end
 end

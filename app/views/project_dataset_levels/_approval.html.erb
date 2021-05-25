@@ -1,0 +1,28 @@
+<td><%= project_dataset.dataset_name %></td>
+<% project_dataset.project_dataset_levels.each_with_index do |pdl, i|%>
+  <% if i > 0 %>
+  <tr>
+  <td></td>
+  <% end %>
+    <td><%= pdl.access_level_id %></td>
+    <td><%= level_expiry_date(pdl) %></td>
+    <td id="approvals_<%=dom_id(pdl)%>">
+    <% if ProjectDataset.dataset_approval(current_user).include? project_dataset %>
+      <% if pdl.approved.nil? %>
+        <%= link_to bootstrap_icon_tag('ok'), approve_project_dataset_level_path(id: pdl.id, "project_dataset_level[approved]" => 'true'), :method => :patch, remote: true, id: "approval_#{dom_id(pdl)}", class: 'btn btn-success btn-sm  rce_item' %>
+        <%= link_to bootstrap_icon_tag('remove'), project_dataset_level_path(id: pdl.id, "project_dataset_level[approved]" => 'false'), :method => :patch, remote: true, class: 'btn btn-danger btn-sm reject_data_source_item' %>
+      <% else %>
+        <span id="dataset_level_status" class="label label-<%= approval_button_style(pdl.approved) %>"><%= approval_button_message(pdl.approved) %></span>
+        <%= link_to 'X', project_dataset_level_path(:id => pdl.id, "project_dataset_level[approved]" => ''), method: :patch, remote: true, class: 'btn btn-default btn-xs', title: 'Undo', rel: 'tooltip', "data-placement" => "left" %>
+      <% end %>
+    <% elsif project_dataset.project.owner == current_user && pdl.approved == false %>
+      <span id="dataset_level_status" class="label label-<%= approval_button_style(pdl.approved) %>"><%= approval_button_message(pdl.approved) %></span>
+      <%= link_to 'Reapply', reapply_project_dataset_level_path(:id => pdl.id, "project_dataset_level[approved]" => ''), method: :patch, remote: true, class: 'btn btn-default btn-xs', title: 'Reapply', rel: 'tooltip', "data-placement" => "left" %>
+    <% else %>
+      <span id="dataset_level_status" class="label label-<%= approval_button_style(pdl.approved) %>"><%= approval_button_message(pdl.approved) %></span>
+    <% end %>
+    </td>
+  <% if i > 0 %>
+  </tr>
+  <% end %>
+<% end %>
