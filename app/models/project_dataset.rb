@@ -41,8 +41,6 @@ class ProjectDataset < ApplicationRecord
 
   validate :terms_accepted_for_dataset
 
-  after_update :notify_cas_approved_change
-
   # TODO: TEST
   def terms_accepted_for_dataset
     return if dataset.nil?
@@ -50,29 +48,5 @@ class ProjectDataset < ApplicationRecord
     return if terms_accepted
 
     errors.add(:project_dataset, "Terms accepted can't be blank")
-  end
-
-  def notify_cas_approved_change
-    return unless project.cas?
-    # Should only be approving after DRAFT
-    return if project.current_state&.id == 'DRAFT'
-    return if approved.nil?
-
-    User.cas_manager_and_access_approvers.each do |user|
-      CasNotifier.dataset_approved_status_updated(project, self, user.id)
-    end
-    CasMailer.with(project: project, project_dataset: self).send(
-      :dataset_approved_status_updated
-    ).deliver_later
-    CasNotifier.dataset_approved_status_updated_to_user(project, self)
-    CasMailer.with(project: project, project_dataset: self).send(
-      :dataset_approved_status_updated_to_user
-    ).deliver_later
-  end
-
-  def readable_approved_status
-    return 'Undecided' if approved.nil?
-
-    approved ? 'Approved' : 'Rejected'
   end
 end
