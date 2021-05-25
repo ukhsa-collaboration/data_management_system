@@ -25,12 +25,13 @@ class Ability
                                      grants: { user_id: user.id, roleable: ProjectRole.owner },
                                      current_state: { id: 'DRAFT' }
     can %i[reapply], ProjectDatasetLevel, approved: false,
-                                     project: { project_type_id: ProjectType.cas.pluck(:id),
-                                                current_state: {
-                                                  id: Workflow::State.reapply_dataset_states.pluck(:id)
-                                                },
-                                                grants: { user_id: user.id,
-                                                          roleable: ProjectRole.owner } }
+                                     project_dataset: { project:
+                                                         { project_type_id: ProjectType.cas.pluck(:id),
+                                                           current_state: {
+                                                              id: Workflow::State.reapply_dataset_states.pluck(:id)
+                                                           },
+                                                           grants: { user_id: user.id,
+                                                                     roleable: ProjectRole.owner } } }
     team_grants(user)
     organisation_grants(user)
 

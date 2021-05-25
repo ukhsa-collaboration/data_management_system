@@ -4,7 +4,7 @@ class ProjectDatasetLevelsController < ApplicationController
   load_and_authorize_resource :project_dataset, through: :project, shallow: true
   load_and_authorize_resource :project_dataset_level
 
-  # before_action :challenge_yubikey, only: :approve
+  before_action :challenge_yubikey, only: :approve
 
   respond_to :js, :html
 

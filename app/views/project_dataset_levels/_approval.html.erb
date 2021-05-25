@@ -1,9 +1,5 @@
 <td><%= project_dataset.dataset_name %></td>
-<% project_dataset.project_dataset_levels.each_with_index do |pdl, i|%>
-  <% if i > 0 %>
-  <tr>
-  <td></td>
-  <% end %>
+<% project_dataset.project_dataset_levels.each do |pdl|%>
     <td><%= pdl.access_level_id %></td>
     <td><%= level_expiry_date(pdl) %></td>
     <td id="approvals_<%=dom_id(pdl)%>">
@@ -22,7 +18,4 @@
       <span id="dataset_level_status" class="label label-<%= approval_button_style(pdl.approved) %>"><%= approval_button_message(pdl.approved) %></span>
     <% end %>
     </td>
-  <% if i > 0 %>
-  </tr>
-  <% end %>
 <% end %>

@@ -3,7 +3,7 @@ require 'test_helper'
 class CasDatasetApprovalTest < ActionDispatch::IntegrationTest
   test 'should be able to approve and reject datasets' do
     user = users(:cas_dataset_approver)
-    # ProjectDatasetLevelsController.any_instance.expects(:valid_otp?).twice.returns(false).then.returns(true)
+    ProjectDatasetLevelsController.any_instance.expects(:valid_otp?).twice.returns(false).then.returns(true)
     sign_in user
 
     project = create_cas_project(owner: users(:standard_user2))
@@ -27,13 +27,11 @@ class CasDatasetApprovalTest < ActionDispatch::IntegrationTest
     assert_nil pdl.approved
 
     assert_changes -> { pdl.reload.approved }, from: nil, to: true do
-      binding.pry
       find("#approval_project_dataset_level_#{pdl.id}").click
-        # within_modal(selector: '#yubikey-challenge') do
-      #   fill_in 'ndr_authenticate[otp]', with: 'defo a yubikey'
-      #   click_button 'Submit'
-      # end
-      binding.pry
+        within_modal(selector: '#yubikey-challenge') do
+        fill_in 'ndr_authenticate[otp]', with: 'defo a yubikey'
+        click_button 'Submit'
+      end
       assert has_content?('APPROVED')
     end
 
@@ -43,9 +41,9 @@ class CasDatasetApprovalTest < ActionDispatch::IntegrationTest
 
     assert find('.btn-danger')
     assert find('.btn-success')
-    assert_nil project_dataset_level.reload.approved
+    assert_nil pdl.reload.approved
 
-    assert_changes -> { project_dataset_level.reload.approved }, from: nil, to: false do
+    assert_changes -> { pdl.reload.approved }, from: nil, to: false do
       find('.btn-danger').click
       assert has_content?('DECLINED')
     end
@@ -61,33 +59,35 @@ class CasDatasetApprovalTest < ActionDispatch::IntegrationTest
     project_dataset = ProjectDataset.new(dataset: Dataset.find_by(name: 'Extra CAS Dataset One'),
                                          terms_accepted: true)
     project.project_datasets << project_dataset
+    pdl = ProjectDatasetLevel.new(access_level_id: 1, expiry_date: Time.zone.today + 1.week)
+    project_dataset.project_dataset_levels << pdl
 
     project.transition_to!(workflow_states(:submitted))
 
-    project_dataset.approved = true
-    project_dataset.save!(validate: false)
+    pdl.approved = true
+    pdl.save!(validate: false)
 
     visit project_path(project)
 
     click_link(href: '#datasets')
     assert has_content?('Extra CAS Dataset One')
-    assert_equal find('#dataset_status').text, 'APPROVED'
+    assert_equal find('#dataset_level_status').text, 'APPROVED'
     assert has_no_content?('Reapply')
 
-    project_dataset.approved = false
+    pdl.approved = false
     project_dataset.save!(validate: false)
 
     visit project_path(project)
     click_link(href: '#datasets')
     assert has_content?('Extra CAS Dataset One')
 
-    assert_equal find('#dataset_status').text, 'DECLINED'
+    assert_equal find('#dataset_level_status').text, 'DECLINED'
     click_link('Reapply')
 
     assert has_content?('PENDING')
     assert has_no_css?('.btn-danger')
     assert has_no_css?('.btn-success')
-    assert_nil project_dataset.reload.approved
+    assert_nil pdl.reload.approved
   end
 
   test 'should show applicant correct pending dataset status' do
@@ -99,6 +99,8 @@ class CasDatasetApprovalTest < ActionDispatch::IntegrationTest
     project_dataset = ProjectDataset.new(dataset: Dataset.find_by(name: 'Extra CAS Dataset One'),
                                          terms_accepted: nil)
     project.project_datasets << project_dataset
+    pdl = ProjectDatasetLevel.new(access_level_id: 1, expiry_date: Time.zone.today + 1.week)
+    project_dataset.project_dataset_levels << pdl
 
     project.transition_to!(workflow_states(:submitted))
 
@@ -106,7 +108,7 @@ class CasDatasetApprovalTest < ActionDispatch::IntegrationTest
 
     click_link(href: '#datasets')
     assert has_content?('Extra CAS Dataset One')
-    assert_equal find('#dataset_status').text, 'PENDING'
+    assert_equal find('#dataset_level_status').text, 'PENDING'
   end
 
   test 'should show cas_dataset approver correct dataset statuses' do
@@ -120,6 +122,10 @@ class CasDatasetApprovalTest < ActionDispatch::IntegrationTest
                                            terms_accepted: true)
     project.project_datasets << grant_dataset
     project.project_datasets << non_grant_dataset
+    grant_pdl = ProjectDatasetLevel.new(access_level_id: 1, expiry_date: Time.zone.today + 1.week)
+    non_grant_pdl = ProjectDatasetLevel.new(access_level_id: 1, expiry_date: Time.zone.today + 1.week)
+    grant_dataset.project_dataset_levels << grant_pdl
+    non_grant_dataset.project_dataset_levels << non_grant_pdl
 
     project.transition_to!(workflow_states(:submitted))
 
@@ -138,11 +144,11 @@ class CasDatasetApprovalTest < ActionDispatch::IntegrationTest
     within("#project_dataset_#{non_grant_dataset.id}") do
       assert has_no_css?('.btn-danger')
       assert has_no_css?('.btn-success')
-      assert_equal find('#dataset_status').text, 'PENDING'
+      assert_equal find('#dataset_level_status').text, 'PENDING'
     end
 
-    non_grant_dataset.approved = true
-    non_grant_dataset.save!(validate: false)
+    non_grant_pdl.approved = true
+    non_grant_pdl.save!(validate: false)
 
     visit project_path(project)
 
@@ -151,11 +157,11 @@ class CasDatasetApprovalTest < ActionDispatch::IntegrationTest
     within("#project_dataset_#{non_grant_dataset.id}") do
       assert has_no_css?('.btn-danger')
       assert has_no_css?('.btn-success')
-      assert_equal find('#dataset_status').text, 'APPROVED'
+      assert_equal find('#dataset_level_status').text, 'APPROVED'
     end
 
-    non_grant_dataset.approved = false
-    non_grant_dataset.save!(validate: false)
+    non_grant_pdl.approved = false
+    non_grant_pdl.save!(validate: false)
 
     visit project_path(project)
 
@@ -164,7 +170,7 @@ class CasDatasetApprovalTest < ActionDispatch::IntegrationTest
     within("#project_dataset_#{non_grant_dataset.id}") do
       assert has_no_css?('.btn-danger')
       assert has_no_css?('.btn-success')
-      assert_equal find('#dataset_status').text, 'DECLINED'
+      assert_equal find('#dataset_level_status').text, 'DECLINED'
     end
   end
 end
