@@ -3001,8 +3001,7 @@ CREATE TABLE public.project_datasets (
     dataset_id bigint,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
-    terms_accepted boolean,
-    approved boolean
+    terms_accepted boolean
 );
 
 
@@ -8168,6 +8167,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20210518150518'),
 ('20210519161222'),
 ('20210519161356'),
-('20210521102230');
+('20210521102230'),
+('20210526131356');
 
 
