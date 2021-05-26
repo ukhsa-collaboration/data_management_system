@@ -6,7 +6,7 @@ class MyCasApprovalsTest < ActionDispatch::IntegrationTest
 
     grant_project = create_cas_project(owner: users(:standard_user2))
     grant_project_dataset = ProjectDataset.new(dataset: Dataset.find_by(name: 'Extra CAS Dataset One'),
-                                         terms_accepted: true)
+                                               terms_accepted: true)
     grant_project.project_datasets << grant_project_dataset
     grant_project_pdl = ProjectDatasetLevel.new(access_level_id: 1,
                                                 expiry_date: Time.zone.today + 1.week)

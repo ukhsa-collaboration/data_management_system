@@ -28,7 +28,7 @@ class CasDatasetApprovalTest < ActionDispatch::IntegrationTest
 
     assert_changes -> { pdl.reload.approved }, from: nil, to: true do
       find("#approval_project_dataset_level_#{pdl.id}").click
-        within_modal(selector: '#yubikey-challenge') do
+      within_modal(selector: '#yubikey-challenge') do
         fill_in 'ndr_authenticate[otp]', with: 'defo a yubikey'
         click_button 'Submit'
       end
@@ -38,13 +38,16 @@ class CasDatasetApprovalTest < ActionDispatch::IntegrationTest
     assert_equal find('#project_status').text, 'Pending'
 
     click_link('X')
-
-    assert find('.btn-danger')
-    assert find('.btn-success')
+    within "#approvals_project_dataset_level_#{pdl.id}" do
+      assert find('.btn-danger')
+      assert find('.btn-success')
+    end
     assert_nil pdl.reload.approved
 
     assert_changes -> { pdl.reload.approved }, from: nil, to: false do
-      find('.btn-danger').click
+      within "#approvals_project_dataset_level_#{pdl.id}" do
+        find('.btn-danger').click
+      end
       assert has_content?('DECLINED')
     end
 

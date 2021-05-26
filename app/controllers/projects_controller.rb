@@ -99,9 +99,7 @@ class ProjectsController < ApplicationController
 
   def new
     @project.project_type ||= ProjectType.find_by(name: 'Project')
-    if @project.project_type_name == 'CAS'
-      @project.build_cas_application_fields
-    end
+    @project.build_cas_application_fields if @project.project_type_name == 'CAS'
     @project.add_default_dataset
     @full_form = true
   end
@@ -262,8 +260,8 @@ class ProjectsController < ApplicationController
   end
 
   def cas_params
-      CasDatasetLevel.new(project_params).call
-    end
+    CasDatasetLevel.new(project_params).call
+  end
 
   # Only allow a trusted parameter 'white list' through.
   def project_params
@@ -327,9 +325,8 @@ class ProjectsController < ApplicationController
                                     project_datasets_attributes: [:id, :project_id, :dataset_id,
                                                                   :terms_accepted, :_destroy,
                                                                   project_dataset_levels_attributes:
-                                                                  [:project_dataset_id, 
-                                                                   :access_level_id,
-                                                                   :expiry_date ]],
+                                                                  %i[project_dataset_id
+                                                                     access_level_id expiry_date ]],
                                     project_attachments_attributes: %i[name attachment],
                                     # CAS
                                     cas_application_fields_attributes: cas_fields)

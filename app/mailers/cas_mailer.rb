@@ -1,8 +1,8 @@
 # Sends emails regarding CAS related activity
 class CasMailer < ApplicationMailer
   before_action :load_project
-  before_action :load_project_dataset_level, only: [:dataset_level_approved_status_updated,
-                                                    :dataset_level_approved_status_updated_to_user]
+  before_action :load_project_dataset_level, only: %i[dataset_level_approved_status_updated
+                                                      dataset_level_approved_status_updated_to_user]
 
   def requires_dataset_approval
     recipient = Array.wrap(params[:user].email)

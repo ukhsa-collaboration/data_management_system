@@ -364,17 +364,20 @@ module ProjectsHelper
   end
 
   def dataset_level_readonly(project)
-    project.project_datasets.map do |pd| 
-      pd.project_dataset_levels.map do |pdl| 
+    project.project_datasets.map do |pd|
+      pd.project_dataset_levels.map do |pdl|
         Dataset.find(pd.dataset_id).name + ' ' +
-        Lookups::AccessLevel.find(pdl.access_level_id).description + ' ' +
-        pdl.expiry_date.strftime("Expiry Date: %d/%m/%Y").to_s
+          Lookups::AccessLevel.find(pdl.access_level_id).description + ' ' +
+          pdl.expiry_date.strftime('Expiry Date: %d/%m/%Y').to_s
       end
     end
   end
-  
+
   def level_expiry_date(project_dataset_level)
-    project_dataset_level.approved ? project_dataset_level.expiry_date.strftime("%d/%m/%Y (expiry)") :
-    project_dataset_level.expiry_date.strftime("%d/%m/%Y (requested)")
+    if project_dataset_level.approved
+      project_dataset_level.expiry_date.strftime('%d/%m/%Y (expiry)')
+    else
+      project_dataset_level.expiry_date.strftime('%d/%m/%Y (requested)')
+    end
   end
 end

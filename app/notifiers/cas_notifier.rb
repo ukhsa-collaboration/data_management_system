@@ -16,8 +16,9 @@ class CasNotifier
         user_id: user_id,
         title: 'Dataset Approval Level Status Change',
         body: "#{project.project_type_name} application #{project.id} - Dataset " \
-              "'#{project_dataset_level.project_dataset.dataset_name}' has been updated to Approval status of " \
-              "'#{project_dataset_level.readable_approved_status}' for level #{project_dataset_level.access_level_id}.\n\n"
+              "'#{project_dataset_level.project_dataset.dataset_name}' has been updated to " \
+              "Approval status of '#{project_dataset_level.readable_approved_status}' for level " \
+              "#{project_dataset_level.access_level_id}.\n\n"
       )
     end
 
@@ -34,8 +35,10 @@ class CasNotifier
       create_notification(
         user_id: project.owner.id,
         title: 'Dataset Approval Level Updated',
-        body: "Your CAS dataset access request for '#{project_dataset_level.project_dataset.dataset_name}' has been " \
-              "updated to Approval status of '#{project_dataset_level.readable_approved_status}' for level #{project_dataset_level.access_level_id}.\n\n"
+        body: 'Your CAS dataset access request for ' \
+              "'#{project_dataset_level.project_dataset.dataset_name}' has been updated to " \
+              "Approval status of '#{project_dataset_level.readable_approved_status}' for level " \
+              "#{project_dataset_level.access_level_id}.\n\n"
       )
     end
 
