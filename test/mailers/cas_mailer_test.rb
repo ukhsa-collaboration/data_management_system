@@ -151,8 +151,12 @@ class ProjectsMailerTest < ActionMailer::TestCase
   test 'requires dataset approval' do
     project = create_cas_project(project_purpose: 'test', owner: users(:no_roles))
     dataset = Dataset.find_by(name: 'Extra CAS Dataset One')
-    project_dataset = ProjectDataset.new(dataset: dataset, terms_accepted: true, approved: nil)
+    project_dataset = ProjectDataset.new(dataset: dataset, terms_accepted: true)
     project.project_datasets << project_dataset
+    pdl = ProjectDatasetLevel.new(access_level_id: 1, expiry_date: Time.zone.today + 1.week,
+                                  approved: nil)
+    project_dataset.project_dataset_levels << pdl
+
     project.transition_to!(workflow_states(:submitted))
 
     email = CasMailer.with(project: project, user: DatasetRole.fetch(:approver).users.first).requires_dataset_approval
@@ -258,8 +262,10 @@ class ProjectsMailerTest < ActionMailer::TestCase
     project = create_cas_project(project_purpose: 'test', owner: users(:no_roles))
 
     dataset = Dataset.find_by(name: 'Extra CAS Dataset One')
-    project_dataset = ProjectDataset.new(dataset: dataset, terms_accepted: true, approved: true)
+    project_dataset = ProjectDataset.new(dataset: dataset, terms_accepted: true)
     project.project_datasets << project_dataset
+    pdl = ProjectDatasetLevel.new(access_level_id: 1, expiry_date: Time.zone.today + 1.week)
+    project_dataset.project_dataset_levels << pdl
     project.transition_to!(workflow_states(:submitted))
 
     email = CasMailer.with(project: project, user: DatasetRole.fetch(:approver).users.first).account_renewed_dataset_approver

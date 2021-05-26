@@ -392,8 +392,11 @@ class ProjectTest < ActiveSupport::TestCase
 
     cas_project = create_cas_project(owner: users(:standard_user1)).tap(&:valid?)
 
-    project_dataset = ProjectDataset.new(dataset: dataset, terms_accepted: true, approved: nil)
+    project_dataset = ProjectDataset.new(dataset: dataset, terms_accepted: true)
     cas_project.project_datasets << project_dataset
+    pdl = ProjectDatasetLevel.new(access_level_id: 1, expiry_date: Time.zone.today + 1.week,
+                                  approved: nil)
+    project_dataset.project_dataset_levels << pdl
 
     # Should not be returned while at DRAFT state
     assert_equal 0, Project.cas_dataset_approval(user).count
@@ -402,21 +405,24 @@ class ProjectTest < ActiveSupport::TestCase
 
     assert_equal 1, Project.cas_dataset_approval(user).count
 
-    project_dataset.approved = true
-    project_dataset.save!(validate: false)
+    pdl.approved = true
+    pdl.save!(validate: false)
 
     # Test the use of the scope with and without approved = nil argument
-    assert_equal 0, Project.cas_dataset_approval(user, nil).count
+    assert_equal 0, Project.cas_dataset_approval(user, [nil]).count
     assert_equal 1, Project.cas_dataset_approval(user).count
 
     new_project = create_cas_project(owner: users(:standard_user1)).tap(&:valid?)
     new_project_dataset = ProjectDataset.new(dataset: Dataset.find_by(name: 'SACT'),
-                                             terms_accepted: true, approved: nil)
+                                             terms_accepted: true)
     new_project.project_datasets << new_project_dataset
+    pdl = ProjectDatasetLevel.new(access_level_id: 1, expiry_date: Time.zone.today + 1.week,
+                                  approved: nil)
+    new_project_dataset.project_dataset_levels << pdl
 
     new_project.transition_to!(workflow_states(:submitted))
 
-    assert_equal 0, Project.cas_dataset_approval(user, nil).count
+    assert_equal 0, Project.cas_dataset_approval(user, [nil]).count
   end
 
   test 'should notify cas_manager on new project creation' do

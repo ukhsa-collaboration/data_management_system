@@ -270,10 +270,14 @@ class CasNotifierTest < ActiveSupport::TestCase
 
   test 'should generate account_renewed_dataset_approver Notifications' do
     project = create_cas_project(owner: users(:no_roles))
-    project.project_datasets << ProjectDataset.new(dataset: dataset(83), terms_accepted: true,
-                                                   approved: true)
-    project.project_datasets << ProjectDataset.new(dataset: dataset(84), terms_accepted: true,
-                                                   approved: true)
+    pd1 = ProjectDataset.new(dataset: dataset(83), terms_accepted: true)
+    pd2 = ProjectDataset.new(dataset: dataset(84), terms_accepted: true)
+    project.project_datasets << pd1
+    project.project_datasets << pd2
+    pdl = ProjectDatasetLevel.new(access_level_id: 1, expiry_date: Time.zone.today + 1.week)
+    pd1.project_dataset_levels << pdl
+    pdl = ProjectDatasetLevel.new(access_level_id: 1, expiry_date: Time.zone.today + 1.week)
+    pd2.project_dataset_levels << pdl
     project.save!
 
     title = 'CAS Account Renewed With Access to Dataset'

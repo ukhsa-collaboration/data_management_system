@@ -14,6 +14,8 @@ class ProjectDatasetTest < ActiveSupport::TestCase
     project = create_cas_project(owner: users(:standard_user2))
     project_dataset = ProjectDataset.new(dataset: Dataset.find_by(name: 'Extra CAS Dataset One'))
     project.project_datasets << project_dataset
+    pdl = ProjectDatasetLevel.new(access_level_id: 1, expiry_date: Time.zone.today + 1.week)
+    project_dataset.project_dataset_levels << pdl
 
     assert_equal 0, ProjectDataset.dataset_approval(users(:standard_user2)).count
 
@@ -28,34 +30,38 @@ class ProjectDatasetTest < ActiveSupport::TestCase
 
   test 'dataset_approval scope should return all datasets for that user by default' do
     project = create_cas_project(owner: users(:standard_user2))
-    project_dataset = ProjectDataset.new(dataset: Dataset.find_by(name: 'Extra CAS Dataset One'),
-                                         approved: nil)
+    project_dataset = ProjectDataset.new(dataset: Dataset.find_by(name: 'Extra CAS Dataset One'))
     project.project_datasets << project_dataset
+    pdl = ProjectDatasetLevel.new(access_level_id: 1, expiry_date: Time.zone.today + 1.week,
+                                  approved: nil)
+    project_dataset.project_dataset_levels << pdl
 
     assert_equal 1, ProjectDataset.dataset_approval(users(:cas_dataset_approver)).count
 
-    project_dataset.approved = true
-    project_dataset.save!
+    pdl.approved = true
+    pdl.save!
 
     assert_equal 1, ProjectDataset.dataset_approval(users(:cas_dataset_approver)).count
 
-    project_dataset.approved = true
-    project_dataset.save!
+    pdl.approved = true
+    pdl.save!
 
     assert_equal 1, ProjectDataset.dataset_approval(users(:cas_dataset_approver)).count
   end
 
   test 'dataset_approval scope should only return approved status is nil if passed that argument' do
     project = create_cas_project(owner: users(:standard_user2))
-    project_dataset = ProjectDataset.new(dataset: Dataset.find_by(name: 'Extra CAS Dataset One'),
-                                         approved: nil)
+    project_dataset = ProjectDataset.new(dataset: Dataset.find_by(name: 'Extra CAS Dataset One'))
     project.project_datasets << project_dataset
+    pdl = ProjectDatasetLevel.new(access_level_id: 1, expiry_date: Time.zone.today + 1.week,
+                                  approved: nil)
+    project_dataset.project_dataset_levels << pdl
 
-    assert_equal 1, ProjectDataset.dataset_approval(users(:cas_dataset_approver), nil).count
+    assert_equal 1, ProjectDataset.dataset_approval(users(:cas_dataset_approver), [nil]).count
 
-    project_dataset.approved = true
-    project_dataset.save!
+    pdl.approved = true
+    pdl.save!
 
-    assert_equal 0, ProjectDataset.dataset_approval(users(:cas_dataset_approver), nil).count
+    assert_equal 0, ProjectDataset.dataset_approval(users(:cas_dataset_approver), [nil]).count
   end
 end
