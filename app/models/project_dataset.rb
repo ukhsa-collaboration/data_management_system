@@ -41,6 +41,8 @@ class ProjectDataset < ApplicationRecord
 
   validate :terms_accepted_for_dataset
 
+  before_save :destroy_project_dataset_levels_without_access_level_id
+
   # TODO: TEST
   def terms_accepted_for_dataset
     return if dataset.nil?
@@ -48,5 +50,12 @@ class ProjectDataset < ApplicationRecord
     return if terms_accepted
 
     errors.add(:project_dataset, "Terms accepted can't be blank")
+  end
+
+  def destroy_project_dataset_levels_without_access_level_id
+    return unless project.cas?
+    return unless self.project_dataset_levels.any?
+
+    self.project_dataset_levels = self.project_dataset_levels - self.project_dataset_levels.select { |pdl| pdl.selected == false }
   end
 end

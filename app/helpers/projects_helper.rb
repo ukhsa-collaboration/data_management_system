@@ -380,4 +380,22 @@ module ProjectsHelper
       project_dataset_level.expiry_date.strftime('%d/%m/%Y (requested)')
     end
   end
+
+  def setup_project(project)
+    (Dataset.cas_extras - project.project_datasets.map(&:dataset)).each do |dataset|
+      project.project_datasets.build(dataset_id: dataset.id)
+    end
+    project.project_datasets.each do |pd|
+      (Lookups::AccessLevel.all.map(&:id) - pd.project_dataset_levels.map(&:access_level_id)).each do |x|
+        pd.project_dataset_levels.build(access_level_id: x)
+      end
+    end
+    project
+  end
+
+  def check_icon(value)
+    return bootstrap_icon_tag('ok') if value
+
+    bootstrap_icon_tag('remove')
+  end
 end

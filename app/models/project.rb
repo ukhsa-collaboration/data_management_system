@@ -75,6 +75,7 @@ class Project < ApplicationRecord
 
   after_save :reset_project_data_items
   after_create :notify_cas_manager_new_cas_project_saved
+  after_save :destroy_project_datasets_without_any_level_associations
 
   # effectively belongs_to .. through: .. association
   # delegate :dataset,      to: :team_dataset, allow_nil: true
@@ -584,6 +585,15 @@ class Project < ApplicationRecord
     return if team
 
     errors.add(:project, 'Must belong to a Team!')
+  end
+
+  def destroy_project_datasets_without_any_level_associations
+    return unless cas?
+    return unless project_datasets.any?
+
+    project_datasets.each do |pd| 
+      pd.destroy if pd.project_dataset_levels.none?
+    end
   end
 
   class << self

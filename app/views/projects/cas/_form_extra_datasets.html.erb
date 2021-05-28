@@ -1,9 +1,5 @@
-<% readonly_value = @project.project_datasets.any? ? safe_join(dataset_level_readonly(@project), raw('<br />')) : '' %>
 <fieldset>
   <legend>Extra Datasets</legend>
-  <% if @readonly %>
-    <%= readonly_value %>
-  <% else %>
   <table class="table table-hover">
     <tbody>
       <thead>
@@ -14,26 +10,17 @@
           <th colspan="2" style="text-align:center; border-top: 0px;">Level 3</th>
         </tr>
       </thead>
-      <% Dataset.cas_extras.each do |dataset| %>
-        <%= form.fields_for :project_datasets, ProjectDataset.new do |pd| %>
-          <%= pd.hidden_field :dataset_id, value: dataset.id %>
+        <%= form.fields_for :project_datasets, @project.project_datasets.sort_by { |x| - x.dataset_id } do |pd| %>
           <tr>
-            <td><%= dataset.name %></td>
-            <% Lookups::AccessLevel.all.each do |level| %>
-              <%= pd.fields_for :project_dataset_levels, ProjectDatasetLevel.new do |pdl| %>
-                <% if dataset.levels.include? level.value.to_i %>
-                  <td><%= pdl.check_box :access_level_id, {}, level.id %></td>
-                  <td><%= pdl.datepicker_field :expiry_date, placeholder: "Expiry date" %></td>
-                <% else %>
-                  <td></td>
-                  <td></td>
-                <% end %>
+            <%= pd.hidden_field :dataset_id, value: pd.object.dataset_id %>
+            <td><%= pd.object.dataset.name %></td>
+              <%= pd.fields_for :project_dataset_levels, pd.object.project_dataset_levels.sort_by { |x| - x.access_level_id } do |pdl| %>
+                <%= pdl.hidden_field :access_level_id, value: pdl.object.access_level_id %>
+                <td><%= pdl.check_box :selected, readonly_value: check_icon(pdl.object.selected) %></td>
+                <td><%= pdl.datepicker_field :expiry_date, placeholder: "Expiry date" %></td>
               <% end %>
-            <% end %>
           </tr>
         <% end %>
-      <% end %>
     </tbody>
   </table>
-  <% end %>
 </fieldset>

@@ -106,7 +106,8 @@ class ProjectsController < ApplicationController
 
   # POST /projects
   def create
-    @project = Project.new(cas_params) if @project.project_type_name == 'CAS'
+    binding.pry
+    # @project = Project.new(cas_params) if @project.project_type_name == 'CAS'
     # TODO: can we do this elsewhere
     unless @project.project_type_name == 'CAS'
       @team = @project.team
@@ -140,6 +141,7 @@ class ProjectsController < ApplicationController
 
   # PATCH/PUT /projects/1
   def update
+    binding.pry
     @full_form = true
 
     # TODO: Really? Can't we just sack this off?
@@ -259,9 +261,9 @@ class ProjectsController < ApplicationController
     params.permit(:data_source_id)
   end
 
-  def cas_params
-    CasDatasetLevel.new(project_params).call
-  end
+  # def cas_params
+  #   CasDatasetLevel.new(project_params).call
+  # end
 
   # Only allow a trusted parameter 'white list' through.
   def project_params
@@ -325,7 +327,7 @@ class ProjectsController < ApplicationController
                                     project_datasets_attributes: [:id, :project_id, :dataset_id,
                                                                   :terms_accepted, :_destroy,
                                                                   project_dataset_levels_attributes:
-                                                                  %i[project_dataset_id
+                                                                  %i[id project_dataset_id selected
                                                                      access_level_id expiry_date ]],
                                     project_attachments_attributes: %i[name attachment],
                                     # CAS

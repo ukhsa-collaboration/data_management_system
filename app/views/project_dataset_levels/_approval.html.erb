@@ -1,7 +1,6 @@
 <td><%= project_dataset.dataset_name %></td>
 <% project_dataset.project_dataset_levels.order(:id).each do |pdl|%>
     <td><%= pdl.access_level_id %></td>
-    <td><%= level_expiry_date(pdl) %></td>
     <td id="approvals_<%=dom_id(pdl)%>">
     <% if ProjectDataset.dataset_approval(current_user).include? project_dataset %>
       <% if pdl.approved.nil? %>

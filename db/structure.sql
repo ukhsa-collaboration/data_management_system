@@ -2968,7 +2968,8 @@ CREATE TABLE public.project_dataset_levels (
     project_dataset_id bigint,
     access_level_id integer,
     expiry_date date,
-    approved boolean
+    approved boolean,
+    selected boolean
 );
 
 
@@ -8168,6 +8169,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20210519161222'),
 ('20210519161356'),
 ('20210521102230'),
-('20210526131356');
+('20210526131356'),
+('20210528155947');
 
 
