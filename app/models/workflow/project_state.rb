@@ -33,6 +33,7 @@ module Workflow
     delegate :assigned_user, :assigning_user, to: :current_assignment, allow_nil: true
     delegate :full_name, to: :assigned_user,  prefix: true, allow_nil: true
     delegate :full_name, to: :assigning_user, prefix: true, allow_nil: true
+    delegate :assignable_users, to: :state
 
     def current_assignment
       assignments.order(id: :desc).limit(1).first

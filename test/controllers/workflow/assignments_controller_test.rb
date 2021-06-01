@@ -3,11 +3,17 @@ require 'test_helper'
 module Workflow
   class AssignmentsControllerTest < ActionDispatch::IntegrationTest
     def setup
-      @project  = projects(:dummy_project)
+      @project  = projects(:test_application)
       @user_one = users(:application_manager_one)
       @user_two = users(:application_manager_two)
 
-      @project.current_project_state.assign_to!(user: @user_one)
+      # Force project into a state that is temporally reassignable...
+      @project.project_states.build do |project_state|
+        project_state.state = workflow_states(:dpia_review)
+        project_state.assignments.build(assigned_user: @user_one)
+
+        project_state.save!(validate: false)
+      end
 
       sign_in(@user_one)
     end
@@ -45,7 +51,7 @@ module Workflow
 
     test 'should prevent assignment of a previous state' do
       previous_state = @project.current_project_state
-      @project.transition_to!(workflow_states(:step_one)) do |_, project_state|
+      @project.transition_to!(workflow_states(:dpia_moderation)) do |_, project_state|
         project_state.assignments.build(assigned_user: @user_one)
       end
 

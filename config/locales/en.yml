@@ -90,6 +90,13 @@ en:
         dpia_rejected: with application manager
         contract_draft: with senior application manager
         contract_completed: with ODR
+    workflow/assignment:
+      assigned_user:
+        default: Assigned User
+        dpia_review: Application Manager
+        dpia_rejected: Application Manager
+        contract_rejected: Application Manager
+        dpia_moderation: Approving Manager
   workflow/state:
     application:
       draft: New

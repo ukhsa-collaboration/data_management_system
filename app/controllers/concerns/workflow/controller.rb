@@ -65,7 +65,7 @@ module Workflow
       return unless id ||= params.dig(:project, :project_state, :assigned_user_id)
 
       @temporally_assigned_user ||=
-        User.all_application_managers.in_use.where.not(id: current_user).find_by(id: id)
+        @state.assignable_users.where.not(id: current_user).find_by(id: id)
     end
 
     def allocate_project

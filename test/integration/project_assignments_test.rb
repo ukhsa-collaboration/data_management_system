@@ -9,7 +9,13 @@ class ProjectAssignmentsTest < ActionDispatch::IntegrationTest
     user_one = users(:application_manager_one)
     user_two = users(:application_manager_two)
 
-    @project.current_project_state.assign_to!(user: user_one)
+    # Force project into a state that is temporally reassignable...
+    @project.project_states.build do |project_state|
+      project_state.state = workflow_states(:dpia_review)
+      project_state.assignments.build(assigned_user: user_one)
+
+      project_state.save!(validate: false)
+    end
 
     sign_in(user_one)
 

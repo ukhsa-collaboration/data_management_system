@@ -31,7 +31,7 @@ module Workflow
     end
 
     def assignable_users
-      User.all_application_managers.in_use.where.not(id: current_user)
+      @project_state.assignable_users
     end
   end
 end

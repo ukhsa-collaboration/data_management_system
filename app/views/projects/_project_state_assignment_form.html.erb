@@ -2,8 +2,7 @@
   model = project.current_project_state.assignments.build(assigned_user: project.temporally_assigned_user)
   url   = workflow_project_state_assignments_path(project.current_project_state)
 
-  # TODO: This should be smarter and tied to which roles are assignable for current state.
-  assignable_users = User.all_application_managers.in_use
+  assignable_users = project.current_project_state.assignable_users
 %>
 
 <%= form_with model: model, url: url, scope: :assignment, class: 'form-inline' do |form| %>
