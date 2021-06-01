@@ -106,7 +106,6 @@ class ProjectsController < ApplicationController
 
   # POST /projects
   def create
-    binding.pry
     # @project = Project.new(cas_params) if @project.project_type_name == 'CAS'
     # TODO: can we do this elsewhere
     unless @project.project_type_name == 'CAS'
@@ -141,7 +140,6 @@ class ProjectsController < ApplicationController
 
   # PATCH/PUT /projects/1
   def update
-    binding.pry
     @full_form = true
 
     # TODO: Really? Can't we just sack this off?

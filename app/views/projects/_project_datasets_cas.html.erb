@@ -18,7 +18,8 @@
       </tr>
     </thead>
     <tbody>
-      <% project.project_datasets.each do |project_dataset| %>
+      <!-- TODO fix this issue properly -->
+      <% project.project_datasets.where.not(id: nil).each do |project_dataset| %>
       <tr id="<%= dom_id(project_dataset) %>">
           <%= render partial: '/project_dataset_levels/approval', locals: { project_dataset: project_dataset } %>
       </tr>
