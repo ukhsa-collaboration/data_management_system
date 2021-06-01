@@ -151,11 +151,10 @@ class CasNotifierTest < ActiveSupport::TestCase
       a.project_datasets << ProjectDataset.new(dataset: dataset(84), terms_accepted: true)
       a.save!
     end
-
     title = 'CAS Application Requires Dataset Approval'
     assert_difference -> { Notification.by_title(title).count }, 3 do
-      project.datasets.each do |dataset|
-        dataset.approvers.each do |approver|
+      project.project_datasets.each do |project_dataset|
+        project_dataset.dataset.approvers.each do |approver|
           CasNotifier.requires_dataset_approval(project, approver.id)
         end
       end

@@ -138,13 +138,13 @@ class CasDatasetApprovalTest < ActionDispatch::IntegrationTest
     assert has_content?('Extra CAS Dataset One')
     assert has_content?('Extra CAS Dataset Two')
 
-    within("#project_dataset_#{grant_dataset.id}") do
+    within("#project_dataset_level_#{grant_pdl.id}") do
       assert has_css?('.btn-danger')
       assert has_css?('.btn-success')
       assert has_no_content?('PENDING')
     end
 
-    within("#project_dataset_#{non_grant_dataset.id}") do
+    within("#project_dataset_level_#{non_grant_pdl.id}") do
       assert has_no_css?('.btn-danger')
       assert has_no_css?('.btn-success')
       assert_equal find('#dataset_level_status').text, 'PENDING'
@@ -157,7 +157,7 @@ class CasDatasetApprovalTest < ActionDispatch::IntegrationTest
 
     click_link(href: '#datasets')
 
-    within("#project_dataset_#{non_grant_dataset.id}") do
+    within("#project_dataset_level_#{non_grant_pdl.id}") do
       assert has_no_css?('.btn-danger')
       assert has_no_css?('.btn-success')
       assert_equal find('#dataset_level_status').text, 'APPROVED'
@@ -170,7 +170,7 @@ class CasDatasetApprovalTest < ActionDispatch::IntegrationTest
 
     click_link(href: '#datasets')
 
-    within("#project_dataset_#{non_grant_dataset.id}") do
+    within("#project_dataset_level_#{non_grant_pdl.id}") do
       assert has_no_css?('.btn-danger')
       assert has_no_css?('.btn-success')
       assert_equal find('#dataset_level_status').text, 'DECLINED'
