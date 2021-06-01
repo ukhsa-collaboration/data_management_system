@@ -4,7 +4,7 @@ class ProjectDatasetLevelsController < ApplicationController
   load_and_authorize_resource :project_dataset, through: :project, shallow: true
   load_and_authorize_resource :project_dataset_level
 
-  before_action :challenge_yubikey, only: :approve
+  before_action :challenge_yubikey, only: :approve, if: :yubikey_protected_transition?
 
   respond_to :js, :html
 
@@ -24,5 +24,9 @@ class ProjectDatasetLevelsController < ApplicationController
 
   def project_dataset_level_params
     params.fetch(:project_dataset_level, {}).permit(:id, :approved)
+  end
+
+  def yubikey_protected_transition?
+    Rails.env.development? ? false : true
   end
 end

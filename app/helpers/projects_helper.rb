@@ -374,6 +374,8 @@ module ProjectsHelper
   end
 
   def level_expiry_date(project_dataset_level)
+    return unless project_dataset_level.expiry_date
+
     if project_dataset_level.approved
       project_dataset_level.expiry_date.strftime('%d/%m/%Y (expiry)')
     else
@@ -382,12 +384,13 @@ module ProjectsHelper
   end
 
   def setup_project(project)
-    (Dataset.cas_extras - project.project_datasets.map(&:dataset)).each do |dataset|
-      project.project_datasets.build(dataset_id: dataset.id)
+    (Dataset.cas_extras.pluck(:id) - project.project_datasets.pluck(:dataset_id)).each do |id|
+      project.project_datasets.build(dataset_id: id)
     end
     project.project_datasets.each do |pd|
-      (Lookups::AccessLevel.all.map(&:id) - pd.project_dataset_levels.map(&:access_level_id)).each do |x|
-        pd.project_dataset_levels.build(access_level_id: x)
+      (Lookups::AccessLevel.pluck(:id) - pd.project_dataset_levels.pluck(:access_level_id)).each do |x|
+        # pd.project_dataset_levels.build(access_level_id: x)
+        pd.project_dataset_levels.build(access_level_id: x, selected: [true, false].sample, expiry_date: [nil, Date.current].sample)
       end
     end
     project

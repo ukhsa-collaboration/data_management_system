@@ -47,6 +47,8 @@ class Project < ApplicationRecord
   validates_associated :project_datasets
   # validates_associated failing with non persisted children?
   # https://github.com/rails/rails/pull/32796
+  has_many :project_dataset_levels, -> { order(:project_dataset_id, :access_level_id) },
+           through: :project_datasets
 
   belongs_to :s251_exemption, class_name: 'Lookups::CommonLawExemption', optional: true
 
@@ -163,14 +165,6 @@ class Project < ApplicationRecord
   before_save :nullify_blank_lookups
 
   DATA_SOURCE_ITEM_NO_CLONE_FIELDS = %w[id project_id project_data_source_item_id].freeze
-
-  def project_dataset_levels
-    levels = []
-    project_datasets.each { |pd| levels << pd.project_dataset_levels.order(:access_level_id) }
-    return unless levels.any?
-
-    levels.flatten.select { |level| level.id != nil }
-  end
 
   def classification_names
     classifications.map(&:name)
