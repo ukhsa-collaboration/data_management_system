@@ -329,6 +329,7 @@ en:
         extra_datasets_rationale: Please state rationale for the selected datasets
       project:
         name: Project Title
+        assigned_user: Application Manager
       data_privacy_impact_assessment:
         ig_toolkit_version: Year of IG assessment status
         ig_score: IG score
@@ -354,3 +355,6 @@ en:
         drr_no: DRR No
         individual_to_release: Name(s) of individuals releasing data
         release_date: Data Release date
+      workflow/assignment:
+        assigned_user: Assigned User
+        assigned_user_id: Assigned User

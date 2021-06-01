@@ -13,6 +13,12 @@ module Workflow
       as_odr_user
       as_administrator
 
+      can :create, Assignment, project: {
+        current_project_state: {
+          assigned_user_id: user.id
+        }
+      }
+
       merge(ProjectWorkflowAbility.new(user))
       merge(EoiWorkflowAbility.new(user))
       merge(ApplicationWorkflowAbility.new(user))
@@ -60,6 +66,7 @@ module Workflow
 
       can :read,       ProjectState
       can :transition, Project
+      can :read,       :temporally_assigned_user
     end
 
     def as_administrator; end
