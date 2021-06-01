@@ -17,7 +17,7 @@ class CasApplicationFormTest < ActionDispatch::IntegrationTest
     assert page.has_content?('Preferred username')
 
     # content loading from lookup table
-    assert page.has_content?('Extra CAS Dataset')
+    assert page.has_content?('Extra Datasets')
     assert page.has_content?(lookups_cas_declaration(1).value)
 
     # Access level display as 3 accordions
@@ -27,14 +27,19 @@ class CasApplicationFormTest < ActionDispatch::IntegrationTest
     assert page.has_selector?('.panel-group', count: 3)
   end
 
-  test 'perseve user choice when loading edit form' do
+  test 'preserve user choice when loading edit form' do
     sign_in users(:odr_user) # CAS user role has not been set
     application = Project.new.tap do |app|
       app.owner = users(:odr_user)
       app.project_type = project_types(:cas)
       app.build_cas_application_fields(address: 'Fake Street', organisation: 'PHE',
                                        declaration: %w[1Yes 2No 4Yes])
-      app.dataset_ids = Dataset.cas.pluck(:id)
+      project_dataset = ProjectDataset.create(dataset: dataset(83), terms_accepted: true)
+      app.project_datasets << project_dataset
+      pdl1 = ProjectDatasetLevel.new(access_level_id: 1, expiry_date: Time.zone.today + 1.week, selected: true)
+      pdl2 = ProjectDatasetLevel.new(access_level_id: 2, expiry_date: Time.zone.today + 1.week, selected: true)
+      project_dataset.project_dataset_levels << pdl1
+      project_dataset.project_dataset_levels << pdl2
       app.save!
     end
 
@@ -44,8 +49,10 @@ class CasApplicationFormTest < ActionDispatch::IntegrationTest
     assert has_field?('Organisation employing user to do CAS work',
                       with: application.cas_application_fields.organisation)
 
-    Dataset.cas.pluck(:id).each do |id|
-      assert has_checked_field?("project_dataset_ids_#{id}")
+    within "#dataset_#{application.project_datasets.first.dataset.id}_row" do
+      assert has_checked_field?("level_1_check_box")
+      assert has_checked_field?("level_2_check_box")
+      assert_not has_checked_field?("level_3_check_box")
     end
 
     assert has_field?('cas_application_declaration_1', with: '1Yes')
