@@ -355,6 +355,9 @@ en:
         drr_no: DRR No
         individual_to_release: Name(s) of individuals releasing data
         release_date: Data Release date
+      workflow/project_state:
+        user: Initiating User
+        created_at: Date
       workflow/assignment:
         assigned_user: Assigned User
         assigned_user_id: Assigned User

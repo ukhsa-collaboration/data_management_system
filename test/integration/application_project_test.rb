@@ -302,6 +302,9 @@ class ApplicationProjectTest < ActionDispatch::IntegrationTest
     @project.transition_to!(workflow_states(:contract_draft))
     @project.transition_to!(workflow_states(:contract_completed))
 
+    sign_out(@user)
+    sign_in(@project.owner)
+
     visit project_path(@project)
     click_link 'Timeline'
 
