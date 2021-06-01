@@ -56,6 +56,8 @@ class ProjectDataset < ApplicationRecord
     return unless project.cas?
     return unless self.project_dataset_levels.any?
 
-    self.project_dataset_levels = self.project_dataset_levels - self.project_dataset_levels.select { |pdl| pdl.selected == false }
+    self.project_dataset_levels = self.project_dataset_levels - self.project_dataset_levels.select do |pdl|
+      pdl.selected == false
+    end
   end
 end

@@ -106,7 +106,6 @@ class ProjectsController < ApplicationController
 
   # POST /projects
   def create
-    # @project = Project.new(cas_params) if @project.project_type_name == 'CAS'
     # TODO: can we do this elsewhere
     unless @project.project_type_name == 'CAS'
       @team = @project.team
@@ -259,10 +258,6 @@ class ProjectsController < ApplicationController
     params.permit(:data_source_id)
   end
 
-  # def cas_params
-  #   CasDatasetLevel.new(project_params).call
-  # end
-
   # Only allow a trusted parameter 'white list' through.
   def project_params
     params.require(:project).permit(:alternative_data_access_address,
@@ -324,9 +319,9 @@ class ProjectsController < ApplicationController
                                                                roleable_id roleable_type],
                                     project_datasets_attributes: [:id, :project_id, :dataset_id,
                                                                   :terms_accepted, :_destroy,
-                                                                  project_dataset_levels_attributes:
+                                                                  { project_dataset_levels_attributes:
                                                                   %i[id project_dataset_id selected
-                                                                     access_level_id expiry_date ]],
+                                                                     access_level_id expiry_date ] }],
                                     project_attachments_attributes: %i[name attachment],
                                     # CAS
                                     cas_application_fields_attributes: cas_fields)

@@ -593,7 +593,7 @@ class Project < ApplicationRecord
     return unless cas?
     return unless project_datasets.any?
 
-    project_datasets.each do |pd| 
+    project_datasets.each do |pd|
       pd.destroy if pd.project_dataset_levels.none?
     end
   end

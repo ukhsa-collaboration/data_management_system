@@ -50,9 +50,9 @@ class CasApplicationFormTest < ActionDispatch::IntegrationTest
                       with: application.cas_application_fields.organisation)
 
     within "#dataset_#{application.project_datasets.first.dataset.id}_row" do
-      assert has_checked_field?("level_1_check_box")
-      assert has_checked_field?("level_2_check_box")
-      assert_not has_checked_field?("level_3_check_box")
+      assert has_checked_field?('level_1_check_box')
+      assert has_checked_field?('level_2_check_box')
+      assert_not has_checked_field?('level_3_check_box')
     end
 
     assert has_field?('cas_application_declaration_1', with: '1Yes')

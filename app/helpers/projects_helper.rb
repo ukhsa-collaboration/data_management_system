@@ -363,16 +363,6 @@ module ProjectsHelper
     "#{project_sub_type_path_prefix(project)}/form"
   end
 
-  def dataset_level_readonly(project)
-    project.project_datasets.map do |pd|
-      pd.project_dataset_levels.map do |pdl|
-        Dataset.find(pd.dataset_id).name + ' ' +
-          Lookups::AccessLevel.find(pdl.access_level_id).description + ' ' +
-          pdl.expiry_date.strftime('Expiry Date: %d/%m/%Y').to_s
-      end
-    end
-  end
-
   def level_expiry_date(project_dataset_level)
     return unless project_dataset_level.expiry_date
 
@@ -388,9 +378,9 @@ module ProjectsHelper
       project.project_datasets.build(dataset_id: id)
     end
     project.project_datasets.each do |pd|
-      (Lookups::AccessLevel.pluck(:id) - pd.project_dataset_levels.pluck(:access_level_id)).each do |x|
-        # pd.project_dataset_levels.build(access_level_id: x)
-        pd.project_dataset_levels.build(access_level_id: x, selected: [true, false].sample, expiry_date: [nil, Date.current].sample)
+      levels = Lookups::AccessLevel.pluck(:id) - pd.project_dataset_levels.pluck(:access_level_id)
+      levels.each do |level|
+        pd.project_dataset_levels.build(access_level_id: level)
       end
     end
     project

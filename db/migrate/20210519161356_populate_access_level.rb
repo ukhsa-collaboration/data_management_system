@@ -1,3 +1,4 @@
+# Populate access_level lookup table
 class PopulateAccessLevel < ActiveRecord::Migration[6.0]
   include MigrationHelper
 
