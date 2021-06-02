@@ -94,6 +94,10 @@ module Workflow
       previous_state&.state_id
     end
 
+    def current_state_name
+      current_state&.name(self)
+    end
+
     def refresh_workflow_state_information
       reload_current_state
       reload_current_project_state

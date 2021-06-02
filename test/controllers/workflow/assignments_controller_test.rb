@@ -80,5 +80,24 @@ module Workflow
       assert_redirected_to project_path(@project)
       assert_equal 'Could not assign project!', flash[:alert]
     end
+
+    test 'sends notification emails on successful assignment' do
+      project_state = @project.current_project_state
+      args = {
+        project:     @project,
+        assigned_to: @user_two,
+        assigned_by: @user_one
+      }
+
+      assert_enqueued_emails 1 do
+        assert_enqueued_email_with ProjectsMailer, :project_assignment, args: args do
+          post workflow_project_state_assignments_path(project_state), params: {
+            assignment: {
+              assigned_user_id: @user_two.id
+            }
+          }
+        end
+      end
+    end
   end
 end

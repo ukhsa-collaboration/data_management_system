@@ -11,6 +11,12 @@ module Workflow
       @assignment.assigned_user  = assignable_users.find_by(id: @assignment.assigned_user_id)
 
       if @assignment.save
+        ProjectsMailer.with(
+          project:     @assignment.project,
+          assigned_to: @assignment.assigned_user,
+          assigned_by: @assignment.assigning_user
+        ).project_assignment.deliver_later
+
         redirect_to @project_state.project, notice: 'Project assigned successfully'
       else
         redirect_to @project_state.project, alert: 'Could not assign project!'
