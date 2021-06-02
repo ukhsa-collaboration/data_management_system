@@ -91,8 +91,6 @@ class ProjectDatasetLevelTest < ActiveSupport::TestCase
                                   approved: true)
     project_dataset.project_dataset_levels << pdl
 
-    notifications = Notification.where(title: 'CAS Application Requires Dataset Approval')
-
     project.transition_to!(workflow_states(:submitted))
 
     assert_no_difference 'notifications.count' do

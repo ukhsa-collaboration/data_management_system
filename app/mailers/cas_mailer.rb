@@ -113,6 +113,6 @@ class CasMailer < ApplicationMailer
   end
 
   def load_project_dataset_level
-    @project_dataset_level ||= params[:project_dataset_level]
+    @load_project_dataset_level ||= params[:project_dataset_level]
   end
 end

@@ -18,12 +18,10 @@
       </tr>
     </thead>
     <tbody>
-      <% if project.project_dataset_levels %>
-        <% project.project_dataset_levels.each do |project_dataset_level| %>
+      <% project.project_dataset_levels.each do |project_dataset_level| %>
         <tr id="<%= dom_id(project_dataset_level) %>">
-            <%= render partial: '/project_dataset_levels/approval', locals: { project_dataset_level: project_dataset_level } %>
+          <%= render partial: '/project_dataset_levels/approval', locals: { project_dataset_level: project_dataset_level } %>
         </tr>
-        <% end %>
       <% end %>
     </tbody>
   </table>

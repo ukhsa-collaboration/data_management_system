@@ -1,7 +1,6 @@
 # This controller RESTfully manages Project Dataset Level
 class ProjectDatasetLevelsController < ApplicationController
   load_and_authorize_resource :project
-  load_and_authorize_resource :project_dataset, through: :project, shallow: true
   load_and_authorize_resource :project_dataset_level
 
   before_action :challenge_yubikey, only: :approve, if: :yubikey_protected_transition?

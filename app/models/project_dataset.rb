@@ -11,7 +11,6 @@ class ProjectDataset < ApplicationRecord
   }, class_name: 'Grant'
   has_many :approvers, through: :approver_grants, class_name: 'User', source: :user
   has_many :project_dataset_levels, dependent: :destroy
-  has_many :access_levels, through: :project_dataset_levels
   accepts_nested_attributes_for :project_dataset_levels
 
   # Allow for auditing/version tracking of TeamDataSource
@@ -41,7 +40,7 @@ class ProjectDataset < ApplicationRecord
 
   validate :terms_accepted_for_dataset
 
-  before_save :destroy_project_dataset_levels_without_access_level_id
+  before_save :destroy_project_dataset_levels_without_selected
 
   # TODO: TEST
   def terms_accepted_for_dataset
@@ -52,12 +51,14 @@ class ProjectDataset < ApplicationRecord
     errors.add(:project_dataset, "Terms accepted can't be blank")
   end
 
-  def destroy_project_dataset_levels_without_access_level_id
+  def destroy_project_dataset_levels_without_selected
     return unless project.cas?
-    return unless self.project_dataset_levels.any?
+    return unless project_dataset_levels.any?
 
-    self.project_dataset_levels = self.project_dataset_levels - self.project_dataset_levels.select do |pdl|
+    not_selected = project_dataset_levels.select do |pdl|
       pdl.selected == false
     end
+
+    self.project_dataset_levels = (project_dataset_levels - not_selected)
   end
 end

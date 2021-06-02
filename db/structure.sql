@@ -2965,6 +2965,8 @@ ALTER SEQUENCE public.project_data_source_items_id_seq OWNED BY public.project_d
 
 CREATE TABLE public.project_dataset_levels (
     id bigint NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL,
     project_dataset_id bigint,
     access_level_id integer,
     expiry_date date,
@@ -8169,7 +8171,6 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20210519161222'),
 ('20210519161356'),
 ('20210521102230'),
-('20210526131356'),
-('20210528155947');
+('20210526131356');
 
 

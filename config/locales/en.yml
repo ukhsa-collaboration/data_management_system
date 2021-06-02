@@ -263,34 +263,6 @@ en:
     eoi: ODR EOI
     application: ODR Application
     cas: CAS Application
-  dataset:
-    cas:
-      level1_1: Encore application schema incl. name and addresses
-      level1_2: Plus all datasets listed in access level 2
-      level2_1: 'Cancer registration tables (at_tumour etc) monthly snapshots & casref01 schema: ANALYSISNCR, AV2013 etc...'
-      level2_2: Encore application schema e.g. z-lookups, electronic record tables
-      level2_3: 'Cancer registration tables: Wales, N Ireland, Scotland Schema: UK2013 etc... (see declaration 4)'
-      level2_4: 'National Cancer Repository Dataset 2010 schema: NCDR2010'
-      level2_5: 'Hospital Episode Statistics Admitted Patient Care, A&E and Outpatients schema: HES2015, HES2016'
-      level2_6: 'Chemotherapy (SACT) schema: SACT2014, etc'
-      level2_7: 'Radiotherapy (RTDS) schema: RTDS2013 etc...'
-      level2_8: 'Diagnostic Imaging Dataset (DIDs) schema: DIDS'
-      level2_9: 'CWT treatment schema: CWTPROC'
-      level2_10: 'Cancer Patient Experience Survey (CPES) schema: CPES'
-      level2_11: 'Screening data - bowel, cervical, breast'
-      level2_12: 'BCCOM - Breast Cancer Clinical Outcomes Measures'
-      level2_13: 'National Prostate Cancer Audit'
-      level2_14: 'BAUS - urological cancer audit'
-      level2_15: 'GP Audit 2009'
-      level2_16: 'DAHNO - head and neck audit schema: DAHNO_CAP_8AR'
-      level2_17: 'NBOCAP - bowel cancer audit schema: NBOCAP'
-      level2_18: 'LUCADA / NLCA - lung cancer audit schema: LUCADA2012 etc...'
-      level3_1: 'Anonymised cancer registration tables (an_tumour etc) monthly snapshots & casref01 schema: ANALYSISNCR, AV2013 etc...'
-      level3_2: 'Anonymised cancer registration tables: Wales, N Ireland, Scotland schema: UK2013 etc... (see declaration 4'
-      level3_3: 'Anonymised National Cancer Repository Dataset 2010 schema: NCDR2010'
-      level3_4: 'Anonymised radiotherapy (RTDS) schema: RTDS2013 etc...'
-      level3_5: 'Anonymised DAHNO - head and neck audit schema: DAHNO_CAP_8AR'
-      level3_6: 'Simulacrum Schema: simulacrum_1_2'
   dataset_type:
     xml:
       name: XML

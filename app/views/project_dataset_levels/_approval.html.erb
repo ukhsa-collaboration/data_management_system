@@ -1,6 +1,6 @@
 <td><%= project_dataset_level.project_dataset.dataset_name %></td>
 <td><%= project_dataset_level.access_level_id %></td>
-<td><%= level_expiry_date(project_dataset_level) %></td>
+<td><%= display_level_date(project_dataset_level) %></td>
 <td id="approvals_<%=dom_id(project_dataset_level)%>">
 <% if ProjectDataset.dataset_approval(current_user).include? project_dataset_level.project_dataset %>
   <% if project_dataset_level.approved.nil? %>

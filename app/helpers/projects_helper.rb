@@ -363,7 +363,7 @@ module ProjectsHelper
     "#{project_sub_type_path_prefix(project)}/form"
   end
 
-  def level_expiry_date(project_dataset_level)
+  def display_level_date(project_dataset_level)
     return unless project_dataset_level.expiry_date
 
     if project_dataset_level.approved

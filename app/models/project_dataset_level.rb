@@ -1,7 +1,6 @@
 # Model for the ProjectDatasetLevel class
 class ProjectDatasetLevel < ApplicationRecord
   belongs_to :project_dataset
-  belongs_to :access_level, class_name: 'Lookups::AccessLevel'
 
   after_update :notify_cas_approved_change
 
