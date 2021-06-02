@@ -23,7 +23,7 @@ class ProjectDataset < ApplicationRecord
       grants: { user_id: user.id,
                 roleable_type: 'DatasetRole',
                 roleable_id: DatasetRole.fetch(:approver).id }
-    ).select { |pd| pd.project_dataset_levels.any? { |pdl| approved_values.include? pdl.approved } }
+    ).joins(:project_dataset_levels).where(project_dataset_levels: { approved: approved_values })
   }
 
   # data_source_name

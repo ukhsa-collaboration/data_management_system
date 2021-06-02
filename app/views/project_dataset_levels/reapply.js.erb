@@ -1,5 +1,5 @@
 <%
-  @project ||= @project_dataset_level.project_dataset.project # shallow routing means this may not have been set
+  @project ||= @project_dataset_level.project # shallow routing means this may not have been set
 %>
 
 $('#<%= "project_dataset_level_#{@project_dataset_level.id}"%>').html("<%= escape_javascript(render partial: 'project_dataset_levels/approval', locals: { project_dataset_level: @project_dataset_level } ) %>");

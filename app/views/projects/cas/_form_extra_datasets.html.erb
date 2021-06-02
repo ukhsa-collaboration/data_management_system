@@ -13,7 +13,9 @@
       <%= form.fields_for :project_datasets, @project.project_datasets.sort_by(&:dataset_id) do |pd| %>
         <tr id="dataset_<%=pd.object.dataset.id=%>_row">
           <%= pd.hidden_field :dataset_id, value: pd.object.dataset_id %>
-          <td width="31%"><%= pd.object.dataset.name %></td>
+          <td width="31%" data-toggle="tooltip" data-placement="left" title="<%= pd.object.dataset.name %>">
+            <%= truncate(pd.object.dataset.name) %>
+          </td>
           <%= pd.fields_for :project_dataset_levels, pd.object.project_dataset_levels.sort_by(&:access_level_id) do |pdl| %>
             <% if pd.object.dataset.levels.include? pdl.object.access_level_id %>
               <%= pdl.hidden_field :access_level_id, value: pdl.object.access_level_id %>
