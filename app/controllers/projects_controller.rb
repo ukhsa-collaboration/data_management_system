@@ -197,11 +197,15 @@ class ProjectsController < ApplicationController
     previous_assignee = @project.assigned_user
 
     if @project.update(assign_params)
-      alert = @project.assigned_user ? :project_assignment : :project_awaiting_assignment
-      ProjectsNotifier.send(alert, project: @project, assigned_by: previous_assignee)
-      ProjectsMailer.with(project: @project, assigned_by: previous_assignee).
-        send(alert).
-        deliver_now
+      alert  = @project.assigned_user ? :project_assignment : :project_awaiting_assignment
+      kwargs = {
+        project: @project,
+        assigned_to: @project.assigned_user,
+        assigned_by: previous_assignee
+      }
+
+      ProjectsNotifier.send(alert, **kwargs)
+      ProjectsMailer.with(**kwargs).send(alert).deliver_now
 
       redirect_to @project, notice: "#{@project.project_type_name} was successfully assigned"
     else

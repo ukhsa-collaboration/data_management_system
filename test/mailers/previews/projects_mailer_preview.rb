@@ -4,7 +4,10 @@ class ProjectsMailerPreview < ActionMailer::Preview
     project = Project.first
     project.assigned_user = User.application_managers.first
 
-    ProjectsMailer.with(project: project).project_assignment
+    ProjectsMailer.with(
+      project:     project,
+      assigned_to: project.assigned_user
+    ).project_assignment
   end
 
   def project_awaiting_assignment

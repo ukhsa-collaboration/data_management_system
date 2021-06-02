@@ -1,9 +1,9 @@
 # Generates `Notification`s relating to `Project`s.
 class ProjectsNotifier
   class << self
-    def project_assignment(project:, assigned_by: nil)
+    def project_assignment(project:, assigned_to:, assigned_by: nil)
       create_notification(
-        user_id: project.assigned_user_id,
+        user_id: assigned_to.id,
         title: 'Project Assignment',
         body: "#{project.name} (#{project.project_type.name}) has been assigned to you by " \
               "#{assigned_by&.full_name || 'the MBIS system'}.\n\n"
