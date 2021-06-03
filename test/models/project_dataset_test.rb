@@ -64,4 +64,21 @@ class ProjectDatasetTest < ActiveSupport::TestCase
 
     assert_equal 0, ProjectDataset.dataset_approval(users(:cas_dataset_approver), [nil]).count
   end
+
+  test 'destroy_project_dataset_levels_without_selected before_save callback' do
+    project = create_cas_project(owner: users(:standard_user2))
+    project_dataset = ProjectDataset.new(dataset: dataset(83), terms_accepted: true)
+    project.project_datasets << project_dataset
+    pdl1 = ProjectDatasetLevel.new(access_level_id: 1, expiry_date: Time.zone.today, selected: true)
+    pdl2 = ProjectDatasetLevel.new(access_level_id: 2, expiry_date: Time.zone.today,
+                                   selected: false)
+    project_dataset.project_dataset_levels << pdl1
+    project_dataset.project_dataset_levels << pdl2
+    project_dataset.save!
+
+    assert pdl1.persisted?
+    refute pdl2.persisted?
+    assert project_dataset.project_dataset_levels.include? pdl1
+    refute project_dataset.project_dataset_levels.include? pdl2
+  end
 end

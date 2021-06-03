@@ -521,4 +521,27 @@ class ProjectTest < ActiveSupport::TestCase
     project.application_date = timestamp
     assert_equal timestamp, project.application_date
   end
+
+  test 'destroy_project_datasets_without_any_levels after_save callback' do
+    project = create_cas_project(owner: users(:standard_user2))
+    project_dataset = ProjectDataset.new(dataset: dataset(83), terms_accepted: true)
+    project.project_datasets << project_dataset
+    pdl1 = ProjectDatasetLevel.new(access_level_id: 1, expiry_date: Time.zone.today, selected: true)
+    pdl2 = ProjectDatasetLevel.new(access_level_id: 2, expiry_date: Time.zone.today, selected: true)
+    project_dataset.project_dataset_levels << pdl1
+    project_dataset.project_dataset_levels << pdl2
+    project.save!
+
+    pdl2.destroy
+    project.save!
+    project.reload
+
+    assert_equal project.project_datasets.size, 1
+
+    pdl1.destroy
+    project.save!
+    project.reload
+
+    assert_equal project.project_datasets.size, 0
+  end
 end
