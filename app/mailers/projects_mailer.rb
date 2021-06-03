@@ -5,6 +5,9 @@ class ProjectsMailer < ApplicationMailer
   def project_assignment
     @assigned_to = params[:assigned_to]
     @assigned_by = params[:assigned_by]
+    @comments    = params[:comments]
+
+    return if @assigned_to.blank?
 
     return unless @project.odr? || @project.project?
     return unless @assigned_to == @project.assigned_user ||

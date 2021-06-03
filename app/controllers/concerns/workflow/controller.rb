@@ -12,7 +12,10 @@ module Workflow
       before_action :restore_params,    only: :transition, prepend: true
       before_action :challenge_yubikey, only: :transition, if: :yubikey_protected_transition?
 
-      after_action :allocate_project, only: :transition
+      with_options only: :transition do
+        after_action :allocate_project
+        around_action :notify_temporally_assigned_user
+      end
     end
 
     # PATCH
@@ -33,15 +36,6 @@ module Workflow
         # NOTE: Meh. Rather than adding and drilling through layers of nested attributes we'll
         # redirect the comment attributes onto the `project_state` object instead.
         project_state.assign_attributes(comment_params)
-      end
-
-      if @project.current_state.id.in? %w[DPIA_REJECTED DPIA_MODERATION]
-        ProjectsNotifier.project_dpia_updated(
-          project: @project,
-          status: @project.current_state.id,
-          user_to_notify: temporally_assigned_user || @project.assigned_user,
-          comment: comment_params[:body]
-        )
       end
 
       redirect_to @project
@@ -66,6 +60,22 @@ module Workflow
 
       @temporally_assigned_user ||=
         @state.assignable_users.where.not(id: current_user).find_by(id: id)
+    end
+
+    def notify_temporally_assigned_user
+      initial_project_state = @project.current_project_state
+      yield
+      new_project_state = @project.current_project_state
+
+      return if initial_project_state == new_project_state
+      return if new_project_state.assigned_user_id.blank?
+
+      ProjectsMailer.with(
+        project:     @project,
+        assigned_to: temporally_assigned_user,
+        assigned_by: current_user,
+        comments:    comment_params.dig(:comments_attributes, '0', :body)
+      ).project_assignment.deliver_later
     end
 
     def allocate_project

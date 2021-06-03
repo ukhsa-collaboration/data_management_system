@@ -42,5 +42,9 @@ module Workflow
 
       User.none
     end
+
+    def to_lookup_key
+      id.parameterize(separator: '_').to_sym
+    end
   end
 end

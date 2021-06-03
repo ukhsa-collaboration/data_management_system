@@ -6,7 +6,9 @@ class ProjectsMailerPreview < ActionMailer::Preview
 
     ProjectsMailer.with(
       project:     project,
-      assigned_to: project.assigned_user
+      assigned_to: project.assigned_user,
+      assigned_by: project.assigned_user,
+      comments:    'This is a test!'
     ).project_assignment
   end
 

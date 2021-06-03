@@ -368,3 +368,13 @@ en:
       workflow/assignment:
         assigned_user: Assigned User
         assigned_user_id: Assigned User
+  projects_mailer:
+    project_assignment:
+      heading: "%{title} - %{state}"
+      body: A project has been assigned to you by %{assigner}.
+      dpia_review:
+        body: A project has been sent to you for peer review by %{assigner}.
+      dpia_rejected:
+        body: A DPIA for this project has been rejected by %{assigner}.
+      dpia_moderation:
+        body: A project has been sent to you for senior application manager moderation by %{assigner}.
