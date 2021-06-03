@@ -29,7 +29,7 @@ class ProjectsController < ApplicationController
                                     order(updated_at: :desc)
     @my_projects                  = current_user.projects.my_projects_search(search_params).
                                     order(updated_at: :desc)
-    @assigned_projects            = @projects.assigned_to(current_user)
+    @assigned_projects            = @projects.assigned_to(current_user, check_temporal: true)
     @unassigned_projects          = @projects.unassigned
 
     @all_projects_filtered        = @projects.by_project_type(type_filter).order(updated_at: :desc)
