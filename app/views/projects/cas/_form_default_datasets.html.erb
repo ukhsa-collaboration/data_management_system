@@ -1,5 +1,12 @@
 <script>
 function togglecheckboxes(master,group){
+  var master_checked = master.checked
+  var defaultscheckboxarray = document.getElementsByClassName('defaults_checkbox');
+  for(var i = 0; i < defaultscheckboxarray.length; i++){
+    var role = document.getElementById(defaultscheckboxarray[i].id);
+    role.checked = false;
+    master.checked = master_checked;
+  }
   var cbarray = document.getElementsByClassName(group);
   for(var i = 0; i < cbarray.length; i++){
     var cb = document.getElementById(cbarray[i].id);
@@ -10,9 +17,9 @@ function togglecheckboxes(master,group){
 
 <fieldset>
   <legend>Role based dataset defaults</legend>
-  <input type="checkbox" id="cancer_analyst" onchange="togglecheckboxes(this, 'ca_group')"> Cancer Analyst
-  <input type="checkbox" id="cancer_analyst" onchange="togglecheckboxes(this, 'd_group')"> Developer
-  <input type="checkbox" id="cancer_analyst" onchange="togglecheckboxes(this, 'qa_group')"> QA
+  <input type="checkbox" class="defaults_checkbox role_checkboxes" id="cancer_analyst" onchange="togglecheckboxes(this, 'ca_group')"> Cancer Analyst
+  <input type="checkbox" class="defaults_checkbox role_checkboxes" id="developer" onchange="togglecheckboxes(this, 'd_group')"> Developer
+  <input type="checkbox" class="defaults_checkbox role_checkboxes" id="qa" onchange="togglecheckboxes(this, 'qa_group')"> QA
 </fieldset>
 
 <fieldset>
