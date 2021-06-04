@@ -686,8 +686,8 @@ module Workflow
       refute user.can? :create, @project.project_states.build(state: workflow_states(:submitted))
       refute user.can? :create, @project.project_states.build(state: workflow_states(:dpia_start))
       refute user.can? :create, @project.project_states.build(state: workflow_states(:dpia_review))
-      refute user.can? :create, @project.project_states.build(state: workflow_states(:dpia_moderation))
-      refute user.can? :create, @project.project_states.build(state: workflow_states(:dpia_rejected))
+      # refute user.can? :create, @project.project_states.build(state: workflow_states(:dpia_moderation))
+      # refute user.can? :create, @project.project_states.build(state: workflow_states(:dpia_rejected))
       refute user.can? :create, @project.project_states.build(state: workflow_states(:contract_draft))
       refute user.can? :create, @project.project_states.build(state: workflow_states(:contract_rejected))
       refute user.can? :create, @project.project_states.build(state: workflow_states(:contract_completed))
@@ -697,6 +697,17 @@ module Workflow
         assert user.can? :create, @project.project_states.build(state: workflow_states(:dpia_moderation))
         assert user.can? :create, @project.project_states.build(state: workflow_states(:dpia_rejected))
       end
+      #####
+      # FIXME: This becomes redundant once support for the adoption of temporal assignment is
+      # removed (see the monkey patch in/for Workflow::Ability::ApplicationWorkflowAbility),
+      # at which point the behaviour should match that of L#689 & L#690 above.
+      with_temporal_assignment_to(users(:application_manager_two), @project) do
+        refute user.can? :create, @project.project_states.build(state: workflow_states(:dpia_moderation))
+        refute user.can? :create, @project.project_states.build(state: workflow_states(:dpia_rejected))
+      end
+      assert user.can? :create, @project.project_states.build(state: workflow_states(:dpia_moderation))
+      assert user.can? :create, @project.project_states.build(state: workflow_states(:dpia_rejected))
+      #####
 
       transition_to(@project, workflow_states(:dpia_moderation))
       refute user.can? :create, @project.project_states.build(state: workflow_states(:submitted))
@@ -839,6 +850,13 @@ module Workflow
         assert user.can? :create, @project.project_states.build(state: workflow_states(:dpia_rejected))
         assert user.can? :create, @project.project_states.build(state: workflow_states(:contract_draft))
       end
+      #####
+      # FIXME: This becomes redundant once support for the adoption of temporal assignment is
+      # removed (see the monkey patch in/for Workflow::Ability::ApplicationWorkflowAbility).
+      @project.update_column(:assigned_user_id, user.id)
+      assert user.can? :create, @project.project_states.build(state: workflow_states(:dpia_rejected))
+      assert user.can? :create, @project.project_states.build(state: workflow_states(:contract_draft))
+      #####
 
       transition_to(@project, workflow_states(:dpia_rejected))
       refute user.can? :create, @project.project_states.build(state: workflow_states(:submitted))
