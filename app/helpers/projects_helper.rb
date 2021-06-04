@@ -386,7 +386,7 @@ module ProjectsHelper
       levels.each do |level|
         # added to stop duplication in error screen
         if pd.project_dataset_levels.select { |pdl| pdl.access_level_id == level }.none?
-        pd.project_dataset_levels.build(access_level_id: level)
+          pd.project_dataset_levels.build(access_level_id: level)
         end
       end
     end
@@ -401,9 +401,9 @@ module ProjectsHelper
 
   def check_box_class(dataset_id, level)
     class_string = 'defaults_checkbox '
-    class_string << 'ca_group ' if Dataset::CancerAnalystDatasetIds.include? [dataset_id, level]
-    class_string << 'd_group ' if Dataset::DeveloperDatasetIds.include? [dataset_id, level]
-    class_string << 'qa_group ' if Dataset::QADatasetIds.include? [dataset_id, level]
+    class_string << 'ca_group ' if Dataset::CANCER_ANALYST_DATASETIDS.include? [dataset_id, level]
+    class_string << 'd_group ' if Dataset::DEVELOPER_DATASET_IDS.include? [dataset_id, level]
+    class_string << 'qa_group ' if Dataset::QA_DATASET_IDS.include? [dataset_id, level]
 
     class_string.strip!
   end

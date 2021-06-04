@@ -1,18 +1,22 @@
 <script>
-function togglecheckboxes(master,group){
-  var master_checked = master.checked
-  var defaultscheckboxarray = document.getElementsByClassName('defaults_checkbox');
-  for(var i = 0; i < defaultscheckboxarray.length; i++){
-    var role = document.getElementById(defaultscheckboxarray[i].id);
-    role.checked = false;
-    master.checked = master_checked;
+  function clearcheckboxes(master){
+    var master_checked = master.checked
+    var defaultscheckboxarray = document.getElementsByClassName('defaults_checkbox');
+    for(var i = 0; i < defaultscheckboxarray.length; i++){
+      var role = document.getElementById(defaultscheckboxarray[i].id);
+      role.checked = false;
+      master.checked = master_checked;
+    }
   }
-  var cbarray = document.getElementsByClassName(group);
-  for(var i = 0; i < cbarray.length; i++){
-    var cb = document.getElementById(cbarray[i].id);
-    cb.checked = master.checked;
+
+  function togglecheckboxes(master,group){
+    clearcheckboxes(master);
+    var cbarray = document.getElementsByClassName(group);
+    for(var i = 0; i < cbarray.length; i++){
+      var cb = document.getElementById(cbarray[i].id);
+      cb.checked = master.checked;
+    }
   }
-}
 </script>
 
 <fieldset>

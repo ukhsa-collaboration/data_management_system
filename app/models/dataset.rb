@@ -1,8 +1,11 @@
 # Dataset Model
 class Dataset < ApplicationRecord
-  CancerAnalystDatasetIds = [[29, 1], [24, 2], [30, 1], [45, 2], [22, 1], [35, 2], [6, 2], [38, 1], [36, 2], [16, 1]].freeze
-  DeveloperDatasetIds = [[35, 1], [18, 2], [43, 1], [45, 2], [23, 1], [29, 2], [22, 1], [33, 2], [6, 3], [25, 1]].freeze
-  QADatasetIds = [[45, 2], [29, 1], [16, 2], [27, 1], [18, 2], [38, 1], [28, 2], [25, 1], [58, 2], [30, 1]].freeze
+  CANCER_ANALYST_DATASETIDS = [[29, 1], [24, 2], [30, 1], [45, 2], [22, 1], [35, 2], [6, 2],
+                               [38, 1], [36, 2], [16, 1]].freeze
+  DEVELOPER_DATASET_IDS = [[35, 1], [18, 2], [43, 1], [45, 2], [23, 1], [29, 2], [22, 1], [33, 2],
+                           [6, 3], [25, 1]].freeze
+  QA_DATASET_IDS = [[45, 2], [29, 1], [16, 2], [27, 1], [18, 2], [38, 1], [28, 2], [25, 1], [58, 2],
+                    [30, 1]].freeze
 
   belongs_to :team
   belongs_to :dataset_type, inverse_of: :datasets
