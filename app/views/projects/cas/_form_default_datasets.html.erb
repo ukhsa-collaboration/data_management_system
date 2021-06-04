@@ -1,3 +1,20 @@
+<script>
+function togglecheckboxes(master,group){
+  var cbarray = document.getElementsByClassName(group);
+  for(var i = 0; i < cbarray.length; i++){
+    var cb = document.getElementById(cbarray[i].id);
+    cb.checked = master.checked;
+  }
+}
+</script>
+
+<fieldset>
+  <legend>Role based dataset defaults</legend>
+  <input type="checkbox" id="cancer_analyst" onchange="togglecheckboxes(this, 'ca_group')"> Cancer Analyst
+  <input type="checkbox" id="cancer_analyst" onchange="togglecheckboxes(this, 'd_group')"> Developer
+  <input type="checkbox" id="cancer_analyst" onchange="togglecheckboxes(this, 'qa_group')"> QA
+</fieldset>
+
 <fieldset>
   <legend>Default Datasets</legend>
   <table id="default_datasets" class="table table-hover">
@@ -19,7 +36,7 @@
           <%= pd.fields_for :project_dataset_levels, pd.object.project_dataset_levels.sort_by(&:access_level_id) do |pdl| %>
             <% if pd.object.dataset.levels.include? pdl.object.access_level_id %>
               <%= pdl.hidden_field :access_level_id, value: pdl.object.access_level_id %>
-              <td id="level_<%= pdl.object.access_level_id %>_selected" width="3%"><%= pdl.check_box :selected, id: "level_#{pdl.object.access_level_id}_check_box", readonly_value: check_icon(pdl.object.selected) %></td>
+              <td id="level_<%= pdl.object.access_level_id %>_selected" width="3%"><%= pdl.check_box :selected, class: check_box_class(pd.object.dataset.id, pdl.object.access_level_id), id: "dataset_#{pd.object.dataset.id}_level_#{pdl.object.access_level_id}_check_box", readonly_value: check_icon(pdl.object.selected) %></td>
               <td id="level_<%= pdl.object.access_level_id %>_expiry_date" width="20%"><%= pdl.datepicker_field :expiry_date, id: "level_#{pdl.object.access_level_id}_expiry_datepicker", placeholder: "Expiry date", readonly_value: display_level_date(pdl.object) %></td>
             <% else %>
               <td id="level_<%= pdl.object.access_level_id %>_selected"></td>

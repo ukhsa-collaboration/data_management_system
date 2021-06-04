@@ -398,4 +398,13 @@ module ProjectsHelper
 
     bootstrap_icon_tag('remove')
   end
+
+  def check_box_class(dataset_id, level)
+    class_string = ''
+    class_string << 'ca_group ' if Dataset::CancerAnalystDatasetIds.include? [dataset_id, level]
+    class_string << 'd_group ' if Dataset::DeveloperDatasetIds.include? [dataset_id, level]
+    class_string << 'qa_group ' if Dataset::QADatasetIds.include? [dataset_id, level]
+
+    class_string.strip!
+  end
 end
