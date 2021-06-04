@@ -342,7 +342,7 @@ class ProjectsController < ApplicationController
   end
 
   def assign_params
-    params.require(:project).permit(:assigned_user_id)
+    params.fetch(:project, {}).permit(:assigned_user_id)
   end
 
   def updating_data_source_items?

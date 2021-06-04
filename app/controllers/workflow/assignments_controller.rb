@@ -33,7 +33,7 @@ module Workflow
     end
 
     def resource_params
-      params.require(:assignment).permit(:assigned_user_id)
+      params.fetch(:assignment, {}).permit(:assigned_user_id)
     end
 
     def assignable_users
