@@ -200,9 +200,10 @@ class ProjectsController < ApplicationController
       alert  = @project.assigned_user ? :project_assignment : :project_awaiting_assignment
       kwargs = {
         project: @project,
-        assigned_to: @project.assigned_user,
         assigned_by: previous_assignee
       }
+
+      kwargs[:assigned_to] = @project.assigned_user if alert == :project_assignment
 
       ProjectsNotifier.send(alert, **kwargs)
       ProjectsMailer.with(**kwargs).send(alert).deliver_now
