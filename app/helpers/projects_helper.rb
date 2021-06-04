@@ -374,13 +374,20 @@ module ProjectsHelper
   end
 
   def setup_project(project)
-    (Dataset.cas_extras.pluck(:id) - project.project_datasets.pluck(:dataset_id)).each do |id|
-      project.project_datasets.build(dataset_id: id)
-    end
+    (Dataset.where.not(cas_type: nil).pluck(:id) -
+     project.project_datasets.pluck(:dataset_id)).each do |id|
+       # added to stop duplication in error screen
+       if project.project_datasets.select { |pd| pd.dataset_id == id }.none?
+         project.project_datasets.build(dataset_id: id)
+       end
+     end
     project.project_datasets.each do |pd|
       levels = Lookups::AccessLevel.pluck(:id) - pd.project_dataset_levels.pluck(:access_level_id)
       levels.each do |level|
+        # added to stop duplication in error screen
+        if pd.project_dataset_levels.select { |pdl| pdl.access_level_id == level }.none?
         pd.project_dataset_levels.build(access_level_id: level)
+        end
       end
     end
     project

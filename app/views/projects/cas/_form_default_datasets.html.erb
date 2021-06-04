@@ -1,6 +1,6 @@
 <fieldset>
-  <legend>Extra Datasets</legend>
-  <table id="extra_datasets" class="table table-hover">
+  <legend>Default Datasets</legend>
+  <table id="default_datasets" class="table table-hover">
     <thead>
       <tr>
         <th width="31%" style="text-align:center; border-top: 0px;">Dataset name</th>
@@ -10,7 +10,7 @@
       </tr>
     </thead>
     <tbody>
-      <%= form.fields_for :project_datasets, @project.project_datasets.select { |dataset| Dataset.cas_extras.pluck(:id).include? dataset.dataset_id }.sort_by(&:dataset_id) do |pd| %>
+      <%= form.fields_for :project_datasets, @project.project_datasets.select { |dataset| Dataset.cas_defaults.pluck(:id).include? dataset.dataset_id }.sort_by(&:dataset_id) do |pd| %>
         <tr id="dataset_<%=pd.object.dataset.id=%>_row">
           <%= pd.hidden_field :dataset_id, value: pd.object.dataset_id %>
           <td width="31%" data-toggle="tooltip" data-placement="left" title="<%= pd.object.dataset.name %>">
