@@ -18,13 +18,14 @@
     }
   }
 </script>
-
+<% unless @readonly %>
 <fieldset>
   <legend>Role based dataset defaults</legend>
   <input type="checkbox" class="defaults_checkbox role_checkboxes" id="cancer_analyst" onchange="togglecheckboxes(this, 'ca_group')"> Cancer Analyst
   <input type="checkbox" class="defaults_checkbox role_checkboxes" id="developer" onchange="togglecheckboxes(this, 'd_group')"> Developer
   <input type="checkbox" class="defaults_checkbox role_checkboxes" id="qa" onchange="togglecheckboxes(this, 'qa_group')"> QA
 </fieldset>
+<% end %>
 
 <fieldset>
   <legend>Default Datasets</legend>
