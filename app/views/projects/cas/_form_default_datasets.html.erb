@@ -30,7 +30,7 @@
             <% if pd.object.dataset.levels.include? pdl.object.access_level_id %>
               <%= pdl.hidden_field :access_level_id, value: pdl.object.access_level_id %>
               <td id="level_<%= pdl.object.access_level_id %>_selected" width="3%"><%= pdl.check_box :selected, class: check_box_class(pd.object.dataset.id, pdl.object.access_level_id), id: "dataset_#{pd.object.dataset.id}_level_#{pdl.object.access_level_id}_check_box", readonly_value: check_icon(pdl.object.selected), "data-target": "cas-form.level cas-form.default_checkbox" %></td>
-              <td id="level_<%= pdl.object.access_level_id %>_expiry_date" width="20%"><%= pdl.datepicker_field :expiry_date, id: "level_#{pdl.object.access_level_id}_expiry_datepicker", placeholder: "Expiry date", readonly_value: display_level_date(pdl.object) %></td>
+              <td id="level_<%= pdl.object.access_level_id %>_expiry_date" width="20%"><%= pdl.datepicker_field :expiry_date, id: "level_#{pdl.object.access_level_id}_expiry_datepicker", placeholder: "Expiry date", readonly_value: display_level_date(pdl.object), "data-target": "cas-form.expiry_date" %></td>
             <% else %>
               <td id="level_<%= pdl.object.access_level_id %>_selected"></td>
               <td id="level_<%= pdl.object.access_level_id %>_expiry_date" style="text-align:center;">-</td>
