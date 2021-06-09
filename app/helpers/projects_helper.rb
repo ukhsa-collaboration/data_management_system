@@ -401,9 +401,9 @@ module ProjectsHelper
 
   def check_box_class(dataset_id, level)
     class_string = 'defaults_checkbox '
-    class_string << 'ca_group ' if Dataset::CANCER_ANALYST_DATASETIDS.include? [dataset_id, level]
-    class_string << 'd_group ' if Dataset::DEVELOPER_DATASET_IDS.include? [dataset_id, level]
-    class_string << 'qa_group ' if Dataset::QA_DATASET_IDS.include? [dataset_id, level]
+    class_string << 'ca_group ' if CANCER_ANALYST_DATASETS.include? [dataset_id, level]
+    class_string << 'd_group ' if NDRS_DEVELOPER_DATASETS.include? [dataset_id, level]
+    class_string << 'qa_group ' if NDRS_QA_DATASETS.include? [dataset_id, level]
 
     class_string.strip!
   end
