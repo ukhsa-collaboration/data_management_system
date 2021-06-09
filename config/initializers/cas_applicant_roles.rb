@@ -1,5 +1,5 @@
 if Rails.env.test?
-  # TODO:
+  # TODO: complete this for test environment
 else
   roles = YAML.load_file(Rails.root.join('config/cas_applicant_roles.yml'))
 
