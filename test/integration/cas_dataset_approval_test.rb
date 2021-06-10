@@ -131,9 +131,9 @@ class CasDatasetApprovalTest < ActionDispatch::IntegrationTest
     non_grant_dataset.project_dataset_levels << non_grant_pdl
 
     project.transition_to!(workflow_states(:submitted))
+    visit root_path
 
     visit project_path(project)
-
     click_link(href: '#datasets')
     assert has_content?('Extra CAS Dataset One')
     assert has_content?('Extra CAS Dataset Two')

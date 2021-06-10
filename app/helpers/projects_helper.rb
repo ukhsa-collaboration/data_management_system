@@ -399,12 +399,18 @@ module ProjectsHelper
     bootstrap_icon_tag('remove')
   end
 
-  def check_box_class(dataset_id, level)
+  def check_box_class(dataset, level)
     class_string = 'defaults_checkbox '
-    class_string << 'ca_group ' if CANCER_ANALYST_DATASETS.include? [dataset_id, level]
-    class_string << 'd_group ' if NDRS_DEVELOPER_DATASETS.include? [dataset_id, level]
-    class_string << 'qa_group ' if NDRS_QA_DATASETS.include? [dataset_id, level]
+    class_string << 'ca_group ' if dataset_level_match(CANCER_ANALYST_DATASETS, dataset, level)
+    class_string << 'd_group ' if dataset_level_match(NDRS_DEVELOPER_DATASETS, dataset, level)
+    class_string << 'qa_group ' if dataset_level_match(NDRS_QA_DATASETS, dataset, level)
 
     class_string.strip!
+  end
+  
+  def dataset_level_match(role_datasets, dataset, level)
+    role_datasets.any? do |role_dataset|
+      role_dataset['name'] == dataset.name && (role_dataset['levels'].include? level)
+    end
   end
 end

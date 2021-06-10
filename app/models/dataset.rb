@@ -59,14 +59,6 @@ class Dataset < ApplicationRecord
       where(filters.first).or(where(filters.last))
     end
 
-    def db_ids(datasets)
-      datasets.each_with_object([]) do |dataset, ids|
-        dataset['levels'].each do |level|
-          ids << [Dataset.cas_defaults.find_by(name: dataset['name']).id, level]
-        end
-      end
-    end
-
     private
 
     def field_filter(field, text)
