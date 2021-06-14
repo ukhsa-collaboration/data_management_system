@@ -401,6 +401,7 @@ module ProjectsHelper
 
   def check_box_class(dataset, level)
     class_string = 'defaults_checkbox '
+    # TODO: update with real roles
     class_string << 'ca_group ' if dataset_level_match(CANCER_ANALYST_DATASETS, dataset, level)
     class_string << 'd_group ' if dataset_level_match(NDRS_DEVELOPER_DATASETS, dataset, level)
     class_string << 'qa_group ' if dataset_level_match(NDRS_QA_DATASETS, dataset, level)

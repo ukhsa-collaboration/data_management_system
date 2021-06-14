@@ -1,3 +1,4 @@
+# TODO: update with real roles
 roles = if Rails.env.test?
           YAML.load_file(Rails.root.join('test/cas_applicant_roles.yml'))
         else
