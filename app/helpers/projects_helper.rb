@@ -407,7 +407,7 @@ module ProjectsHelper
 
     class_string.strip!
   end
-  
+
   def dataset_level_match(role_datasets, dataset, level)
     role_datasets.any? do |role_dataset|
       role_dataset['name'] == dataset.name && (role_dataset['levels'].include? level)
