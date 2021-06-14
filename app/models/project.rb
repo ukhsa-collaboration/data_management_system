@@ -23,6 +23,7 @@ class Project < ApplicationRecord
   has_many :dpias, class_name: 'DataPrivacyImpactAssessment', dependent: :destroy
   has_many :contracts, dependent: :destroy
   has_many :releases,  dependent: :destroy
+  has_many :communications, dependent: :destroy
 
   has_many :project_lawful_bases, dependent: :destroy
   has_many :lawful_bases, through: :project_lawful_bases
@@ -46,6 +47,8 @@ class Project < ApplicationRecord
   validates_associated :project_datasets
   # validates_associated failing with non persisted children?
   # https://github.com/rails/rails/pull/32796
+  has_many :project_dataset_levels, -> { order(:project_dataset_id, :access_level_id) },
+           through: :project_datasets
 
   belongs_to :s251_exemption, class_name: 'Lookups::CommonLawExemption', optional: true
 
@@ -74,6 +77,7 @@ class Project < ApplicationRecord
 
   after_save :reset_project_data_items
   after_create :notify_cas_manager_new_cas_project_saved
+  after_save :destroy_project_datasets_without_any_levels
 
   # effectively belongs_to .. through: .. association
   # delegate :dataset,      to: :team_dataset, allow_nil: true
@@ -186,6 +190,10 @@ class Project < ApplicationRecord
         base.where(workflow_current_project_states: { assigned_user_id: user })
       )
     end
+  end
+
+  def application_date
+    super || created_at || Time.zone.now
   end
 
   def classification_names
@@ -369,9 +377,15 @@ class Project < ApplicationRecord
   end
 
   def odr_rejected_notification
-    Notification.create!(title: "#{name} - Rejected",
-                         body: CONTENT_TEMPLATES['email_project_odr_approval_decision']['body'] % { project: name, status: current_state.id },
-                         project_id: id)
+    return unless template ||= CONTENT_TEMPLATES.dig('email_project_odr_approval_decision', 'body')
+
+    Notification.create! do |notification|
+      notification.title      = "#{name} - Rejected"
+      notification.body       = format(template, project: name, status: current_state.id)
+      notification.project_id = id
+
+      notification.users_not_to_notify.merge(users.odr_users.ids) if application?
+    end
   end
 
   def odr_approved_notification
@@ -609,6 +623,15 @@ class Project < ApplicationRecord
     return if team
 
     errors.add(:project, 'Must belong to a Team!')
+  end
+
+  def destroy_project_datasets_without_any_levels
+    return unless cas?
+    return unless project_datasets.any?
+
+    project_datasets.each do |pd|
+      pd.destroy if pd.project_dataset_levels.none?
+    end
   end
 
   class << self

@@ -96,4 +96,26 @@ class ProjectsHelperTest < ActionView::TestCase
     assert_equal 'with application manager', timeline_allocated_user_label(project_state, unprivileged_user)
     assert_equal assigned_user.full_name,    timeline_allocated_user_label(project_state, privileged_user)
   end
+
+  test 'project_sub_type_path_prefix' do
+    project = projects(:dummy_project)
+    project.stubs(project_type_name: 'Dummy Project')
+
+    assert_equal 'projects/dummy_project', project_sub_type_path_prefix(project)
+  end
+
+  test 'project_form_path' do
+    project = projects(:dummy_project)
+
+    assert_equal 'projects/dummy/form', project_form_path(project)
+  end
+
+  test 'display_level_date' do
+    pdl = ProjectDatasetLevel.new(expiry_date: Time.zone.today, approved: nil)
+    assert_equal "#{Time.zone.today.strftime('%d/%m/%Y')} (requested)", display_level_date(pdl)
+
+    pdl.update(approved: true)
+
+    assert_equal "#{Time.zone.today.strftime('%d/%m/%Y')} (expiry)", display_level_date(pdl)
+  end
 end

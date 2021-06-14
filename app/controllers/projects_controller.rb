@@ -9,6 +9,7 @@ class ProjectsController < ApplicationController
   # include late to ensure correct callback order
   include Workflow::Controller
   include ProjectsHelper
+  include UTF8Encoding
 
   respond_to :js, :html
 
@@ -26,19 +27,16 @@ class ProjectsController < ApplicationController
     @projects                     = Project.search(search_params).
                                     accessible_by(current_ability, :read).
                                     send(dashboard_projects_by_role(current_user)).
+                                    by_project_type(type_filter).
                                     order(updated_at: :desc)
-    @my_projects                  = current_user.projects.my_projects_search(search_params).
+    @my_projects                  = current_user.projects.
+                                    through_grant_of(ProjectRole.fetch(:owner)).
+                                    my_projects_search(search_params).
                                     order(updated_at: :desc)
     @assigned_projects            = @projects.assigned_to(current_user, check_temporal: true)
     @unassigned_projects          = @projects.unassigned
 
-    @all_projects_filtered        = @projects.by_project_type(type_filter).order(updated_at: :desc)
-    @assigned_projects_filtered   = @assigned_projects.by_project_type(type_filter).
-                                    order(updated_at: :desc)
-    @unassigned_projects_filtered = @unassigned_projects.by_project_type(type_filter).
-                                    order(updated_at: :desc)
-
-    @all_projects_filtered = @all_projects_filtered.paginate(
+    @projects = @projects.paginate(
       page: params[:projects_page],
       per_page: 10
     )
@@ -48,12 +46,12 @@ class ProjectsController < ApplicationController
       per_page: 10
     )
 
-    @assigned_projects_filtered = @assigned_projects_filtered.paginate(
+    @assigned_projects = @assigned_projects.paginate(
       page: params[:assigned_projects_page],
       per_page: 10
     )
 
-    @unassigned_projects_filtered = @unassigned_projects_filtered.paginate(
+    @unassigned_projects = @unassigned_projects.paginate(
       page: params[:unassigned_projects_page],
       per_page: 10
     )
@@ -63,6 +61,7 @@ class ProjectsController < ApplicationController
     @readonly = true
     @team = @project.team
     @sub_resource_counts = {
+      'communications': @project.communications.count,
       'comments': @project.comments.count,
       'project_nodes.comments': @project.project_nodes.joins(:comments).group(:id).count,
       'workflow/project_states.comments': @project.project_states.joins(:comments).group(:id).count
@@ -83,7 +82,7 @@ class ProjectsController < ApplicationController
   def cas_approvals
     @projects = Project.my_projects_search(search_params).accessible_by(current_ability, :read).
                 order(updated_at: :desc)
-    @my_dataset_approvals = @projects.cas_dataset_approval(current_user, nil).
+    @my_dataset_approvals = @projects.cas_dataset_approval(current_user, [nil]).
                             order(updated_at: :desc)
     @my_access_approvals = @projects.cas_access_approval.order(updated_at: :desc)
 
@@ -231,6 +230,7 @@ class ProjectsController < ApplicationController
 
           acroform_data.transform_keys(&:underscore).each do |attribute, value|
             attribute = "article_#{attribute}" if attribute =~ /\A\d\w\z/
+            coerce_utf8!(value) if value.is_a?(String)
             resource.try("#{attribute}=", value)
           end
 
@@ -243,7 +243,8 @@ class ProjectsController < ApplicationController
           payload[:errors] = project.errors.full_messages
         end
       rescue => e
-        payload[:errors] << e.message
+        fingerprint, _log = capture_exception(e)
+        payload[:errors] << t('projects.import.ndr_error.message_html', fingerprint: fingerprint.id)
       end
     else
       payload[:errors] << 'Unpermitted file type'
@@ -265,7 +266,9 @@ class ProjectsController < ApplicationController
   # Only allow a trusted parameter 'white list' through.
   def project_params
     params.require(:project).permit(:alternative_data_access_address,
-                                    :alternative_data_access_postcode, :data_access_address,
+                                    :alternative_data_access_postcode,
+                                    :application_date,
+                                    :data_access_address,
                                     :data_access_postcode, :description, :end_data_date,
                                     :how_data_will_be_used, :name,
                                     :senior_user_id, :start_data_date, :team_id,
@@ -321,8 +324,12 @@ class ProjectsController < ApplicationController
                                     dataset_ids: [],
                                     owner_grant_attributes: %i[id user_id project_id
                                                                roleable_id roleable_type],
-                                    project_datasets_attributes: %i[id project_id dataset_id
-                                                                    terms_accepted _destroy],
+                                    project_datasets_attributes:
+                                      [:id, :project_id, :dataset_id,
+                                       :terms_accepted, :_destroy,
+                                       { project_dataset_levels_attributes:
+                                       %i[id project_dataset_id selected
+                                          access_level_id expiry_date ] }],
                                     project_attachments_attributes: %i[name attachment],
                                     # CAS
                                     cas_application_fields_attributes: cas_fields)
