@@ -55,7 +55,7 @@ class ProjectAmendment < ApplicationRecord
   end
 
   def increment_amendment_number
-    project.update(amendment_number: project.amendment_number + 1)
+    project.update_column(:amendment_number, project.amendment_number + 1)
   end
 
   private
