@@ -17,9 +17,12 @@ class ProjectAmendment < ApplicationRecord
   belongs_to :project
   belongs_to :project_state, class_name: 'Workflow::ProjectState'
 
-  has_one :attachment, -> {
-    where(name: ::ProjectAttachment::Names::AMENDMENT)
-  }, class_name: 'ProjectAttachment', as: :attachable, dependent: :destroy, inverse_of: :attachable
+  has_one :attachment, -> { where(name: ::ProjectAttachment::Names::AMENDMENT) },
+          class_name: 'ProjectAttachment',
+          as:         :attachable,
+          dependent:  :destroy,
+          inverse_of: :attachable,
+          required:   false
 
   with_options to: :attachment, allow_nil: true do
     delegate :attachment_contents
@@ -35,7 +38,6 @@ class ProjectAmendment < ApplicationRecord
   validates :requested_at, date: { no_future: true }
   validates :amendment_approved_date, date: { no_future: true }
 
-  validates :attachment, presence: true
   validate :ensure_valid_attachment
   validate :ensure_valid_pdf
 
