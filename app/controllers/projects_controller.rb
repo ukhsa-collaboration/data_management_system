@@ -200,7 +200,7 @@ class ProjectsController < ApplicationController
       kwargs[:assigned_to] = @project.assigned_user if alert == :project_assignment
 
       ProjectsNotifier.send(alert, **kwargs)
-      ProjectsMailer.with(**kwargs).send(alert).deliver_now
+      ProjectsMailer.with(**kwargs).send(alert).deliver_later
 
       redirect_to @project, notice: "#{@project.project_type_name} was successfully assigned"
     else
