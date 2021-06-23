@@ -377,6 +377,7 @@ class Ability
   def developer_grants(user)
     return unless user.role?(SystemRole.fetch(:developer))
 
+    can :read, :ndr_errors
     can %i[read destroy], Delayed::Job
   end
 
