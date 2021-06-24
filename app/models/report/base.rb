@@ -56,7 +56,7 @@ module Report
 
     # Underlying data for the report; should be defined by subclasses.
     def relation
-      raise NotImplemtedError
+      raise NotImplementedError
     end
 
     # Suggests a default filename for downloads of the report.
