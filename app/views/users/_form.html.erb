@@ -1,3 +1,7 @@
+<%
+  extended_view = user == current_user || !current_user.application_manager?
+%>
+
 <%= bootstrap_form_for user, horizontal: 2, readonly: readonly, remote: request.xhr? do |form| %>
   <%= form.error_and_warning_alert_boxes %>
 
@@ -18,54 +22,56 @@
       <%= form.text_field :job_title %>
     <% end %>
 
-    <%= form.control_group :line_manager_name, 'Name of line manager' do %>
-      <%= form.text_field :line_manager_name %>
-    <% end %>
-
-    <%= form.control_group :line_manager_email, 'Email address of line manager' do %>
-      <%= form.text_field :line_manager_email %>
-    <% end %>
-
-    <%= form.control_group :line_manager_telephone, 'Telephone number of line manager' do %>
-      <%= form.text_field :line_manager_telephone %>
-    <% end %>
-
-    <%= form.control_group :grade, nil, {}, { class: 'col-md-3' } do %>
-      <%= form.select :grade, ['AA','AO','EO','HEO','SEO','Grade 7','Grade 6'], { include_blank: true } %>
-    <% end %>
-
-    <%= form.control_group :directorate_id, nil, {}, { class: 'col-md-9' } do %>
-      <%= form.collection_select :directorate_id, Directorate.active.order(:name), :id, :name, { include_blank: true }, class: 'form-control' %>
-    <% end %>
-
-    <%= form.control_group :division_id, nil, {}, { class: 'col-md-9' } do %>
-      <%= form.grouped_collection_select :division_id, Directorate.order(:name), :divisions, :name, :id, :name_and_head, { include_blank: true} , class: 'form-control' %>
-    <% end %>
-
-    <%= form.control_group :employment, nil, {}, { class: 'col-md-6' } do %>
-      <%= form.select :employment, ['Contract','Permanent'], { include_blank: true } %>
-    <% end %>
-
-    <div class='row form-group', data-depends-on="#user_employment", data-depends-on-value="Contract">
-      <label class="control-label col-md-2" for="project_frequenct">Contract start date</label>
-      <div class='col-md-3'>
-        <%= form.text_field :contract_start_date, "data-depends-on" => "#user_employment", "data-depends-on-value" => "Contract", data: { provide: 'datepicker' } %>
-      </div>
-    </div>
-
-    <div class='row form-group', data-depends-on="#user_employment", data-depends-on-value="Contract">
-      <label class="control-label col-md-2" for="project_frequenct">Contract end date</label>
-      <div class='col-md-3'>
-        <%= form.text_field :contract_end_date, "data-depends-on" => "#user_employment", "data-depends-on-value" => "Contract", data: { provide: 'datepicker' } %>
-      </div>
-    </div>
-
     <%= form.control_group :telephone, 'Telephone' do %>
       <%= form.text_field :telephone %>
     <% end %>
 
-    <%= form.control_group :location, 'Location' do %>
-      <%= form.text_field :location %>
+    <%= content_tag :div, class: extended_view ? nil : 'hidden' do %>
+      <%= form.control_group :line_manager_name, 'Name of line manager' do %>
+        <%= form.text_field :line_manager_name %>
+      <% end %>
+
+      <%= form.control_group :line_manager_email, 'Email address of line manager' do %>
+        <%= form.text_field :line_manager_email %>
+      <% end %>
+
+      <%= form.control_group :line_manager_telephone, 'Telephone number of line manager' do %>
+        <%= form.text_field :line_manager_telephone %>
+      <% end %>
+
+      <%= form.control_group :grade, nil, {}, { class: 'col-md-3' } do %>
+        <%= form.select :grade, ['AA','AO','EO','HEO','SEO','Grade 7','Grade 6'], { include_blank: true } %>
+      <% end %>
+
+      <%= form.control_group :directorate_id, nil, {}, { class: 'col-md-9' } do %>
+        <%= form.collection_select :directorate_id, Directorate.active.order(:name), :id, :name, { include_blank: true }, class: 'form-control' %>
+      <% end %>
+
+      <%= form.control_group :division_id, nil, {}, { class: 'col-md-9' } do %>
+        <%= form.grouped_collection_select :division_id, Directorate.order(:name), :divisions, :name, :id, :name_and_head, { include_blank: true} , class: 'form-control' %>
+      <% end %>
+
+      <%= form.control_group :employment, nil, {}, { class: 'col-md-6' } do %>
+        <%= form.select :employment, ['Contract','Permanent'], { include_blank: true } %>
+      <% end %>
+
+      <div class='row form-group', data-depends-on="#user_employment", data-depends-on-value="Contract">
+        <label class="control-label col-md-2" for="project_frequenct">Contract start date</label>
+        <div class='col-md-3'>
+          <%= form.text_field :contract_start_date, "data-depends-on" => "#user_employment", "data-depends-on-value" => "Contract", data: { provide: 'datepicker' } %>
+        </div>
+      </div>
+
+      <div class='row form-group', data-depends-on="#user_employment", data-depends-on-value="Contract">
+        <label class="control-label col-md-2" for="project_frequenct">Contract end date</label>
+        <div class='col-md-3'>
+          <%= form.text_field :contract_end_date, "data-depends-on" => "#user_employment", "data-depends-on-value" => "Contract", data: { provide: 'datepicker' } %>
+        </div>
+      </div>
+
+      <%= form.control_group :location, 'Location' do %>
+        <%= form.text_field :location %>
+      <% end %>
     <% end %>
 
     <% if current_user.administrator? %>
