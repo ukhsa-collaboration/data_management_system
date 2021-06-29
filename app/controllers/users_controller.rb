@@ -49,10 +49,7 @@ class UsersController < ApplicationController
   def update
     check_for_user_status_updates # move to model before_save ?
     if @user.update(user_params)
-      respond_to do |format|
-        format.html { redirect_to @user, notice: 'User was successfully updated.' }
-        format.js
-      end
+      redirect_to @user, notice: 'User was successfully updated.'
     else
       render :edit
     end
