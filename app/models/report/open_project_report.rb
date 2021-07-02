@@ -8,6 +8,7 @@ module Report
       REJECTED
       CLOSED
       DATA_DESTROYED
+      DATA_RELEASED
       DELETED
     ].freeze
 
