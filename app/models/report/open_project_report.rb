@@ -111,7 +111,7 @@ module Report
     self.download_only = true
 
     def relation
-      Project.odr_projects.
+      Project.odr_projects.distinct.
         from(subquery, :projects).
         joins(current_project_state: :state).
         where.not(workflow_current_project_states: { state_id: EXCLUDED_STATES }).
