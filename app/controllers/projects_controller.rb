@@ -383,7 +383,7 @@ class ProjectsController < ApplicationController
       :name,
       :application_log,
       project_type_id: [],
-      project_owner: %i[
+      owner: %i[
         first_name
         last_name
       ]

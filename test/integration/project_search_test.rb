@@ -61,8 +61,8 @@ class ProjectSearchTest < ActionDispatch::IntegrationTest
     within('#project_search_form') do
       click_link(href: '#project_owner_filters')
 
-      fill_in 'search[project_owner][first_name]', with: user.first_name
-      fill_in 'search[project_owner][last_name]',  with: user.last_name
+      fill_in 'search[owner][first_name]', with: user.first_name
+      fill_in 'search[owner][last_name]',  with: user.last_name
       click_button 'Search'
     end
 
@@ -100,8 +100,8 @@ class ProjectSearchTest < ActionDispatch::IntegrationTest
       fill_in 'search[application_log]', with: '.Ref.'
 
       click_link(href: '#project_owner_filters')
-      fill_in 'search[project_owner][first_name]', with: user.first_name.upcase
-      fill_in 'search[project_owner][last_name]',  with: user.last_name.downcase
+      fill_in 'search[owner][first_name]', with: user.first_name.upcase
+      fill_in 'search[owner][last_name]',  with: user.last_name.downcase
 
       click_button 'Search'
     end

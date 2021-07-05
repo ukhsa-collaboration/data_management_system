@@ -2,6 +2,7 @@
 class Project < ApplicationRecord
   include Workflow::Model
   include Commentable
+  include Searchable
 
   has_many :project_attachments, as: :attachable, dependent: :destroy
   has_many :project_nodes, dependent: :destroy
@@ -168,6 +169,11 @@ class Project < ApplicationRecord
 
   DATA_SOURCE_ITEM_NO_CLONE_FIELDS = %w[id project_id project_data_source_item_id].freeze
 
+  attr_searchable :name,            :text_filter
+  attr_searchable :application_log, :text_filter
+  attr_searchable :project_type_id, :default_filter
+  attr_searchable :owner,           :association_filter, kwargs: true # FIXME: See Searchable
+
   class << self
     def unassigned(check_temporal: false)
       return where(assigned_user: nil) unless check_temporal
@@ -195,39 +201,6 @@ class Project < ApplicationRecord
       base.where(assigned_user: user).or(
         base.where(workflow_current_project_states: { assigned_user_id: user })
       )
-    end
-
-    def search(params)
-      return all if params.blank?
-
-      filters = [
-        basic_filter(:project_type_id, params[:project_type_id]),
-        text_filter(:name,             params[:name]),
-        text_filter(:application_log,  params[:application_log]),
-        text_filter(:first_name,       params.dig(:project_owner, :first_name), User.arel_table),
-        text_filter(:last_name,        params.dig(:project_owner, :last_name),  User.arel_table)
-      ]
-
-      filters.compact!
-
-      return all if filters.none?
-
-      where(id: filters.inject(unscoped.joins(:owner)) do |chain, filter|
-        chain.where(filter)
-      end)
-    end
-
-    private
-
-    def basic_filter(field, value)
-      return unless field && value
-      return if value.blank?
-
-      { field => value }
-    end
-
-    def text_filter(field, text, table = arel_table)
-      table[field].matches("%#{text.strip}%") if text.present?
     end
   end
 
