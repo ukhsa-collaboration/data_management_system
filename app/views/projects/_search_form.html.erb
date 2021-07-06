@@ -52,7 +52,7 @@
     </fieldset>
   <% end %>
 
-  <fieldset>
+  <fieldset data-controller="checkbox-select-all">
     <legend>
       <a href="#project_type_filters" class="btn btn-default btn-xs" data-toggle="collapse">
         <%= bootstrap_icon_tag('eye-open') %>
@@ -62,11 +62,18 @@
     </legend>
 
     <div class="collapse" id="project_type_filters">
+      <div class="checkbox">
+        <label>
+          <input type="checkbox" data-target="checkbox-select-all.checkboxAll"></input>
+          <b class="all">Select All</b>
+        </label>
+      </div>
+
       <%= form.collection_check_boxes :project_type_id, project_types, :id, :translated_name, { include_hidden: false } do |builder| %>
         <% checked = params.dig(:search, :project_type_id) ? params[:search][:project_type_id].include?(builder.value.to_s) : true %>
         <div class="checkbox">
           <%= builder.label do %>
-            <%= builder.check_box checked: checked %>
+            <%= builder.check_box checked: checked, data: { target: :'checkbox-select-all.checkbox' } %>
             <%= builder.text %>
           <% end %>
         </div>
@@ -75,7 +82,7 @@
   </fieldset>
 
   <%= form.fields_for :current_project_state do |sub_form| %>
-    <fieldset>
+    <fieldset data-controller="checkbox-select-all">
       <legend>
         <a href="#project_state_filters" class="btn btn-default btn-xs" data-toggle="collapse">
           <%= bootstrap_icon_tag('eye-open') %>
@@ -85,11 +92,18 @@
       </legend>
 
       <div class="collapse" id="project_state_filters">
+        <div class="checkbox">
+          <label>
+            <input type="checkbox" data-target="checkbox-select-all.checkboxAll"></input>
+            <b class="all">Select All</b>
+          </label>
+        </div>
+
         <%= sub_form.collection_check_boxes :state_id, workflow_states, :id, :id, { include_hidden: false } do |builder| %>
           <% checked = params.dig(:search, :current_project_state) ? params.dig(:search, :current_project_state, :state_id).include?(builder.value.to_s) : builder.object.open? %>
           <div class="checkbox">
             <%= builder.label do %>
-              <%= builder.check_box checked: checked %>
+              <%= builder.check_box checked: checked, data: { target: :'checkbox-select-all.checkbox' } %>
               <%= builder.object.name(*project_types) %>
             <% end %>
           </div>
