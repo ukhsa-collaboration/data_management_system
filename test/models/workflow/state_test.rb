@@ -56,6 +56,43 @@ module Workflow
       assert_includes scoped, workflow_states(:submitted)
     end
 
+    test 'closed scope' do
+      scoped = State.closed
+
+      assert_equal 5, scoped.size
+      assert_includes scoped, workflow_states(:approved)
+      assert_includes scoped, workflow_states(:rejected)
+      assert_includes scoped, workflow_states(:closed)
+      assert_includes scoped, workflow_states(:deleted)
+      assert_includes scoped, workflow_states(:data_destroyed)
+    end
+
+    test 'open scope' do
+      scoped = State.open
+
+      refute_includes scoped, workflow_states(:approved)
+      refute_includes scoped, workflow_states(:rejected)
+      refute_includes scoped, workflow_states(:closed)
+      refute_includes scoped, workflow_states(:deleted)
+      refute_includes scoped, workflow_states(:data_destroyed)
+    end
+
+    test 'closed?' do
+      closed_state = workflow_states(:closed)
+      open_state   = workflow_states(:submitted)
+
+      assert closed_state.closed?
+      refute open_state.closed?
+    end
+
+    test 'open?' do
+      closed_state = workflow_states(:closed)
+      open_state   = workflow_states(:submitted)
+
+      refute closed_state.open?
+      assert open_state.open?
+    end
+
     test 'returns a translated name relative to project type context' do
       translations = {
         'workflow/state': {

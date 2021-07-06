@@ -169,10 +169,11 @@ class Project < ApplicationRecord
 
   DATA_SOURCE_ITEM_NO_CLONE_FIELDS = %w[id project_id project_data_source_item_id].freeze
 
-  attr_searchable :name,            :text_filter
-  attr_searchable :application_log, :text_filter
-  attr_searchable :project_type_id, :default_filter
-  attr_searchable :owner,           :association_filter, kwargs: true # FIXME: See Searchable
+  attr_searchable :name,                  :text_filter
+  attr_searchable :application_log,       :text_filter
+  attr_searchable :project_type_id,       :default_filter
+  attr_searchable :owner,                 :association_filter, kwargs: true # FIXME: See Searchable
+  attr_searchable :current_project_state, :association_filter
 
   class << self
     def unassigned(check_temporal: false)

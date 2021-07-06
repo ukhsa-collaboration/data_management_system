@@ -72,6 +72,31 @@ class ProjectSearchTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test 'can search by project state' do
+    project = Project.find_by(application_log: 'search.ref.3')
+    state   = workflow_states(:amend)
+
+    project.project_states.build(state: state) do |project_state|
+      project_state.save!(validate: false)
+    end
+
+    within('#project_search_form') do
+      click_link(href: '#project_state_filters')
+
+      within('#project_state_filters') do
+        uncheck_all
+        check state.id
+      end
+
+      click_button 'Search'
+    end
+
+    within('#projects-table') do
+      assert has_selector?('tbody tr', count: 1)
+      assert has_selector?('tbody tr', text: 'search.ref.3')
+    end
+  end
+
   test 'filters are applied cumulatively' do
     within('#project_search_form') do
       fill_in 'Project Title', with: 'YARP'
