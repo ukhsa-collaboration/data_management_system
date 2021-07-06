@@ -17,6 +17,10 @@ class ProjectType < ApplicationRecord
     I18n.t(name.parameterize(separator: '_'), scope: model_name.plural)
   end
 
+  def supports_pdf_import?
+    name == 'Application'
+  end
+
   def available_datasets
     datasets.empty? ? published_datasets : datasets
   end

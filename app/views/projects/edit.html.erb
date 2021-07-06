@@ -1,3 +1,7 @@
 <%= render layout: 'projects/layout' do %>
+  <% if current_user.can?(:import, @project) && @project.supports_pdf_import? %>
+    <%= render 'projects/import', url: '#' %>
+  <% end %>
+
   <%= render project_form_path(@project), project: @project, readonly: false  %>
 <% end %>
