@@ -1,5 +1,6 @@
 <%= render layout: 'projects/layout' do %>
   <% if current_user.can?(:import, @project) && @project.supports_pdf_import? %>
+    <%= bootstrap_alert_tag(:info, t('projects.edit.upload.guidance_html')) %>
     <%= render 'projects/import', url: '#' %>
   <% end %>
 

@@ -120,6 +120,11 @@ en:
       submitted: Pending
       rejected: Closed
   projects:
+    edit:
+      upload:
+        guidance_html: >
+          <strong>Note:</strong> Uploading an additional form will not update the applicant,
+          organisation or team details.
     import:
       ndr_error:
         message_html: >
