@@ -55,5 +55,36 @@ module Workflow
       assert_includes scoped, workflow_states(:review)
       assert_includes scoped, workflow_states(:submitted)
     end
+
+    test 'returns a translated name relative to project type context' do
+      translations = {
+        'workflow/state': {
+          eoi: { draft: 'New' },
+          application: { draft: 'New' },
+          project: { draft: 'Drafting' }
+        }
+      }
+
+      backend = I18n::Backend::KeyValue.new({})
+      backend.store_translations(:en, translations)
+      I18n.config.stubs(backend: backend)
+
+      state = workflow_states(:draft)
+
+      # with no provided context
+      assert_equal state.id, state.name
+
+      # fallback when no translations found
+      assert_equal state.id, state.name(project_types(:dummy))
+
+      # with one context
+      assert_equal 'New', state.name(project_types(:eoi))
+
+      # with multiple contexts (common names)
+      assert_equal 'New', state.name(project_types(:eoi), project_types(:application))
+
+      # with multiple contexts (unique names)
+      assert_equal 'New/Drafting', state.name(project_types(:eoi), project_types(:project))
+    end
   end
 end

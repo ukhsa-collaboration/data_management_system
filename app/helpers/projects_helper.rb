@@ -91,7 +91,7 @@ module ProjectsHelper
     default_options = {
       class: ['label', STATE_LABEL_CLASSES.fetch(state.id, 'label-default')]
     }
-    content_tag(:span, state.name(project), html_options.merge(default_options))
+    content_tag(:span, state.name(project.project_type), html_options.merge(default_options))
   end
 
   def odr_reference(project)

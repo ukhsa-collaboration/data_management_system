@@ -26,7 +26,12 @@ class ProjectType < ApplicationRecord
   end
 
   def translated_name
-    I18n.t(name.parameterize(separator: '_'), scope: model_name.plural)
+    I18n.t(to_lookup_key, scope: model_name.plural)
+  end
+
+  # TODO: Extract to a concern?
+  def to_lookup_key
+    name.parameterize(separator: '_').to_sym
   end
 
   def available_datasets

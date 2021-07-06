@@ -29,9 +29,19 @@ module Workflow
     scope :not_submitted_for_sign_off,  -> { where.not(id: %w[REVIEW SUBMITTED]) }
 
     # Get a humanised name from localisation files:
-    def name(project)
-      I18n.t(id.downcase.to_sym,
-             scope: [model_name.i18n_key, project.project_type_name.downcase.to_sym], default: id)
+    def name(*project_types)
+      return id if project_types.none?
+
+      lookup_key   = to_lookup_key
+      context_keys = project_types.map do |project_type|
+        :"#{project_type.to_lookup_key}.#{lookup_key}"
+      end
+
+      translations = I18n.t(context_keys, scope: model_name.i18n_key, default: '')
+      translations.uniq!
+      translations.reject!(&:blank?)
+
+      translations.any? ? translations.join('/') : id
     end
 
     # TODO: Try to push this to an association tied to roles/grants.
