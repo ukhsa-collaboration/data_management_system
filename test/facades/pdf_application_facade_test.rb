@@ -77,9 +77,31 @@ class PDFApplicationFacadeTest < ActiveSupport::TestCase
     refute_equal 'ABW',           project.organisation_country_id
   end
 
-  test 'updaing a project should allow changes to sponsor/funder organisation' do
+  test 'updating a project should allow changes to sponsor/funder organisation' do
     project = projects(:one)
-    facade  = PdfApplicationFacade.new(project)
+
+    project.update!(
+      organisation_add1:       project.organisation.add1,
+      organisation_add2:       project.organisation.add2,
+      organisation_city:       project.organisation.city,
+      organisation_postcode:   project.organisation.postcode,
+      organisation_country:    project.organisation.country.value,
+      organisation_country_id: project.organisation.country_id,
+      sponsor_name:            'Previous Sponsor Inc.',
+      sponsor_add1:            'Previous Sponsor Addy 1',
+      sponsor_add2:            'Previous Sponsor Addy 2',
+      sponsor_city:            'Previous Sponsor City',
+      sponsor_postcode:        'BB22 2BB',
+      sponsor_country_id:      'AFG',
+      funder_name:             'Previous Funder Inc.',
+      funder_add1:             'Previous Funder Addy 1',
+      funder_add2:             'Previous Funder Addy 2',
+      funder_city:             'Previous Funder City',
+      funder_postcode:         'BB22 2BB',
+      funder_country_id:       'AFG'
+    )
+
+    facade = PdfApplicationFacade.new(project)
 
     facade.organisation_name        = 'New Inc.'
     facade.organisation_add1        = 'New Addy 1'
@@ -93,27 +115,33 @@ class PDFApplicationFacadeTest < ActiveSupport::TestCase
     facade.sponsor_add1             = 'New Sponsor Addy 1'
     facade.sponsor_add2             = 'New Sponsor Addy 2'
     facade.sponsor_city             = 'New Sponsor City'
-    facade.sponsor_postcode         = 'BB22 2BB'
-    facade.sponsor_country          = 'AFG'
+    facade.sponsor_postcode         = 'CC33 3CC'
+    facade.sponsor_country          = 'AGO'
 
     facade.funder_same_as_applicant = true
 
     facade.save
-    project.reload
 
-    assert_equal 'New Sponsor Inc.',   project.sponsor_name
-    assert_equal 'New Sponsor Addy 1', project.sponsor_add1
-    assert_equal 'New Sponsor Addy 2', project.sponsor_add2
-    assert_equal 'New Sponsor City',   project.sponsor_city
-    assert_equal 'BB22 2BB',           project.sponsor_postcode
-    assert_equal 'AFG',                project.sponsor_country_id
+    assert_equal 'New Sponsor Inc.',              project.sponsor_name
+    assert_equal 'New Sponsor Addy 1',            project.sponsor_add1
+    assert_equal 'New Sponsor Addy 2',            project.sponsor_add2
+    assert_equal 'New Sponsor City',              project.sponsor_city
+    assert_equal 'CC33 3CC',                      project.sponsor_postcode
+    assert_equal 'AGO',                           project.sponsor_country_id
 
-    refute_equal 'New Inc.',           project.funder_name
-    refute_equal 'New Addy 1',         project.funder_add1
-    refute_equal 'New Addy 2',         project.funder_add2
-    refute_equal 'New Jack City',      project.funder_city
-    refute_equal 'AA11 1AA',           project.funder_postcode
-    refute_equal 'ABW',                project.funder_country_id
+    refute_equal 'New Inc.',                      project.funder_name
+    refute_equal 'New Addy 1',                    project.funder_add1
+    refute_equal 'New Addy 2',                    project.funder_add2
+    refute_equal 'New Jack City',                 project.funder_city
+    refute_equal 'AA11 1AA',                      project.funder_postcode
+    refute_equal 'ABW',                           project.funder_country_id
+
+    assert_equal project.organisation_name,       project.funder_name
+    assert_equal project.organisation_add1,       project.funder_add1
+    assert_equal project.organisation_add2,       project.funder_add2
+    assert_equal project.organisation_city,       project.funder_city
+    assert_equal project.organisation_postcode,   project.funder_postcode
+    assert_equal project.organisation_country_id, project.funder_country_id
   end
 
   test 'updating a project should not change attributes marked as read-only' do
