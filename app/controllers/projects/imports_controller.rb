@@ -1,6 +1,5 @@
 module Projects
   # Supports the creating/updating of projects via PDF form submission.
-  # TODO: Refactor/unify ProjctsController#import
   class ImportsController < ApplicationController
     include UTF8Encoding
 
@@ -8,7 +7,17 @@ module Projects
       'application/pdf'
     ].freeze
 
+    load_and_authorize_resource :team
     load_and_authorize_resource :project
+
+    # If we're importing a PDF as a new application, ensure we've spun up a new, correctly
+    # configured project instance...
+    before_action do
+      @project ||= @team.projects.build(
+        project_type:  ProjectType.find_by(name: 'Application'),
+        assigned_user: current_user # should only be ODR application managers doing this
+      )
+    end
 
     before_action -> { authorize!(:import, @project) }
     before_action :validate_content_type

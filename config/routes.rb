@@ -220,7 +220,7 @@ Rails.application.routes.draw do
       end
 
       collection do
-        post :import
+        post :import, controller: 'projects/imports', action: :create
       end
 
       resources :imports, only: :create, controller: 'projects/imports'
