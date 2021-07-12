@@ -54,7 +54,7 @@ class ProjectImportTest < ActionDispatch::IntegrationTest
 
     # Invalid record(s)...
     assert_no_difference -> { team.projects.count } do
-      file = Pathname.new(fixture_path).join('files', 'ODR Data request Form v6-alpha - Blank.pdf')
+      file = Pathname.new(fixture_path).join('files', 'odr_data_request_form_v6-alpha.blank.pdf')
 
       attach_file(file) do
         find('.glyphicon-inbox').click
