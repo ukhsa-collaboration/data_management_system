@@ -223,8 +223,6 @@ Rails.application.routes.draw do
         post :import
       end
 
-      resources :imports, only: :create, controller: 'projects/imports'
-
       resource :details, only: [], concerns: %i[approvable], module: 'projects/details'
       resource :legal,   only: [], concerns: %i[approvable], module: 'projects/legal'
       resource :members, only: [], concerns: %i[approvable], module: 'projects/members'

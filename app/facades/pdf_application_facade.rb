@@ -26,6 +26,10 @@ class PdfApplicationFacade
 
   after_validate -> { errors.merge!(project.errors) }
 
+  # Leverage dirty attribute tracking to provide a psuedo :attr_readonly and ensure
+  # undesirable changes are not persisted on the update path.
+  before_save -> { project.restore_attributes(READ_ONLY_ATTRIBUTES) if persisted? }
+
   before_save :assign_project_end_date
   before_save -> { copy_organisation_details(:sponsor) }
   before_save -> { copy_organisation_details(:funder) }
@@ -194,10 +198,6 @@ class PdfApplicationFacade
         project.lawful_bases.replace(lawful_bases)
         project.classifications.replace(classifications)
 
-        # Leverage dirty attribute tracking to provide a psuedo :attr_readonly and ensure
-        # undesirable changes are not persisted on the update path.
-        project.restore_attributes(READ_ONLY_ATTRIBUTES) if persisted?
-
         project.save!
       end
     end
@@ -344,13 +344,8 @@ class PdfApplicationFacade
   def copy_organisation_details(target)
     return unless send("#{target}_same_as_applicant")
 
-    # Organisation data is immutable in the update path so, logically, it follows that any
-    # sponsor/funder information should also be immutable if it has been flagged as being
-    # the same as the applicant organisation.
-    return if persisted?
-
     project.assign_attributes(
-      "#{target}_name":       organisation_name,
+      "#{target}_name":       persisted? ? project.organisation_name : organisation_name,
       "#{target}_add1":       organisation_add1,
       "#{target}_add2":       organisation_add2,
       "#{target}_city":       organisation_city,
