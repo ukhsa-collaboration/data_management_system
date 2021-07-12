@@ -34,3 +34,12 @@
 #projects-panel [data-controller="pdf-import"] {
   margin-bottom: 0px;
 }
+
+#cas_approvals {
+  #project_search_form {
+    label[for="search_application_log"],
+    input[name="search[application_log]"] {
+      display: none;
+    }
+  }
+}
