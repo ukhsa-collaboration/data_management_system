@@ -7,7 +7,8 @@ class UsersController < ApplicationController
 
   def index
     # @users
-    @users = @users.search(search_params).paginate(page: params[:page], per_page: 15).
+    @users = @users.search(params: search_params, greedy: false).
+             paginate(page: params[:page], per_page: 15).
              order(updated_at: :desc)
   end
 
@@ -48,10 +49,7 @@ class UsersController < ApplicationController
   def update
     check_for_user_status_updates # move to model before_save ?
     if @user.update(user_params)
-      respond_to do |format|
-        format.html { redirect_to @user, notice: 'User was successfully updated.' }
-        format.js
-      end
+      redirect_to @user, notice: 'User was successfully updated.'
     else
       render :edit
     end
@@ -102,7 +100,7 @@ class UsersController < ApplicationController
 
   # Only allow a trusted parameter "white list" through.
   def user_params
-    params.require(:user).permit(:first_name, :last_name, :username, :email, :postcode, :telephone,
+    params.require(:user).permit(:first_name, :last_name, :email, :postcode, :telephone,
                                  :mobile, :grade, :location, :z_user_status_id, :notes, :job_title,
                                  :directorate_id, :division_id, :delegate_user,
                                  :employment, :line_manager_name, :line_manager_email,
@@ -111,6 +109,15 @@ class UsersController < ApplicationController
   end
 
   def search_params
-    params.fetch(:search, {}).permit(:name)
+    search_term = params.dig(:search, :name)
+
+    params.fetch(:search, {}).
+      merge(
+        first_name: search_term,
+        last_name:  search_term,
+        email:      search_term,
+        username:   search_term
+      ).
+      permit(:first_name, :last_name, :email, :username)
   end
 end

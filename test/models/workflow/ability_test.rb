@@ -55,5 +55,19 @@ module Workflow
       refute user.can?(:transition, @project)
       assert user.can?(:read, @project.project_states.first)
     end
+
+    test 'assignments' do
+      project    = projects(:dummy_project)
+      user       = project.owner
+      assignment = project.current_project_state.
+                   assignments.
+                   build(assigned_user: users(:application_manager_two))
+
+      project.current_project_state.assign_to!(user: user)
+      assert user.can?(:create, assignment)
+
+      project.current_project_state.assign_to!(user: users(:application_manager_one))
+      refute user.can?(:create, assignment)
+    end
   end
 end

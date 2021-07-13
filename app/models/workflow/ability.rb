@@ -25,30 +25,34 @@ module Workflow
 
     def as_project_member
       role = ProjectRole.can_edit
-      roleable_type = 'ProjectRole'
-      project_ids =
-        @user.projects.active.through_grant_of(role, roleable_type).pluck('grants.project_id')
+      project_ids = @user.projects.active.through_grant_of(role).pluck('grants.project_id')
+
       can :read, ProjectState, project_id: project_ids
+
+      can :create, Assignment, project: {
+        current_project_state: {
+          assigned_user_id: @user.id
+        }
+      }
     end
 
     # TODO: disable a project contributor from transitioning
     def as_project_senior
-      role = TeamRole.applicants
-      roleable_type = 'TeamRole'
-      teams = @user.teams.through_grant_of(role, roleable_type)
+      role  = TeamRole.applicants
+      teams = @user.teams.through_grant_of(role)
       project_conditions = { team: teams }
+
       can :read,       ProjectState, project: project_conditions
       can :transition, Project,      project_conditions
     end
 
-    def accessible_projects_via(role, roleable_type, user)
-      user.projects.active.through_grant_of(role, roleable_type)
+    def accessible_projects_via(role, user)
+      user.projects.active.through_grant_of(role)
     end
 
     def as_team_delegate
-      role = TeamRole.delegates
-      roleable_type = 'TeamRole'
-      teams = @user.teams.through_grant_of(role, roleable_type)
+      role  = TeamRole.delegates
+      teams = @user.teams.through_grant_of(role)
       project_conditions = { team: teams }
 
       can :read,       ProjectState, project: project_conditions
@@ -60,6 +64,7 @@ module Workflow
 
       can :read,       ProjectState
       can :transition, Project
+      can :create,     Assignment
     end
 
     def as_administrator; end
@@ -306,15 +311,19 @@ module Workflow
         can :create, ProjectState, state: { id: %w[DPIA_REJECTED] },
                                    project: {
                                      project_type: { name: 'Application' },
-                                     assigned_user_id: @user.id,
-                                     current_state: { id: 'DPIA_REVIEW' }
+                                     current_project_state: {
+                                       state_id: 'DPIA_REVIEW',
+                                       assigned_user_id: @user.id
+                                     }
                                    }
 
         can :create, ProjectState, state: { id: %w[DPIA_MODERATION] },
                                    project: {
                                      project_type: { name: 'Application' },
-                                     assigned_user_id: @user.id,
-                                     current_state: { id: 'DPIA_REVIEW' }
+                                     current_project_state: {
+                                       state_id: 'DPIA_REVIEW',
+                                       assigned_user_id: @user.id
+                                     }
                                    }
 
         can :create, ProjectState, state: { id: 'AMEND' },
@@ -394,15 +403,19 @@ module Workflow
         can :create, ProjectState, state: { id: %w[DPIA_REJECTED] },
                                    project: {
                                      project_type: { name: 'Application' },
-                                     assigned_user_id: @user.id,
-                                     current_state: { id: 'DPIA_MODERATION' }
+                                     current_project_state: {
+                                       state_id: 'DPIA_MODERATION',
+                                       assigned_user_id: @user.id
+                                     }
                                    }
 
         can :create, ProjectState, state: { id: %w[CONTRACT_DRAFT] },
                                    project: {
                                      project_type: { name: 'Application' },
-                                     assigned_user_id: @user.id,
-                                     current_state: { id: 'DPIA_MODERATION' }
+                                     current_project_state: {
+                                       state_id: 'DPIA_MODERATION',
+                                       assigned_user_id: @user.id
+                                     }
                                    }
         can :create, ProjectState, state: { id: %w[
                                                   DPIA_START
@@ -444,6 +457,86 @@ module Workflow
     def as_administrator; end
   end
 
+  # Temporary patch to support the move to temporal assignment, where live systems may still
+  # be using the project's assigned user (which should be the manager for the lifecycle of
+  # the project) for reassignment along the workflow.
+  # FIXME: Remove this once temporal assignment has bedded in across live systems.
+  ApplicationWorkflowAbility.prepend(
+    Module.new do
+      def as_odr_user
+        super
+
+        if @user.application_manager?
+          can :create, ProjectState, {
+            state: {
+              id: %w[DPIA_REJECTED]
+            },
+            project: {
+              project_type: {
+                name: 'Application'
+              },
+              current_project_state: {
+                state_id: 'DPIA_REVIEW',
+                assigned_user_id: nil
+              },
+              assigned_user_id: @user.id
+            }
+          }
+
+          can :create, ProjectState, {
+            state: {
+              id: %w[DPIA_MODERATION]
+            },
+            project: {
+              project_type: {
+                name: 'Application'
+              },
+              current_project_state: {
+                state_id: 'DPIA_REVIEW',
+                assigned_user_id: nil
+              },
+              assigned_user_id: @user.id
+            }
+          }
+        end
+
+        if @user.senior_application_manager?
+          can :create, ProjectState, {
+            state: {
+              id: %w[DPIA_REJECTED]
+            },
+            project: {
+              project_type: {
+                name: 'Application'
+              },
+              current_project_state: {
+                state_id: 'DPIA_MODERATION',
+                assigned_user_id: nil
+              },
+              assigned_user_id: @user.id
+            }
+          }
+
+          can :create, ProjectState, {
+            state: {
+              id: %w[CONTRACT_DRAFT]
+            },
+            project: {
+              project_type: {
+                name: 'Application'
+              },
+              current_project_state: {
+                state_id: 'DPIA_MODERATION',
+                assigned_user_id: nil
+              },
+              assigned_user_id: @user.id
+            }
+          }
+        end
+      end
+    end
+  )
+
   # Defines authorization rules relating to the project workflow.
   class CasWorkflowAbility
     include CanCan::Ability
@@ -463,10 +556,9 @@ module Workflow
       # Added to stop cas_manager inheriting roles as 'basic_user'
       return if @user.cas_manager?
 
-      role = Array.wrap(ProjectRole.fetch(:owner))
-      roleable_type = 'ProjectRole'
-      project_ids =
-        @user.projects.active.through_grant_of(role, roleable_type).pluck('grants.project_id')
+      role = ProjectRole.fetch(:owner)
+      project_ids = @user.projects.active.through_grant_of(role).pluck('grants.project_id')
+
       can :read, ProjectState, project_id: project_ids
       can :create, ProjectState, state: { id: 'DRAFT' },
                                  project: { current_state: { id: 'SUBMITTED' },
@@ -494,10 +586,9 @@ module Workflow
     def as_account_approver
       return unless @user.cas_access_approver?
 
-      role = Array.wrap(ProjectRole.fetch(:owner))
-      roleable_type = 'ProjectRole'
-      project_ids =
-        @user.projects.active.through_grant_of(role, roleable_type).pluck('grants.project_id')
+      role = ProjectRole.fetch(:owner)
+      project_ids = @user.projects.active.through_grant_of(role).pluck('grants.project_id')
+
       can :create, ProjectState, state: { id: %w[ACCESS_APPROVER_APPROVED
                                                  ACCESS_APPROVER_REJECTED] },
                                  project: { current_state: { id: 'SUBMITTED' },

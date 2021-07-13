@@ -40,7 +40,8 @@ class AbilityTest < ActiveSupport::TestCase
     @dataset_version = @dataset.dataset_versions.find_by(semver_version: '1.0')
     @node = @dataset_version.data_items.first
 
-    @application_manager_ability = Ability.new(users(:application_manager_one))
+    @application_manager = users(:application_manager_one)
+    @application_manager_ability = Ability.new(@application_manager)
     dataset_manager_setup
 
     @no_roles = users(:no_roles)
@@ -903,7 +904,9 @@ class AbilityTest < ActiveSupport::TestCase
     refute user.can? :delete, comment_two
   end
 
-  test 'can create CAS application with no roles' do
+  test 'can create CAS application with no roles in test' do
+    @no_roles_ability = Ability.new(@no_roles)
+
     mbis_application    = Project.new(project_type: ProjectType.find_by(name: 'Project'))
     odr_eoi_application = Project.new(project_type: ProjectType.find_by(name: 'EOI'))
     odr_application     = Project.new(project_type: ProjectType.find_by(name: 'Application'))
@@ -914,9 +917,59 @@ class AbilityTest < ActiveSupport::TestCase
     assert @no_roles_ability.can?    :create, cas_application
   end
 
-  test 'a user with roles can create CAS application' do
+  test 'can create CAS application with no roles in beta' do
+    Mbis.stubs(:stack).returns('beta')
+    Mbis.stack.stubs(:live?).returns(false)
+    @no_roles_ability = Ability.new(@no_roles)
+
+    mbis_application    = Project.new(project_type: ProjectType.find_by(name: 'Project'))
+    odr_eoi_application = Project.new(project_type: ProjectType.find_by(name: 'EOI'))
+    odr_application     = Project.new(project_type: ProjectType.find_by(name: 'Application'))
+    cas_application     = Project.new(project_type: ProjectType.find_by(name: 'CAS'))
+    assert @no_roles_ability.cannot? :create, mbis_application
+    assert @no_roles_ability.cannot? :create, odr_eoi_application
+    assert @no_roles_ability.cannot? :create, odr_application
+    assert @no_roles_ability.can?    :create, cas_application
+  end
+
+  test 'cannot create CAS application with no roles in live' do
+    Mbis.stubs(:stack).returns('live')
+    Mbis.stack.stubs(:live?).returns(true)
+    @no_roles_ability = Ability.new(@no_roles)
+
+    mbis_application    = Project.new(project_type: ProjectType.find_by(name: 'Project'))
+    odr_eoi_application = Project.new(project_type: ProjectType.find_by(name: 'EOI'))
+    odr_application     = Project.new(project_type: ProjectType.find_by(name: 'Application'))
+    cas_application     = Project.new(project_type: ProjectType.find_by(name: 'CAS'))
+    assert @no_roles_ability.cannot? :create, mbis_application
+    assert @no_roles_ability.cannot? :create, odr_eoi_application
+    assert @no_roles_ability.cannot? :create, odr_application
+    assert @no_roles_ability.cannot? :create, cas_application
+  end
+
+  test 'a user with roles can create CAS application in test' do
+    @application_manager_ability = Ability.new(@application_manager)
+
     cas_application = Project.new(project_type: ProjectType.find_by(name: 'CAS'))
-    assert @application_manager_ability.can?    :create, cas_application
+    assert @application_manager_ability.can? :create, cas_application
+  end
+
+  test 'a user with roles can create CAS application in beta' do
+    Mbis.stubs(:stack).returns('beta')
+    Mbis.stack.stubs(:live?).returns(false)
+    @application_manager_ability = Ability.new(@application_manager)
+
+    cas_application = Project.new(project_type: ProjectType.find_by(name: 'CAS'))
+    assert @application_manager_ability.can? :create, cas_application
+  end
+
+  test 'a user with roles cannot create CAS application in live' do
+    Mbis.stubs(:stack).returns('live')
+    Mbis.stack.stubs(:live?).returns(true)
+    @application_manager_ability = Ability.new(@application_manager)
+
+    cas_application = Project.new(project_type: ProjectType.find_by(name: 'CAS'))
+    assert @application_manager_ability.cannot? :create, cas_application
   end
 
   test 'jobs' do
@@ -937,6 +990,32 @@ class AbilityTest < ActiveSupport::TestCase
     refute odr.can?                 :delete, Delayed::Job
     refute administrator.can?       :delete, Delayed::Job
     assert developer.can?           :delete, Delayed::Job
+  end
+
+  test 'communications' do
+    user                = users(:standard_user)
+    application_manager = users(:application_manager_one)
+    odr                 = users(:odr_user)
+    administrator       = users(:admin_user)
+    developer           = users(:developer)
+
+    refute user.can?                :read, Communication
+    assert application_manager.can? :read, Communication
+    refute odr.can?                 :read, Communication
+    refute administrator.can?       :read, Communication
+    refute developer.can?           :read, Communication
+
+    refute user.can?                :create, Communication
+    assert application_manager.can? :create, Communication
+    refute odr.can?                 :create, Communication
+    refute administrator.can?       :create, Communication
+    refute developer.can?           :create, Communication
+
+    refute user.can?                :delete, Communication
+    assert application_manager.can? :delete, Communication
+    refute odr.can?                 :delete, Communication
+    refute administrator.can?       :delete, Communication
+    refute developer.can?           :delete, Communication
   end
 
   private

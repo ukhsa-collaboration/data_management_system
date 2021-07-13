@@ -68,7 +68,16 @@ class ProjectAmendmentTest < ActiveSupport::TestCase
                                                                         no_future: true
   end
 
-  test 'should validate attachment' do
+  test 'should be valid without an attachment' do
+    project   = projects(:one)
+    amendment = project.project_amendments.build(requested_at: Time.zone.today)
+
+    amendment.valid?
+
+    refute_includes amendment.errors.details[:attachment], error: :blank
+  end
+
+  test 'should validate attachment when present' do
     project    = projects(:one)
     amendment  = project.project_amendments.build(requested_at: Time.zone.today)
 
@@ -88,12 +97,11 @@ class ProjectAmendmentTest < ActiveSupport::TestCase
     assert_includes amendment.errors.details[:attachment_file_size], expected
   end
 
-  test 'should require a valid PDF attachment' do
+  test 'should require attachment to be valid PDF' do
     project   = projects(:one)
     amendment = project.project_amendments.build(requested_at: Time.zone.today)
 
     amendment.valid?
-    assert_includes amendment.errors.details[:attachment], error: :blank
     refute_includes amendment.errors.details[:attachment], error: :bad_pdf
 
     fixture = file_fixture('fivemb.txt')
@@ -125,6 +133,35 @@ class ProjectAmendmentTest < ActiveSupport::TestCase
 
     with_versioning do
       assert_auditable amendment
+    end
+  end
+
+  test 'saving should increment project amendment number' do
+    project   = projects(:one)
+    amendment = project.project_amendments.build(requested_at: Time.zone.today)
+    fixture = file_fixture('odr_amendment_request_form-1.0.pdf')
+    upload  = ActionDispatch::Http::UploadedFile.new(
+      tempfile: File.new(fixture, 'rb'),
+      filename: fixture.basename.to_s,
+      type:     'application/pdf'
+    )
+    amendment.upload = upload
+    assert_changes -> { project.reload.amendment_number }, from: 0, to: 1 do
+      amendment.save!
+    end
+
+    amendment = project.project_amendments.build(requested_at: Time.zone.today)
+    amendment.upload = upload
+    assert_changes -> { project.reload.amendment_number }, from: 1, to: 2 do
+      amendment.save!
+    end
+
+    project.project_amendments.first.destroy
+
+    amendment = project.project_amendments.build(requested_at: Time.zone.today)
+    amendment.upload = upload
+    assert_changes -> { project.reload.amendment_number }, from: 2, to: 3 do
+      amendment.save!
     end
   end
 end

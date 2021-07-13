@@ -27,6 +27,38 @@ SET default_tablespace = '';
 SET default_with_oids = false;
 
 --
+-- Name: access_levels; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.access_levels (
+    id bigint NOT NULL,
+    value character varying,
+    description character varying,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: access_levels_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.access_levels_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: access_levels_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.access_levels_id_seq OWNED BY public.access_levels.id;
+
+
+--
 -- Name: addresses; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -513,6 +545,42 @@ ALTER SEQUENCE public.common_law_exemptions_id_seq OWNED BY public.common_law_ex
 
 
 --
+-- Name: communications; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.communications (
+    id bigint NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL,
+    project_id bigint NOT NULL,
+    parent_id bigint,
+    sender_id bigint NOT NULL,
+    recipient_id bigint NOT NULL,
+    medium smallint NOT NULL,
+    contacted_at timestamp without time zone NOT NULL
+);
+
+
+--
+-- Name: communications_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.communications_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: communications_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.communications_id_seq OWNED BY public.communications.id;
+
+
+--
 -- Name: contract_types; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -965,7 +1033,9 @@ CREATE TABLE public.datasets (
     updated_at timestamp without time zone NOT NULL,
     terms character varying(999),
     dataset_type_id integer,
-    team_id integer
+    team_id integer,
+    levels jsonb DEFAULT '{}'::jsonb NOT NULL,
+    cas_type smallint
 );
 
 
@@ -2890,6 +2960,42 @@ ALTER SEQUENCE public.project_data_source_items_id_seq OWNED BY public.project_d
 
 
 --
+-- Name: project_dataset_levels; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.project_dataset_levels (
+    id bigint NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL,
+    project_dataset_id bigint,
+    access_level_id integer,
+    expiry_date date,
+    approved boolean,
+    selected boolean,
+    decided_at timestamp without time zone
+);
+
+
+--
+-- Name: project_dataset_levels_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.project_dataset_levels_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: project_dataset_levels_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.project_dataset_levels_id_seq OWNED BY public.project_dataset_levels.id;
+
+
+--
 -- Name: project_datasets; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -2899,8 +3005,7 @@ CREATE TABLE public.project_datasets (
     dataset_id bigint,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
-    terms_accepted boolean,
-    approved boolean
+    terms_accepted boolean
 );
 
 
@@ -3371,7 +3476,8 @@ CREATE TABLE public.projects (
     dataset_id integer,
     receiptsentby character varying,
     closure_date date,
-    programme_support_id integer
+    programme_support_id integer,
+    amendment_number integer DEFAULT 0
 );
 
 
@@ -3961,6 +4067,39 @@ ALTER SEQUENCE public.versions_id_seq OWNED BY public.versions.id;
 
 
 --
+-- Name: workflow_assignments; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.workflow_assignments (
+    id bigint NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL,
+    project_state_id bigint NOT NULL,
+    assigned_user_id bigint NOT NULL,
+    assigning_user_id bigint
+);
+
+
+--
+-- Name: workflow_assignments_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.workflow_assignments_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: workflow_assignments_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.workflow_assignments_id_seq OWNED BY public.workflow_assignments.id;
+
+
+--
 -- Name: workflow_project_states; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -3983,13 +4122,21 @@ CREATE VIEW public.workflow_current_project_states AS
     t.project_id,
     p.state_id,
     p.user_id,
+    u.assigned_user_id,
+    u.assigning_user_id,
     p.created_at,
     p.updated_at
-   FROM (( SELECT workflow_project_states.project_id,
+   FROM ((( SELECT workflow_project_states.project_id,
             max(workflow_project_states.id) AS id
            FROM public.workflow_project_states
           GROUP BY workflow_project_states.project_id) t
-     LEFT JOIN public.workflow_project_states p ON ((p.id = t.id)));
+     LEFT JOIN public.workflow_project_states p ON ((p.id = t.id)))
+     LEFT JOIN LATERAL ( SELECT workflow_assignments.assigned_user_id,
+            workflow_assignments.assigning_user_id
+           FROM public.workflow_assignments
+          WHERE (workflow_assignments.project_state_id = t.id)
+          ORDER BY workflow_assignments.id DESC
+         LIMIT 1) u ON (true));
 
 
 --
@@ -4340,6 +4487,13 @@ CREATE TABLE public.zuser (
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
+ALTER TABLE ONLY public.access_levels ALTER COLUMN id SET DEFAULT nextval('public.access_levels_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
 ALTER TABLE ONLY public.addresses ALTER COLUMN id SET DEFAULT nextval('public.addresses_id_seq'::regclass);
 
 
@@ -4418,6 +4572,13 @@ ALTER TABLE ONLY public.comments ALTER COLUMN id SET DEFAULT nextval('public.com
 --
 
 ALTER TABLE ONLY public.common_law_exemptions ALTER COLUMN id SET DEFAULT nextval('public.common_law_exemptions_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.communications ALTER COLUMN id SET DEFAULT nextval('public.communications_id_seq'::regclass);
 
 
 --
@@ -4809,6 +4970,13 @@ ALTER TABLE ONLY public.project_data_source_items ALTER COLUMN id SET DEFAULT ne
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
+ALTER TABLE ONLY public.project_dataset_levels ALTER COLUMN id SET DEFAULT nextval('public.project_dataset_levels_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
 ALTER TABLE ONLY public.project_datasets ALTER COLUMN id SET DEFAULT nextval('public.project_datasets_id_seq'::regclass);
 
 
@@ -4991,6 +5159,13 @@ ALTER TABLE ONLY public.versions ALTER COLUMN id SET DEFAULT nextval('public.ver
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
+ALTER TABLE ONLY public.workflow_assignments ALTER COLUMN id SET DEFAULT nextval('public.workflow_assignments_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
 ALTER TABLE ONLY public.workflow_project_states ALTER COLUMN id SET DEFAULT nextval('public.workflow_project_states_id_seq'::regclass);
 
 
@@ -5041,6 +5216,14 @@ ALTER TABLE ONLY public.z_team_statuses ALTER COLUMN id SET DEFAULT nextval('pub
 --
 
 ALTER TABLE ONLY public.z_user_statuses ALTER COLUMN id SET DEFAULT nextval('public.z_user_statuses_id_seq'::regclass);
+
+
+--
+-- Name: access_levels_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.access_levels
+    ADD CONSTRAINT access_levels_pkey PRIMARY KEY (id);
 
 
 --
@@ -5145,6 +5328,14 @@ ALTER TABLE ONLY public.comments
 
 ALTER TABLE ONLY public.common_law_exemptions
     ADD CONSTRAINT common_law_exemptions_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: communications_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.communications
+    ADD CONSTRAINT communications_pkey PRIMARY KEY (id);
 
 
 --
@@ -5620,6 +5811,14 @@ ALTER TABLE ONLY public.project_data_source_items
 
 
 --
+-- Name: project_dataset_levels_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.project_dataset_levels
+    ADD CONSTRAINT project_dataset_levels_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: project_datasets_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -5844,6 +6043,14 @@ ALTER TABLE ONLY public.versions
 
 
 --
+-- Name: workflow_assignments_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.workflow_assignments
+    ADD CONSTRAINT workflow_assignments_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: workflow_project_states_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -6001,6 +6208,34 @@ CREATE INDEX index_comments_on_commentable_type_and_commentable_id ON public.com
 --
 
 CREATE INDEX index_comments_on_user_id ON public.comments USING btree (user_id);
+
+
+--
+-- Name: index_communications_on_parent_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_communications_on_parent_id ON public.communications USING btree (parent_id);
+
+
+--
+-- Name: index_communications_on_project_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_communications_on_project_id ON public.communications USING btree (project_id);
+
+
+--
+-- Name: index_communications_on_recipient_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_communications_on_recipient_id ON public.communications USING btree (recipient_id);
+
+
+--
+-- Name: index_communications_on_sender_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_communications_on_sender_id ON public.communications USING btree (sender_id);
 
 
 --
@@ -6375,6 +6610,13 @@ CREATE INDEX index_project_data_source_items_on_project_id ON public.project_dat
 
 
 --
+-- Name: index_project_dataset_levels_on_project_dataset_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_project_dataset_levels_on_project_dataset_id ON public.project_dataset_levels USING btree (project_dataset_id);
+
+
+--
 -- Name: index_project_datasets_on_dataset_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -6624,6 +6866,20 @@ CREATE INDEX index_versions_on_item_type_and_item_id ON public.versions USING bt
 --
 
 CREATE INDEX index_versions_on_transaction_id ON public.versions USING btree (transaction_id);
+
+
+--
+-- Name: index_workflow_assignments_on_assigned_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_workflow_assignments_on_assigned_user_id ON public.workflow_assignments USING btree (assigned_user_id);
+
+
+--
+-- Name: index_workflow_assignments_on_project_state_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_workflow_assignments_on_project_state_id ON public.workflow_assignments USING btree (project_state_id);
 
 
 --
@@ -6928,6 +7184,14 @@ ALTER TABLE ONLY public.e_workflow
 
 
 --
+-- Name: fk_rails_2f912bd782; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.project_dataset_levels
+    ADD CONSTRAINT fk_rails_2f912bd782 FOREIGN KEY (project_dataset_id) REFERENCES public.project_datasets(id);
+
+
+--
 -- Name: fk_rails_35cad80142; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -6968,6 +7232,14 @@ ALTER TABLE ONLY public.prescription_data
 
 
 --
+-- Name: fk_rails_41c5e93ac9; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.communications
+    ADD CONSTRAINT fk_rails_41c5e93ac9 FOREIGN KEY (project_id) REFERENCES public.projects(id);
+
+
+--
 -- Name: fk_rails_453b679a0f; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -6981,6 +7253,14 @@ ALTER TABLE ONLY public.xml_type_xml_attributes
 
 ALTER TABLE ONLY public.releases
     ADD CONSTRAINT fk_rails_47fe2a0596 FOREIGN KEY (project_id) REFERENCES public.projects(id);
+
+
+--
+-- Name: fk_rails_4db7b1360c; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.workflow_assignments
+    ADD CONSTRAINT fk_rails_4db7b1360c FOREIGN KEY (assigning_user_id) REFERENCES public.users(id);
 
 
 --
@@ -7048,11 +7328,27 @@ ALTER TABLE ONLY public.projects
 
 
 --
+-- Name: fk_rails_5e6fb45273; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.communications
+    ADD CONSTRAINT fk_rails_5e6fb45273 FOREIGN KEY (sender_id) REFERENCES public.users(id);
+
+
+--
 -- Name: fk_rails_5f38890297; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.project_data_source_items
     ADD CONSTRAINT fk_rails_5f38890297 FOREIGN KEY (project_id) REFERENCES public.projects(id);
+
+
+--
+-- Name: fk_rails_6289dbcb3a; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.communications
+    ADD CONSTRAINT fk_rails_6289dbcb3a FOREIGN KEY (recipient_id) REFERENCES public.users(id);
 
 
 --
@@ -7328,6 +7624,14 @@ ALTER TABLE ONLY public.memberships
 
 
 --
+-- Name: fk_rails_b007b76cfa; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.workflow_assignments
+    ADD CONSTRAINT fk_rails_b007b76cfa FOREIGN KEY (project_state_id) REFERENCES public.workflow_project_states(id);
+
+
+--
 -- Name: fk_rails_b027420c08; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -7341,6 +7645,14 @@ ALTER TABLE ONLY public.project_attachments
 
 ALTER TABLE ONLY public.notifications
     ADD CONSTRAINT fk_rails_b080fb4855 FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+
+--
+-- Name: fk_rails_b5082704f2; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.workflow_assignments
+    ADD CONSTRAINT fk_rails_b5082704f2 FOREIGN KEY (assigned_user_id) REFERENCES public.users(id);
 
 
 --
@@ -7381,6 +7693,14 @@ ALTER TABLE ONLY public.projects
 
 ALTER TABLE ONLY public.molecular_data
     ADD CONSTRAINT fk_rails_c2ebe2d7b1 FOREIGN KEY (ppatient_id) REFERENCES public.ppatients(id) ON DELETE CASCADE;
+
+
+--
+-- Name: fk_rails_c9c498759d; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.communications
+    ADD CONSTRAINT fk_rails_c9c498759d FOREIGN KEY (parent_id) REFERENCES public.communications(id);
 
 
 --
@@ -7940,6 +8260,22 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20210407120512'),
 ('20210408152005'),
 ('20210414134929'),
-('20210415143021');
+('20210415143021'),
+('20210506093309'),
+('20210513095643'),
+('20210514110933'),
+('20210518103646'),
+('20210518150518'),
+('20210519161222'),
+('20210519161356'),
+('20210521102230'),
+('20210526131356'),
+('20210603114230'),
+('20210603155912'),
+('20210604102124'),
+('20210615101111'),
+('20210615104916'),
+('20210617140742'),
+('20210628103955');
 
 

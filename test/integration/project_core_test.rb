@@ -98,8 +98,10 @@ class ProjectCoreTest < ActionDispatch::IntegrationTest
     assert_changes -> { @eoi.reload.assigned_user } do
       assert_difference 'Notification.count' do
         assert_emails 1 do
-          select 'Application Manager Two', from: 'project[assigned_user_id]'
-          click_button 'Apply'
+          within('#new_project_assignment') do
+            select 'Application Manager Two', from: 'Application Manager'
+            click_button 'Apply'
+          end
         end
       end
     end
@@ -126,13 +128,14 @@ class ProjectCoreTest < ActionDispatch::IntegrationTest
     assert_no_changes -> { @eoi.reload.assigned_user } do
       assert_no_difference 'Notification.count' do
         assert_emails 0 do
-          select 'Application Manager Two', from: 'project[assigned_user_id]'
-          click_button 'Apply'
+          within('#new_project_assignment') do
+            select 'Application Manager Two', from: 'Application Manager'
+            click_button 'Apply'
+          end
         end
       end
     end
 
-    assert_equal project_path(@eoi), current_path
     assert page.has_text? 'EOI could not be assigned!'
   end
 
@@ -270,76 +273,11 @@ class ProjectCoreTest < ActionDispatch::IntegrationTest
 
       within_modal do
         assert has_text? 'Could not import file!'
-        assert has_text? 'Bang!'
+        # assert has_text?(/fingerprint.*[0-9a-f]{32}\z/)
 
         click_button 'OK'
       end
     end
-  end
-
-  test 'project dashboard search' do
-    sign_in @app_man
-    visit dashboard_projects_path
-
-    within('#search-form') do
-      fill_in 'search[name]', with: 'oh eye'
-      click_button :submit
-    end
-
-    assert_equal dashboard_projects_path, current_path
-    assert has_no_content? 'My Projects'
-    assert has_no_content? 'Assigned Projects'
-    assert has_content? 'Unassigned Projects'
-    assert has_content? 'All Projects'
-
-    within('#unassigned-projects') do
-      assert has_text?('Beside The Seaside')
-      assert has_no_text?('MyString')
-    end
-
-    within('#all-projects') do
-      assert has_text?('Beside The Seaside')
-      assert has_no_text?('MyString')
-    end
-  end
-
-  test 'project dashboard search assigned' do
-    eoi = Project.find_by(name: 'E Oh Eye Do Like To Be Beside The Seaside')
-    eoi.update_attribute(:assigned_user_id, @app_man.id)
-
-    sign_in @app_man
-    visit dashboard_projects_path
-    assert has_no_content? 'My Projects'
-    assert has_content? 'Assigned Projects'
-    assert has_content? 'Unassigned Projects'
-    assert has_content? 'All Projects'
-
-    within('#search-form') do
-      fill_in 'search[name]', with: 'oh eye'
-      click_button :submit
-    end
-
-    assert_equal dashboard_projects_path, current_path
-    assert has_no_content? 'My Projects'
-    assert has_content? 'Assigned Projects'
-    assert has_no_content? 'Unassigned Projects'
-    assert has_content? 'All Projects'
-  end
-
-  test 'project search' do
-    sign_in @user
-    visit projects_path
-
-    assert has_content? 'Listing Projects'
-    assert has_content? 'new_project'
-
-    within('#search-form') do
-      fill_in 'search[name]', with: 'string'
-      click_button :submit
-    end
-
-    assert has_no_content? 'new_project'
-    assert has_content? 'MyString'
   end
 
   test 'should be able to see linked projects' do
@@ -376,7 +314,8 @@ class ProjectCoreTest < ActionDispatch::IntegrationTest
   def create_eoi
     eoi = Project.new(project_type: project_types(:eoi),
                       name: 'E Oh Eye Do Like To Be Beside The Seaside',
-                      project_purpose: 'Ice Cream')
+                      project_purpose: 'Ice Cream',
+                      first_contact_date: Date.current - 1.month)
     dataset = Dataset.find_by(name: 'Death Transaction')
     eoi.project_datasets << ProjectDataset.new(dataset: dataset,
                                                terms_accepted: true)

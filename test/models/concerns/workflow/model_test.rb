@@ -27,6 +27,10 @@ module Workflow
       assert_instance_of State, @project.transitionable_states.first
     end
 
+    test 'should have a temporally_assigned_user delegate' do
+      assert_equal users(:standard_user1), @project.temporally_assigned_user
+    end
+
     test 'transitionable_states should be scoped to project type' do
       Transition.create(
         project_type: project_types(:project),
@@ -152,6 +156,27 @@ module Workflow
       end
     end
 
+    test 'refreshes cached workflow state information' do
+      @project.transition_to!(workflow_states(:step_one))
+
+      assert_changes -> { @project.current_state } do
+        assert_changes -> { @project.current_project_state } do
+          assert_changes -> { @project.transitionable_states.count } do
+            @project.project_states.create!(state: workflow_states(:step_two))
+
+            @project.refresh_workflow_state_information
+          end
+        end
+      end
+    end
+
+    test 'refreshes cached workflow state information on transition' do
+      state = workflow_states(:step_one)
+
+      @project.expects(:refresh_workflow_state_information)
+      @project.transition_to(state)
+    end
+
     test 'should publish state changes' do
       state   = workflow_states(:step_one)
       payload = { project: @project, transition: [@project.current_state, state] }
@@ -161,12 +186,14 @@ module Workflow
       @project.transition_to(state)
     end
 
+    # FIXME: This test is failing in isolation. Related to changes introduced in #22203 ?
     test 'returning to draft should reset approvals' do
       project = projects(:rejected_project)
+      assert_equal 'DRAFT', project.previous_state_id, "Previous state should have been 'DRAFT'"
       assert_changes -> { project.details_approved }, from: false, to: nil do
         assert_changes -> { project.members_approved }, from: false, to: nil do
           assert_changes -> { project.legal_ethical_approved }, from: false, to: nil do
-            project.transition_to(workflow_states(:draft), project.owner)
+            project.transition_to!(workflow_states(:draft), project.owner)
           end
         end
       end
@@ -267,6 +294,15 @@ module Workflow
 
       create_dpia(project)
       assert project.transition_to(workflow_states(:dpia_review))
+
+      project.project_amendments.destroy_all
+      assert project.transition_to(workflow_states(:amend))
+      refute project.transition_to(workflow_states(:dpia_start))
+      assert_includes project.errors.details[:base], error: :no_attached_amendment
+
+      create_amendment(project)
+      assert project.transition_to(workflow_states(:dpia_start))
+      assert project.transition_to(workflow_states(:dpia_review))
       assert project.transition_to(workflow_states(:dpia_moderation))
 
       project.contracts.destroy_all
@@ -300,7 +336,7 @@ module Workflow
     end
 
     test 'should not be able to submit cas applications without user details' do
-      project = create_project(project_type: project_types(:cas), owner: users(:no_roles))
+      project = create_project(project_type: project_types(:cas), owner: users(:standard_user))
       project.reload_current_state
       # give all cas user details except job_title
       project.owner.update(telephone: '01234 5678910', line_manager_name: 'Line Manager',

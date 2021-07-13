@@ -61,7 +61,8 @@ module CreateRecordsHelper
       project_type: project_types(:cas),
       name: 'NCRS',
       description: 'Example CAS Project',
-      owner: users(:standard_user2)
+      owner: users(:standard_user2),
+      cas_application_fields: CasApplicationFields.new(declaration: %w[1Yes 2Yes 3Yes 4Yes])
     }
     cas = Project.new(default_options.merge(options))
     cas.save!
@@ -91,6 +92,7 @@ module CreateRecordsHelper
       team: teams(:team_one),
       start_data_date: '01/01/2017',
       end_data_date: '31/12/2017',
+      first_contact_date: '31/12/2016',
       data_to_contact_others: true,
       data_to_contact_others_desc: 'do something',
       classifications: [classifications(:one), classifications(:two)],

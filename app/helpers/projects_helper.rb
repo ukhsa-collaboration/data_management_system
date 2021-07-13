@@ -91,23 +91,13 @@ module ProjectsHelper
     default_options = {
       class: ['label', STATE_LABEL_CLASSES.fetch(state.id, 'label-default')]
     }
-    content_tag(:span, state.name(project), html_options.merge(default_options))
-  end
-
-  def timeline_allocated_user_label(project, state = nil)
-    state ||= project.current_state
-
-    i18n_scope = %i[helpers timeline state_allocated_user]
-    i18n_key     = state.id.downcase.to_sym
-    i18n_default = ''
-
-    t(i18n_key, scope: i18n_scope, default: i18n_default)
+    content_tag(:span, state.name(project.project_type), html_options.merge(default_options))
   end
 
   def odr_reference(project)
     return unless project&.project_type&.name&.in? %w[Application EOI]
 
-    content_tag(:small, "ODR Reference: #{project.id}")
+    content_tag(:small, "ODR Reference: #{project.application_log}")
   end
 
   def transition_button(project, state, **options)
@@ -324,34 +314,63 @@ module ProjectsHelper
     field ? 'Yes' : 'No'
   end
 
-  def dashboard_projects_by_role(user)
-    if user.odr?
-      :odr_mbis_projects
-    elsif user.application_manager? || user.senior_application_manager?
-      :odr_projects
-    elsif user.mbis_delegate? || user.mbis_applicant?
-      :of_type_project
+  def project_sub_type_path_prefix(project)
+    "projects/#{project.project_type_name.parameterize(separator: '_')}"
+  end
+
+  def project_form_path(project)
+    "#{project_sub_type_path_prefix(project)}/form"
+  end
+
+  def display_level_date(project_dataset_level)
+    return unless project_dataset_level.expiry_date
+
+    if project_dataset_level.approved
+      project_dataset_level.expiry_date.strftime('%d/%m/%Y (expiry)')
     else
-      :all
+      project_dataset_level.expiry_date.strftime('%d/%m/%Y (requested)')
     end
   end
 
-  def project_filter_dropdown_button
-    menu = capture do
-      content_tag(:ul, class: 'dropdown-menu') do
-        %w[all mbis odr].each do |project_type|
-          project_type_text = project_type == 'all' ? project_type.titlecase : project_type.upcase
-          project_type = project_type == 'mbis' ? 'project' : project_type
-          link = link_to("#{project_type_text} applications",
-                         dashboard_projects_path(project_type: project_type))
-          concat content_tag(:li, link)
+  def setup_project(project)
+    (Dataset.where.not(cas_type: nil).pluck(:id) -
+     project.project_datasets.pluck(:dataset_id)).each do |id|
+       # added to stop duplication in error screen
+       if project.project_datasets.select { |pd| pd.dataset_id == id }.none?
+         project.project_datasets.build(dataset_id: id)
+       end
+     end
+    project.project_datasets.each do |pd|
+      levels = Lookups::AccessLevel.pluck(:id) - pd.project_dataset_levels.pluck(:access_level_id)
+      levels.each do |level|
+        # added to stop duplication in error screen
+        if pd.project_dataset_levels.select { |pdl| pdl.access_level_id == level }.none?
+          pd.project_dataset_levels.build(access_level_id: level)
         end
       end
     end
+    project
+  end
 
-    button = button_tag('Application Filter', class: 'btn btn-primary dropdown-toggle',
-                                              id: 'application_filter', data: { toggle: :dropdown })
+  def check_icon(value)
+    return bootstrap_icon_tag('ok') if value
 
-    button_group { safe_join([button, menu]) }
+    bootstrap_icon_tag('remove')
+  end
+
+  def check_box_class(dataset, level)
+    class_string = 'defaults_checkbox '
+    # TODO: update with real roles
+    class_string << 'ca_group ' if dataset_level_match(CANCER_ANALYST_DATASETS, dataset, level)
+    class_string << 'd_group ' if dataset_level_match(NDRS_DEVELOPER_DATASETS, dataset, level)
+    class_string << 'qa_group ' if dataset_level_match(NDRS_QA_DATASETS, dataset, level)
+
+    class_string.strip!
+  end
+
+  def dataset_level_match(role_datasets, dataset, level)
+    role_datasets.any? do |role_dataset|
+      role_dataset['name'] == dataset.name && (role_dataset['levels'].include? level)
+    end
   end
 end

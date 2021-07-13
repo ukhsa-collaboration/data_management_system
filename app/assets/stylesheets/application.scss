@@ -7,6 +7,7 @@
 @import "file_upload";
 @import "nodes";
 @import "comments";
+@import "projects";
 
 // Ensure date picker renders over bootstrap's static nav, modals, tooltips etc
 .datepicker {
@@ -190,4 +191,24 @@ $phe-secondary: #00b092;
   background-color: black;
   color: limegreen;
   font-family: monospace;
+}
+
+[data-toggle="collapse"] {
+  .glyphicon-eye-open {
+    display: none;
+  }
+
+  .glyphicon-eye-close {
+    display: inherit;
+  }
+}
+
+[data-toggle="collapse"].collapsed {
+  .glyphicon-eye-open {
+    display: inherit;
+  }
+
+  .glyphicon-eye-close {
+    display: none;
+  }
 }
