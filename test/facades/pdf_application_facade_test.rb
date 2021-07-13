@@ -3,7 +3,7 @@ require 'test_helper'
 class PDFApplicationFacadeTest < ActiveSupport::TestCase
   def setup
     @team      = teams(:team_one)
-    @applicant = @team.users.first
+    @applicant = users(:standard_user2)
     @project   = @team.projects.build(project_type: project_types(:application))
     @facade    = PdfApplicationFacade.new(@project)
   end
