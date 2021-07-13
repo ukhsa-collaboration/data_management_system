@@ -60,9 +60,9 @@ class PdfApplicationFacade
   attribute :security_assurance_applicant
   attribute :security_assurance_outsourced
 
-  attribute :end_uses,        default: Set.new
-  attribute :lawful_bases,    default: Set.new
-  attribute :classifications, default: Set.new
+  attribute :end_uses
+  attribute :lawful_bases
+  attribute :classifications
 
   alias_attribute :org_department,              :organisation_department
   alias_attribute :org_add1,                    :organisation_add1
@@ -173,9 +173,9 @@ class PdfApplicationFacade
     @project = project
     @project.pdf_import = true
 
-    end_uses.merge(project.end_uses)
-    lawful_bases.merge(project.lawful_bases)
-    classifications.merge(project.classifications)
+    self.end_uses        = project.end_uses.to_set
+    self.lawful_bases    = project.lawful_bases.to_set
+    self.classifications = project.classifications.to_set
 
     yield(self) if block_given?
   end
