@@ -362,6 +362,8 @@ en:
       project:
         name: Project Title
         assigned_user: Application Manager
+        owner: Applicant
+        application_log: ODR Ref
       data_privacy_impact_assessment:
         ig_toolkit_version: Year of IG assessment status
         ig_score: IG score

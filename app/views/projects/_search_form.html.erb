@@ -35,7 +35,7 @@
           <%= bootstrap_icon_tag('eye-open') %>
           <%= bootstrap_icon_tag('eye-close') %>
         </a>
-        Project Owner
+        <%= Project.human_attribute_name(:owner) %>
       </legend>
 
       <div class="collapse" id="project_owner_filters">
