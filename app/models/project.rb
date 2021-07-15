@@ -217,12 +217,12 @@ class Project < ApplicationRecord
       filter = arel_table[:application_log].matches("%#{string}%")
 
       return filter unless match ||= string.match(
-        %r(\A(?<head>ODR_(?<fy_start>\d{2,4})_(?<fy_end>\d{2,4})_?)?(?<id>\d+)?(?<tail>/.*)?\z)i
+        %r(\A(?<head>ODR_(?<fy_start>\d{2})(?<fy_end>\d{2})_?)?(?<id>\d+)?(?<tail>/.*)?\z)i
       )
 
       chain = []
-      chain << arel_table[:first_contact_date].gteq("#{match[:fy_start]}-04-01") if match[:fy_start]
-      chain << arel_table[:first_contact_date].lteq("#{match[:fy_end]}-03-31")   if match[:fy_end]
+      chain << arel_table[:first_contact_date].gteq("20#{match[:fy_start]}-04-01") if match[:fy_start]
+      chain << arel_table[:first_contact_date].lteq("20#{match[:fy_end]}-03-31")   if match[:fy_end]
       chain << arel_table[:id].eq(match[:id].to_i) if match[:id]
 
       filter.or(
