@@ -26,7 +26,10 @@ module Projects
       begin
         project = PdfApplicationFacade.new(@project)
 
-        project.project_attachments.build(upload: uploaded_file)
+        project.project_attachments.build(
+          upload: uploaded_file,
+          name:   ProjectAttachment::Names::APPLICATION_FORM
+        )
 
         each_acroform_attribute do |attribute, value|
           project.try("#{attribute}=", value)
