@@ -31,7 +31,7 @@
   <%= form.fields_for :owner do |sub_form| %>
     <fieldset>
       <legend>
-        <a href="#project_owner_filters" class="btn btn-default btn-xs" data-toggle="collapse">
+        <a href="#project_owner_filters" class="btn btn-default btn-xs collapsed" data-toggle="collapse">
           <%= bootstrap_icon_tag('eye-open') %>
           <%= bootstrap_icon_tag('eye-close') %>
         </a>
@@ -54,7 +54,7 @@
 
   <fieldset data-controller="checkbox-select-all">
     <legend>
-      <a href="#project_type_filters" class="btn btn-default btn-xs" data-toggle="collapse">
+      <a href="#project_type_filters" class="btn btn-default btn-xs collapsed" data-toggle="collapse">
         <%= bootstrap_icon_tag('eye-open') %>
         <%= bootstrap_icon_tag('eye-close') %>
       </a>
@@ -84,7 +84,7 @@
   <%= form.fields_for :current_project_state do |sub_form| %>
     <fieldset data-controller="checkbox-select-all">
       <legend>
-        <a href="#project_state_filters" class="btn btn-default btn-xs" data-toggle="collapse">
+        <a href="#project_state_filters" class="btn btn-default btn-xs collapsed" data-toggle="collapse">
           <%= bootstrap_icon_tag('eye-open') %>
           <%= bootstrap_icon_tag('eye-close') %>
         </a>
