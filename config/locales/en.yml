@@ -338,6 +338,7 @@ en:
       data_privacy_impact_assessment:
         one: DPIA
         other: DPIAs
+      workflow/state: Status
     attributes:
       cas_application_fields:
         firstname: First name
