@@ -17,4 +17,20 @@ class ProjectsMailerPreview < ActionMailer::Preview
 
     ProjectsMailer.with(project: project).project_awaiting_assignment
   end
+
+  def transitioned
+    project =
+      Project.joins(:project_type, :current_state).
+      merge(ProjectType.application).
+      merge(Workflow::State.where(id: 'SUBMITTED')).
+      order(:id).
+      limit(1).
+      first
+
+    ProjectsMailer.with(
+      project:      project,
+      user:         project.owner,
+      current_user: project.owner
+    ).transitioned
+  end
 end

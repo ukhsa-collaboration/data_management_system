@@ -428,3 +428,9 @@ en:
         body: A DPIA for this project has been rejected by %{assigner}.
       dpia_moderation:
         body: A project has been sent to you for senior application manager moderation by %{assigner}.
+    transitioned:
+      subject: "%{type} Status Update"
+      heading: "%{type} Status Update"
+      body_html: >
+        <p>The status for the project entitled <q><cite>%{title}</cite></q> has changed to <b><q>%{state}</q></b>.</p>
+      body: The status for the project entitled "%{title}" has changed to "%{state}".
