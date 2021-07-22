@@ -130,5 +130,62 @@ module Workflow
       assert_match 'Project Details', email.encoded
       assert_match %r{http://[^/]+/projects/#{project.id}}, email.encoded
     end
+
+    test 'application_transitioned_to_rejected email localised for application manager' do
+      project = projects(:dummy_project)
+      user    = users(:application_manager_two)
+      reason  = lookups_closure_reason(:unresponsive)
+
+      project.assigned_user  = user
+      project.closure_reason = reason
+      project.save!(validate: false)
+
+      project.project_states.build(
+        state: workflow_states(:rejected),
+        user:  user
+      ).save!(validate: false)
+
+      email = ProjectsMailer.with(
+        project:      project,
+        user:         project.assigned_user,
+        current_user: user,
+        locale:       :'en-odr'
+      ).application_transitioned_to_rejected
+
+      assert_emails(1) { email.deliver_now }
+
+      assert_match(<<~STR.squish, email.encoded)
+        A project you are managing has been closed by #{user.full_name}.
+      STR
+      assert_match "Closure reason: #{reason.value}", email.encoded
+    end
+
+    test 'application_transitioned_to_rejected email not localised' do
+      project = projects(:dummy_project)
+      user    = users(:application_manager_two)
+      reason  = lookups_closure_reason(:unresponsive)
+
+      project.assigned_user  = user
+      project.closure_reason = reason
+      project.save!(validate: false)
+
+      project.project_states.build(
+        state: workflow_states(:rejected),
+        user:  user
+      ).save!(validate: false)
+
+      email = ProjectsMailer.with(
+        project:      project,
+        user:         project.owner,
+        current_user: user
+      ).application_transitioned_to_rejected
+
+      assert_emails(1) { email.deliver_now }
+
+      refute_match(<<~STR.squish, email.encoded)
+        A project you are managing has been closed by #{user.full_name}.
+      STR
+      refute_match "Closure reason: #{reason.value}", email.encoded
+    end
   end
 end

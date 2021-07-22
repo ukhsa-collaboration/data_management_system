@@ -441,3 +441,14 @@ en:
         "%{title}" has been reviewed by ODR and set to a status of "%{state}"
     application_transitioned_to_rejected:
       <<: *transitioned_to_rejected
+
+en-odr:
+  projects_mailer:
+    application_transitioned_to_rejected:
+      body_html: >
+        <p>A project you are managing has been closed by %{current_user}.</p>
+        <p><b>Closure reason:</b> %{closure_reason}</p>
+      body: |
+        A project you are managing has been closed by %{current_user}.
+
+        Closure reason: %{closure_reason}
