@@ -85,7 +85,17 @@ module Workflow
         type:    @project.project_type_name
       )
 
-      mail(options.merge(to: @user.email, subject: subject), &block)
+      localize_mail(params[:locale]) do
+        mail(options.merge(to: @user.email, subject: subject), &block)
+      end
+    end
+
+    # Leveraging locales as a means to present varying content to different audiences, for the
+    # (debatably) same email. Inspired by:
+    # https://guides.rubyonrails.org/action_view_overview.html#localized-views
+    # https://guides.rubyonrails.org/i18n.html#localized-views
+    def localize_mail(locale = I18n.default_locale, &block)
+      I18n.with_locale(locale, &block)
     end
   end
 end
