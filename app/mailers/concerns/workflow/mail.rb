@@ -33,12 +33,19 @@ module Workflow
 
     # A default/generic message to send when any project type changes to any state.
     def transitioned
+      # For translation lookup purposes. Capture the current method name (handling aliases
+      # appropriately) and set a variable for use as a translation lookup prefix; the intent is
+      # that it allows better reuse of the default template, whilst still having dynamic
+      # translation content.
+      @key = __callee__
+
       @interpolations = default_interpolations
 
       transition_email do |format|
         render_default_template(format)
       end
     end
+    alias transitioned_to_rejected transitioned
 
     private
 
@@ -68,7 +75,9 @@ module Workflow
     end
 
     def transition_email(**options, &block)
-      @key    = caller_locations(1, 1).first.label # for translation lookup purposes
+      # For translation lookup purposes. If not already set, infer from the calling method.
+      @key ||= caller_locations.first.label
+
       subject = t(
         :subject,
         scope:   [:projects_mailer],

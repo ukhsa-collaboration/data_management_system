@@ -99,5 +99,36 @@ module Workflow
         current_user: project.owner
       ).state_changed.deliver_now
     end
+
+    test 'transitioned_to_rejected' do
+      project = projects(:dummy_project)
+      user    = users(:application_manager_one)
+
+      project.assigned_user = user
+      project.save!(validate: false)
+
+      project.project_states.build(
+        state: workflow_states(:rejected),
+        user: user
+      ).save!(validate: false)
+
+      email = ProjectsMailer.with(
+        project:      project,
+        user:         project.owner,
+        current_user: project.assigned_user
+      ).transitioned_to_rejected
+
+      assert_emails(1) { email.deliver_now }
+
+      assert_equal [project.owner.email], email.to
+      assert_equal 'Dummy Status Update', email.subject
+      assert_match 'Dummy Status Update', email.encoded
+      assert_match(<<~STR.squish, email.encoded)
+        "#{project.name}" has been reviewed by ODR and set to a status
+         of "#{project.current_state_name}"
+      STR
+      assert_match 'Project Details', email.encoded
+      assert_match %r{http://[^/]+/projects/#{project.id}}, email.encoded
+    end
   end
 end

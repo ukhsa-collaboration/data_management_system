@@ -434,3 +434,8 @@ en:
       body_html: >
         <p>The status for the project entitled <q><cite>%{title}</cite></q> has changed to <b><q>%{state}</q></b>.</p>
       body: The status for the project entitled "%{title}" has changed to "%{state}".
+    transitioned_to_rejected:
+      body_html: >
+        <p><q><cite>%{title}</cite></q> has been reviewed by ODR and set to a status of <q>%{state}</q></p>
+      body: >
+        "%{title}" has been reviewed by ODR and set to a status of "%{state}"

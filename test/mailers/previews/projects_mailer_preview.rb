@@ -33,4 +33,21 @@ class ProjectsMailerPreview < ActionMailer::Preview
       current_user: project.owner
     ).transitioned
   end
+
+  def transitioned_to_rejected
+    project =
+      Project.joins(:project_type, :current_state).
+      merge(ProjectType.application).
+      merge(Workflow::State.where(id: 'REJECTED')).
+      order(:id).
+      limit(1).
+      first
+
+    ProjectsMailer.with(
+      project:      project,
+      user:         project.owner,
+      current_user: project.assigned_user,
+      comments:     'RAWR!'
+    ).state_changed
+  end
 end
