@@ -2,10 +2,10 @@
   interpolations = @interpolations.merge(scope: :projects_mailer)
 %>
 
-<h1><%= t(:"#{@key}.heading", **interpolations.merge(default: :'transitioned.heading')) %></h1>
+<h1><%= t(:"#{@i18n_prefix}.heading", **interpolations.merge(default: :'transitioned.heading')) %></h1>
 <hr />
 
-<%= t(:"#{@key}.body_html", **interpolations.merge(default: [:"#{@key}.body", :'transitioned.body_html', :'transitioned.body'])) %>
+<%= t(:"#{@i18n_prefix}.body_html", **interpolations.merge(default: [:"#{@i18n_prefix}.body", :'transitioned.body_html', :'transitioned.body'])) %>
 
 <% if @comments %>
   <blockquote>

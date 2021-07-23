@@ -2,9 +2,9 @@
   interpolations = @interpolations.merge(scope: :projects_mailer)
 %>
 
-##### <%= t(:"#{@key}.heading", **interpolations.merge(default: :'transitioned.heading')) %> #####
+##### <%= t(:"#{@i18n_prefix}.heading", **interpolations.merge(default: :'transitioned.heading')) %> #####
 
-<%= t(:"#{@key}.body", **interpolations.merge(default: [:"#{@key}.body", :'transitioned.body'])) %>
+<%= t(:"#{@i18n_prefix}.body", **interpolations.merge(default: [:"#{@i18n_prefix}.body", :'transitioned.body'])) %>
 
 <% if @comments %>
 "<%= @comments %>"

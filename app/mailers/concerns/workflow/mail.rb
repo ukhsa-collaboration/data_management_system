@@ -37,7 +37,7 @@ module Workflow
       # appropriately) and set a variable for use as a translation lookup prefix; the intent is
       # that it allows better reuse of the default template, whilst still having dynamic
       # translation content.
-      @key = __callee__
+      @i18n_prefix = __callee__
 
       @interpolations = default_interpolations
 
@@ -76,7 +76,7 @@ module Workflow
 
     def transition_email(**options, &block)
       # For translation lookup purposes. If not already set, infer from the calling method.
-      @key ||= caller_locations.first.label
+      @i18n_prefix ||= caller_locations.first.label
 
       subject = t(
         :subject,
