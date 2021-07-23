@@ -47,6 +47,18 @@ module Workflow
     end
     alias transitioned_to_rejected transitioned
 
+    def application_transitioned_to_rejected
+      @interpolations = default_interpolations.merge!(
+        current_user:   @current_user.full_name,
+        closure_reason: @project.closure_reason.value
+      )
+
+      transition_email do |format|
+        render_default_template(format)
+      end
+    end
+    alias eoi_transitioned_to_rejected application_transitioned_to_rejected
+
     private
 
     def load_user
