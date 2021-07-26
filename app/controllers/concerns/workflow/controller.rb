@@ -66,9 +66,7 @@ module Workflow
     def send_transition_email
       return unless @project.current_state == @state
 
-      @project.users.find_each do |user|
-        next if user == current_user # Does the user performing the transition need notifying?
-
+      notifiable_users.find_each do |user|
         kwargs = { project: @project, user: user, current_user: current_user }
 
         # TODO: Is there a more elegant way of handling this? Like determining the correct locale
@@ -84,6 +82,19 @@ module Workflow
         # safe navigation operator...
         ProjectsMailer.with(**kwargs).state_changed.deliver_later
       end
+    end
+
+    # Who should receive emails about changes to a `project`s workflow position.
+    # In lieu of a subscription based model where users can manage their own desired status updates.
+    # NOTE: yuk.
+    def notifiable_users
+      # Does the user performing the transition need notifying?
+      scope = @project.users.where.not(id: current_user)
+
+      # Copied from original project rejected notification...
+      scope = scope.where.not(id: @project.users.odr_users) if @project.application?
+
+      scope
     end
 
     def notify_temporally_assigned_user
