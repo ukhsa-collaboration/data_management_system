@@ -68,7 +68,7 @@ module Workflow
       ).state_changed.deliver_now
     end
 
-    test 'state changed email with state specific shandler' do
+    test 'state changed email with state specific handler' do
       project = projects(:dummy_project)
       state   = project.current_state.to_lookup_key
 
