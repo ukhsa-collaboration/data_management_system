@@ -47,8 +47,8 @@ class DataPrivacyImpactAssessmentsTest < ActionDispatch::IntegrationTest
     fill_in 'data_privacy_impact_assessment[dpia_decision_date]',  with: '14/04/2020'
     attach_file('data_privacy_impact_assessment[upload]', file_fixture('dpia.txt'))
 
-    assert_difference -> { project.dpias.count } do
-      assert_difference -> { project.referent_dpias.count } do
+    assert_difference -> { project.global_dpias.count } do
+      assert_difference -> { project.dpias.count } do
         click_button('Create DPIA')
 
         assert_equal project_path(project), current_path
@@ -93,8 +93,8 @@ class DataPrivacyImpactAssessmentsTest < ActionDispatch::IntegrationTest
     visit project_path(project)
     click_on('DPIAs')
 
-    assert_difference -> { project.dpias.count }, -1 do
-      assert_difference -> { project.referent_dpias.count }, -1 do
+    assert_difference -> { project.global_dpias.count }, -1 do
+      assert_difference -> { project.dpias.count }, -1 do
         accept_prompt do
           click_link(href: data_privacy_impact_assessment_path(dpia), title: 'Delete')
         end

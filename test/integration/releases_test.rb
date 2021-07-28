@@ -47,8 +47,8 @@ class ReleasesTest < ActionDispatch::IntegrationTest
     fill_in 'release[individual_to_release]',      with: 'Yogi Bear'
     fill_in 'release[release_date]',               with: '15/04/2020'
 
-    assert_difference -> { project.releases.count } do
-      assert_difference -> { project.referent_releases.count } do
+    assert_difference -> { project.global_releases.count } do
+      assert_difference -> { project.releases.count } do
         click_button('Create Release')
 
         assert_equal project_path(project), current_path
@@ -87,8 +87,8 @@ class ReleasesTest < ActionDispatch::IntegrationTest
     visit project_path(project)
     click_on('Releases')
 
-    assert_difference -> { project.releases.count }, -1 do
-      assert_difference -> { project.referent_releases.count }, -1 do
+    assert_difference -> { project.global_releases.count }, -1 do
+      assert_difference -> { project.releases.count }, -1 do
         accept_prompt do
           click_link(href: release_path(release), title: 'Delete')
         end

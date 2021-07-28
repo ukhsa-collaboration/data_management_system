@@ -25,7 +25,7 @@
       </tr>
     </thead>
     <tbody>
-      <% project.dpias.accessible_by(current_ability).find_each do |dpia| %>
+      <% project.global_dpias.accessible_by(current_ability).find_each do |dpia| %>
         <%= content_tag(:tr, id: dom_id(dpia)) do %>
           <td><%= dpia.referent_reference %></td>
           <td><%= dpia.reference %></td>

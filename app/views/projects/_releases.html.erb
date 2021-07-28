@@ -24,7 +24,7 @@
       </tr>
     </thead>
     <tbody>
-      <% project.releases.accessible_by(current_ability).find_each do |release| %>
+      <% project.global_releases.accessible_by(current_ability).find_each do |release| %>
         <%= content_tag(:tr, id: dom_id(release)) do %>
           <td><%= release.referent_reference %></td>
           <td><%= release.reference %></td>

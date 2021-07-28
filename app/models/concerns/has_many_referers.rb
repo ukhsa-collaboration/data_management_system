@@ -5,9 +5,9 @@ module HasManyReferers
 
   included do
     with_options as: :referent, dependent: :destroy do
-      has_many :referent_dpias,     class_name: 'DataPrivacyImpactAssessment'
-      has_many :referent_contracts, class_name: 'Contract'
-      has_many :referent_releases,  class_name: 'Release'
+      has_many :dpias, class_name: 'DataPrivacyImpactAssessment'
+      has_many :contracts
+      has_many :releases
     end
   end
 end

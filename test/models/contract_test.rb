@@ -13,10 +13,10 @@ class ContractTest < ActiveSupport::TestCase
 
   test 'should belong to a project' do
     project  = projects(:one)
-    contract = project.contracts.build
+    contract = project.global_contracts.build
 
     assert_equal project, contract.project
-    assert_includes project.contracts, contract
+    assert_includes project.global_contracts, contract
   end
 
   test 'should be invalid without a project' do
@@ -51,7 +51,7 @@ class ContractTest < ActiveSupport::TestCase
 
   test 'should be auditable' do
     project  = projects(:one)
-    contract = project.contracts.build
+    contract = project.global_contracts.build
 
     with_versioning do
       assert_auditable contract
@@ -86,7 +86,7 @@ class ContractTest < ActiveSupport::TestCase
   private
 
   def build_contract(project, **attributes)
-    project.contracts.build(referent: project, **attributes) do |contract|
+    project.global_contracts.build(referent: project, **attributes) do |contract|
       yield(contract) if block_given?
     end
   end

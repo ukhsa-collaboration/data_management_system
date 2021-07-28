@@ -41,8 +41,8 @@ class ContractsTest < ActionDispatch::IntegrationTest
     fill_in 'contract[contract_executed_date]', with: '01/04/2020'
     attach_file('contract[upload]', file_fixture('contract.txt'))
 
-    assert_difference -> { project.contracts.count } do
-      assert_difference -> { project.referent_contracts.count } do
+    assert_difference -> { project.global_contracts.count } do
+      assert_difference -> { project.contracts.count } do
         click_button('Create Contract')
 
         assert_equal project_path(project), current_path
@@ -81,8 +81,8 @@ class ContractsTest < ActionDispatch::IntegrationTest
     visit project_path(project)
     click_on('Contracts')
 
-    assert_difference -> { project.contracts.count }, -1 do
-      assert_difference -> { project.referent_contracts.count }, -1 do
+    assert_difference -> { project.global_contracts.count }, -1 do
+      assert_difference -> { project.contracts.count }, -1 do
         accept_prompt do
           click_link(href: contract_path(contract), title: 'Delete')
         end

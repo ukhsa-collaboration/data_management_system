@@ -3,10 +3,10 @@ require 'test_helper'
 class DataPrivacyImpactAssessmentTest < ActiveSupport::TestCase
   test 'should belong to a project' do
     project = projects(:one)
-    dpia    = project.dpias.build
+    dpia    = project.global_dpias.build
 
     assert_equal project, dpia.project
-    assert_includes project.dpias, dpia
+    assert_includes project.global_dpias, dpia
   end
 
   test 'should be invalid without a project' do
@@ -41,7 +41,7 @@ class DataPrivacyImpactAssessmentTest < ActiveSupport::TestCase
 
   test 'should not permit ig_score outside permissible range' do
     project = projects(:one)
-    dpia    = project.dpias.build
+    dpia    = project.global_dpias.build
 
     dpia.ig_score = -1
     dpia.valid?
@@ -62,7 +62,7 @@ class DataPrivacyImpactAssessmentTest < ActiveSupport::TestCase
 
   test 'should not permit fractional ig_score values' do
     project = projects(:one)
-    dpia    = project.dpias.build(ig_score: 50.0)
+    dpia    = project.global_dpias.build(ig_score: 50.0)
 
     dpia.valid?
     assert_includes dpia.errors.details[:ig_score], error: :not_an_integer, value: 50.0
@@ -70,7 +70,7 @@ class DataPrivacyImpactAssessmentTest < ActiveSupport::TestCase
 
   test 'should be auditable' do
     project = projects(:one)
-    dpia    = project.dpias.build
+    dpia    = project.global_dpias.build
 
     with_versioning do
       assert_auditable dpia

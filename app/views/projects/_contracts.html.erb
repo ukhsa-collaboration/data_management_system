@@ -23,7 +23,7 @@
       </tr>
     </thead>
     <tbody>
-      <% project.contracts.accessible_by(current_ability).find_each do |contract| %>
+      <% project.global_contracts.accessible_by(current_ability).find_each do |contract| %>
         <%= content_tag(:tr, id: dom_id(contract)) do %>
           <td><%= contract.referent_reference %></td>
           <td><%= contract.reference %></td>

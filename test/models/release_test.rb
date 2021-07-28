@@ -12,10 +12,10 @@ class ReleaseTest < ActiveSupport::TestCase
 
   test 'should belong to a project' do
     project = projects(:one)
-    release = project.releases.build
+    release = project.global_releases.build
 
     assert_equal project, release.project
-    assert_includes project.releases, release
+    assert_includes project.global_releases, release
   end
 
   test 'should be invalid without a project' do
@@ -36,7 +36,7 @@ class ReleaseTest < ActiveSupport::TestCase
 
   test 'should be associated with a project state' do
     project = projects(:one)
-    release = project.releases.build
+    release = project.global_releases.build
 
     release.valid?
 
@@ -52,7 +52,7 @@ class ReleaseTest < ActiveSupport::TestCase
 
   test 'should be auditable' do
     project = projects(:one)
-    release = project.releases.build
+    release = project.global_releases.build
 
     with_versioning do
       assert_auditable release
@@ -61,7 +61,7 @@ class ReleaseTest < ActiveSupport::TestCase
 
   test 'should validate numericality of actual_cost' do
     project = projects(:one)
-    release = project.releases.build
+    release = project.global_releases.build
 
     release.actual_cost = 'not a number'
     release.valid?
@@ -106,7 +106,7 @@ class ReleaseTest < ActiveSupport::TestCase
   private
 
   def build_release(project, **attributes)
-    project.releases.build(referent: project, **attributes) do |release|
+    project.global_releases.build(referent: project, **attributes) do |release|
       yield(release) if block_given?
     end
   end

@@ -31,9 +31,9 @@ class Project < ApplicationRecord
   # of accessing _all_ the relevant resources within the scope of a project, irrespective of the
   # true parent resource.
   with_options dependent: :destroy do
-    has_many :dpias, class_name: 'DataPrivacyImpactAssessment'
-    has_many :contracts
-    has_many :releases
+    has_many :global_dpias,     class_name: 'DataPrivacyImpactAssessment'
+    has_many :global_contracts, class_name: 'Contract'
+    has_many :global_releases,  class_name: 'Release'
   end
 
   has_many :project_lawful_bases, dependent: :destroy

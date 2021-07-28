@@ -198,7 +198,7 @@ module CreateRecordsHelper
       upload: upload
     )
 
-    project.dpias.create!(attributes)
+    project.global_dpias.create!(attributes)
   end
 
   def create_contract(project, **attributes)
@@ -221,7 +221,7 @@ module CreateRecordsHelper
       upload:                 upload
     )
 
-    project.contracts.create!(attributes)
+    project.global_contracts.create!(attributes)
   end
 
   def create_release(project, **attributes)
@@ -239,6 +239,6 @@ module CreateRecordsHelper
       cost_recovery_applied:  'N'
     )
 
-    project.releases.create!(attributes)
+    project.global_releases.create!(attributes)
   end
 end
