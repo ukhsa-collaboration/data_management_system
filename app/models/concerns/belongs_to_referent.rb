@@ -9,7 +9,9 @@ module BelongsToReferent
   included do
     belongs_to :referent, polymorphic: true
 
-    delegate :reference, to: :referent, prefix: true, allow_nil: true
+    # Copy the associated reference to the local model/table (because some groups want to query the
+    # database directly).
+    before_save -> { self.referent_reference = referent&.reference }
   end
 
   def referent_gid

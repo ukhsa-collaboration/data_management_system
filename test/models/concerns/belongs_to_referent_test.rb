@@ -33,10 +33,12 @@ class BelongsToReferentTest < ActiveSupport::TestCase
     assert_equal referent, @resource.referent
   end
 
-  test 'should delegate :reference to related resource' do
+  test 'should save related resource reference locally on save' do
     referent = @resource.referent
+    referent.class.any_instance.stubs(reference: 'project.ref.123')
 
-    referent.expects(:reference)
-    @resource.referent_reference
+    assert_changes -> { @resource.reload.referent_reference }, from: nil, to: 'project.ref.123' do
+      @resource.save!
+    end
   end
 end

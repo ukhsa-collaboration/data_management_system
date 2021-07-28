@@ -634,7 +634,8 @@ CREATE TABLE public.contracts (
     destruction_form_received_date timestamp without time zone,
     reference character varying,
     referent_type character varying NOT NULL,
-    referent_id bigint NOT NULL
+    referent_id bigint NOT NULL,
+    referent_reference character varying
 );
 
 
@@ -834,7 +835,8 @@ CREATE TABLE public.data_privacy_impact_assessments (
     updated_at timestamp(6) without time zone NOT NULL,
     reference character varying,
     referent_type character varying NOT NULL,
-    referent_id bigint NOT NULL
+    referent_id bigint NOT NULL,
+    referent_reference character varying
 );
 
 
@@ -3606,7 +3608,8 @@ CREATE TABLE public.releases (
     updated_at timestamp(6) without time zone NOT NULL,
     reference character varying,
     referent_type character varying NOT NULL,
-    referent_id bigint NOT NULL
+    referent_id bigint NOT NULL,
+    referent_reference character varying
 );
 
 
@@ -8312,6 +8315,12 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20210728114821'),
 ('20210728115617'),
 ('20210728115621'),
-('20210728115625');
+('20210728115625'),
+('20210728140133'),
+('20210728140140'),
+('20210728140147'),
+('20210728140306'),
+('20210728140310'),
+('20210728140313');
 
 
