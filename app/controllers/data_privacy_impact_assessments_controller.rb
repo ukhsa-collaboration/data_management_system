@@ -57,6 +57,7 @@ class DataPrivacyImpactAssessmentsController < ApplicationController
   def resource_params
     params.require(:data_privacy_impact_assessment).permit(
       %i[
+        referent_gid
         ig_toolkit_version
         ig_score
         ig_assessment_status_id

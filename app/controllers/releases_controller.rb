@@ -40,6 +40,7 @@ class ReleasesController < ApplicationController
   def resource_params
     params.require(:release).permit(
       %i[
+        referent_gid
         invoice_requested_date
         invoice_sent_date
         phe_invoice_number

@@ -28,6 +28,10 @@ class DataPrivacyImpactAssessmentTest < ActiveSupport::TestCase
     assert_equal project.current_project_state, dpia.project_state
   end
 
+  test 'should include BelongsToReferent' do
+    assert_includes DataPrivacyImpactAssessment.included_modules, BelongsToReferent
+  end
+
   test 'should be invalid without an associated project_state' do
     dpia = DataPrivacyImpactAssessment.new
     dpia.valid?

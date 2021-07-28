@@ -30,6 +30,10 @@ class ReleaseTest < ActiveSupport::TestCase
     refute_includes release.errors.details[:project], error: :blank
   end
 
+  test 'should include BelongsToReferent' do
+    assert_includes Release.included_modules, BelongsToReferent
+  end
+
   test 'should be associated with a project state' do
     project = projects(:one)
     release = project.releases.build
@@ -74,7 +78,7 @@ class ReleaseTest < ActiveSupport::TestCase
 
   test 'should not auto transition to data released if a release date is not present' do
     assert_no_changes -> { @contract_completed_project.current_state } do
-      @contract_completed_project.releases.build.tap do |release|
+      build_release(@contract_completed_project) do |release|
         release.save!
       end
     end
@@ -82,7 +86,7 @@ class ReleaseTest < ActiveSupport::TestCase
 
   test 'should auto transition to data released if a any release date is present' do
     assert_changes -> { @contract_completed_project.current_state.id }, 'DATA_RELEASED' do
-      @contract_completed_project.releases.build.tap do |release|
+      build_release(@contract_completed_project) do |release|
         release.release_date = Date.current
         release.save!
       end
@@ -92,10 +96,18 @@ class ReleaseTest < ActiveSupport::TestCase
   test 'should not auto transition to data released if not in correct previous state' do
     @contract_completed_project.transition_to!(Workflow::State.find_by(id: 'AMEND'))
     assert_no_changes -> { @contract_completed_project.current_state } do
-      @contract_completed_project.releases.build.tap do |release|
+      build_release(@contract_completed_project) do |release|
         release.release_date = Date.current
         release.save!
       end
+    end
+  end
+
+  private
+
+  def build_release(project, **attributes)
+    project.releases.build(referent: project, **attributes) do |release|
+      yield(release) if block_given?
     end
   end
 end

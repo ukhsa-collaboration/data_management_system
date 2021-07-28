@@ -3,6 +3,7 @@ class Project < ApplicationRecord
   include Workflow::Model
   include Commentable
   include Searchable
+  include HasManyReferers
 
   has_many :project_attachments, as: :attachable, dependent: :destroy
   has_many :project_nodes, dependent: :destroy
@@ -21,10 +22,19 @@ class Project < ApplicationRecord
   has_many :grants, foreign_key: :project_id, dependent: :destroy
   has_many :users, -> { extending(GrantedBy).distinct }, through: :grants
   has_many :project_amendments, dependent: :destroy
-  has_many :dpias, class_name: 'DataPrivacyImpactAssessment', dependent: :destroy
-  has_many :contracts, dependent: :destroy
-  has_many :releases,  dependent: :destroy
   has_many :communications, dependent: :destroy
+
+  # The following associations are somewhat deprecated (and slightly confusing) now.
+  # These resources should have a polymorphic parent (either a project or an amendment;
+  # see `BelongsToReferent` and `HasManyReferers`) and be accessed via `referent_{collection}`.
+  # That said, these associations (and their inverse counterparts) are kind of useful as a means
+  # of accessing _all_ the relevant resources within the scope of a project, irrespective of the
+  # true parent resource.
+  with_options dependent: :destroy do
+    has_many :dpias, class_name: 'DataPrivacyImpactAssessment'
+    has_many :contracts
+    has_many :releases
+  end
 
   has_many :project_lawful_bases, dependent: :destroy
   has_many :lawful_bases, through: :project_lawful_bases
@@ -505,6 +515,7 @@ class Project < ApplicationRecord
 
     "ODR_#{fy_start}#{fy_end}_#{id}"
   end
+  alias reference application_log
 
   def next_amendment_reference
     return unless odr?

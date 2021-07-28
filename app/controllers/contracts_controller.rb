@@ -55,6 +55,7 @@ class ContractsController < ApplicationController
   def resource_params
     params.require(:contract).permit(
       %i[
+        referent_gid
         contract_version
         contract_sent_date
         contract_received_date
