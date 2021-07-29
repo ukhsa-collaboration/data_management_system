@@ -26,7 +26,7 @@ class Project < ApplicationRecord
 
   # The following associations are somewhat deprecated (and slightly confusing) now.
   # These resources should have a polymorphic parent (either a project or an amendment;
-  # see `BelongsToReferent` and `HasManyReferers`) and be accessed via `referent_{collection}`.
+  # see `BelongsToReferent` and `HasManyReferers`).
   # That said, these associations (and their inverse counterparts) are kind of useful as a means
   # of accessing _all_ the relevant resources within the scope of a project, irrespective of the
   # true parent resource.
