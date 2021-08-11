@@ -52,6 +52,22 @@
     </fieldset>
   <% end %>
 
+  <fieldset>
+    <legend>
+      <a href="#project_assigned_user_filters" class="btn btn-default btn-xs collapsed" data-toggle="collapse" expanded="false" aria-controls="project_assigned_user_filters">
+        <%= bootstrap_icon_tag('eye-open') %>
+        <%= bootstrap_icon_tag('eye-close') %>
+      </a>
+      <%= Project.human_attribute_name(:assigned_user) %>
+    </legend>
+
+    <div class="collapse" id="project_assigned_user_filters">
+      <div class="form-group">
+        <%= form.collection_select(:assigned_user_id, User.all_application_managers.in_use.order(:last_name, :first_name), :id, :full_name, { selected: search_params[:assigned_user_id], include_blank: true }, { class: 'form-control' }) %>
+      </div>
+    </div>
+  </fieldset>
+
   <fieldset data-controller="checkbox-select-all">
     <legend>
       <a href="#project_type_filters" class="btn btn-default btn-xs collapsed" data-toggle="collapse" expanded="false" aria-controls="project_type_filters">
