@@ -226,7 +226,7 @@ R1K () {
 MBIS=$1
 PROV='R1K'
 IFS=$'\n'
-for x in $(find  $DIRPATH/$FILEPATH -type f -name "*BRCA*.pseudo" -path "*/$PROV/*" \
+for x in $(find  $DIRPATH/$FILEPATH -type f -name "*.pseudo" -path "*/$PROV/*" \
 ! -name "d66a0bfbd7d994b76c7db3f5c38e2ea3e44118fc_01.2020_CRC2015_2016KGC.xlsx.pseudo" \
 ! -name "33bb4c02a0627f8bb6b4865e45eed3afab38c2c5_01.2020_CRC2016_2017KGC.xlsx.pseudo" \
 ! -name "3dfa2592c4f8d9ff996a14f998e1f4d182303857_01.04.2018 to 31.07.2018_CRC data2018Apr_Jul.xlsx.pseudo" \
