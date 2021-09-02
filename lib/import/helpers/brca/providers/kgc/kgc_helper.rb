@@ -9,7 +9,7 @@ module Import
           module KgcHelper
             include KgcConstants
 
-            def process_mutated_genes(mutations, genotype,  genotypes)
+            def process_mutated_genes(mutations, genotype, genotypes)
               mutations.each do |gene, cdna, protein|
                 mutatedgenotype = genotype.dup
                 @logger.debug 'SUCCESSFUL gene parse for positive test for: '\
@@ -23,7 +23,7 @@ module Import
               attributes = %i[exon gene gene_location protein variant]
               exon, gene, gene_location, protein, variant = result_details.values_at(*attributes)
 
-              genotype.add_gene(gene)        if gene
+              genotype.add_gene(gene) if gene
               genotype.add_gene_location(gene_location) if gene_location
               genotype.add_exon_location(exon)          if exon
               genotype.add_variant_type(variant)        if variant
@@ -76,7 +76,7 @@ module Import
             end
 
             def protein_impact_from(raw_genotype)
-              PROTEIN_REGEX_COLO.match(raw_genotype)[:impact]
+              PROTEIN_REGEX.match(raw_genotype)[:impact]
             end
 
             def tp53_genes_from(clinicomm)

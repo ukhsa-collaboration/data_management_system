@@ -39,8 +39,8 @@ module Import
             end
 
             def process_exon(raw_genotype, genotype, genotypes)
-              @logger.debug "Found LYNCH CHROMOSOME #{variant_from(raw_genotype)} "\
-                            "in #{brca_gene_from(raw_genotype)} LYNCH RELATED GENE at "\
+              @logger.debug "Found CHROMOSOME VARIANT #{variant_from(raw_genotype)} "\
+                            "in #{brca_gene_from(raw_genotype)} GENE at "\
                             "position #{exon_from(raw_genotype)}"
               mutatedgene   = raw_genotype.scan(BRCA_GENES_REGEX).flatten
               negativegenes = BRCAGENES - mutatedgene
@@ -64,10 +64,9 @@ module Import
             end
 
             def process_no_mutation(genotypes, genotype)
-              @logger.debug 'Found no mutation in broad lynch genes'
+              @logger.debug 'Found no mutation'
               add_negative_test_for(BRCAGENES, genotypes, genotype, NEGATIVE_TEST_LOG)
             end
-
           end
         end
       end

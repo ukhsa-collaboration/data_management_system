@@ -17,9 +17,9 @@ module Import
                                       NEGATIVE_TEST_LOG)
               elsif raw_genotype.scan(BRCA_GENES_REGEX).count.positive?
                 mutatedgene = raw_genotype.scan(BRCA_GENES_REGEX).flatten
-                
+
                 process_tp53_genes(raw_genotype, clinicomm, genotype, genotypes,
-                                             mutatedgene)
+                                   mutatedgene)
               elsif /no mutation|No mutation detected|Normal result/i.match(raw_genotype)
                 tp53genes = tp53_genes_from(clinicomm)
                 @logger.debug "Found no mutation; Genes #{nonlynchgenes.flatten.uniq} are normal"
@@ -29,26 +29,26 @@ module Import
             end
 
             def process_tp53_genes(raw_genotype, clinicomm, genotype, genotypes,
-                                             mutatedgene)
+                                   mutatedgene)
               if raw_genotype.scan(CDNA_REGEX).count.positive? && raw_genotype !~ EXON_REGEX
                 process_tp53_cdna_change(raw_genotype, mutatedgene, clinicomm,
-                                                       genotype, genotypes)
+                                         genotype, genotypes)
               elsif EXON_REGEX.match(raw_genotype) && raw_genotype !~ CDNA_REGEX
                 process_tp53_exon(raw_genotype, clinicomm, genotype, genotypes)
               elsif EXON_REGEX.match(raw_genotype) && CDNA_REGEX.match(raw_genotype)
                 process_tp53_exon_and_cdna_change(raw_genotype, clinicomm, genotype,
-                                                       genotypes)
+                                                  genotypes)
               end
             end
 
             def process_tp53_cdna_change(raw_genotype, mutatedgene, clinicomm, genotype,
-                                              genotypes)
+                                         genotypes)
               mutatedcdna    = raw_genotype.scan(CDNA_REGEX).flatten
-              mutatedprotein = raw_genotype.scan(PROTEIN_REGEX_COLO).flatten
+              mutatedprotein = raw_genotype.scan(PROTEIN_REGEX).flatten
               if raw_genotype.scan(CDNA_REGEX).count > 1 && mutatedgene.flatten.one?
-                mutatedgene = mutatedgene.map { |mutatedgene| [mutatedgene] * 2 }
+                mutatedgene = mutatedgene.map { |gene| [gene] * 2 }
               end
-              mutations      = mutatedgene.flatten.zip(mutatedcdna, mutatedprotein)
+              mutations = mutatedgene.flatten.zip(mutatedcdna, mutatedprotein)
               @logger.debug "Found dna mutation in #{mutatedgene} " \
                             "GENE(s) in position #{raw_genotype.scan(CDNA_REGEX)} with impact " \
                             "#{raw_genotype.scan(PROTEIN_REGEX)}"
@@ -60,12 +60,12 @@ module Import
             end
 
             def process_tp53_exon(raw_genotype, clinicomm, genotype, genotypes)
-              @logger.debug 'Found NON-LYNCH CHROMOSOME ' \
+              @logger.debug 'Found CHROMOSOME VARIANT ' \
                             "#{EXON_REGEX.match(raw_genotype)[:deldupins]} "\
                             "in #{BRCA_GENES_REGEX.match(raw_genotype)[:colorectal]} " \
-                            'NON-LYNCH GENE at '\
+                            'GENE at '\
                             "position #{EXON_REGEX.match(raw_genotype)[:exno]}"
-              mutatedgene   = raw_genotype.scan(BRCA_GENES_REGEX).flatten
+              mutatedgene = raw_genotype.scan(BRCA_GENES_REGEX).flatten
               tp53genes = tp53_genes_from(clinicomm)
               negativegenes = tp53genes.flatten.uniq - mutatedgene
               process_negative_genes(negativegenes, genotypes, genotype,
@@ -76,10 +76,10 @@ module Import
             end
 
             def process_tp53_exon_and_cdna_change(raw_genotype, clinicomm, genotype,
-                                                       genotypes)
-              mutatedgene   = raw_genotype.scan(BRCA_GENES_REGEX).flatten
+                                                  genotypes)
+              mutatedgene = raw_genotype.scan(BRCA_GENES_REGEX).flatten
               tp53genes = tp53_genes_from(clinicomm)
-              negativegenes = nonlynchgenes.flatten.uniq - mutatedgene
+              negativegenes = tp53genes.flatten.uniq - mutatedgene
               process_negative_genes(negativegenes, genotypes, genotype,
                                      NEGATIVE_TEST_LOG)
               mutatedexongenotype = genotype.dup

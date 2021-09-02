@@ -24,8 +24,8 @@ module Import
             @lines_processed += 1 # TODO: factor this out to be automatic across handlers
             genotype = Import::Brca::Core::GenotypeBrca.new(record)
             genotype.add_passthrough_fields(record.mapped_fields,
-                                                  record.raw_fields,
-                                                  PASS_THROUGH_FIELDS_COLO)
+                                            record.raw_fields,
+                                            PASS_THROUGH_FIELDS_COLO)
             genotype.add_test_scope(:full_screen)
             add_organisationcode_testresult(genotype)
             res = extract_variants_from_record(genotype, record)
@@ -40,9 +40,9 @@ module Import
             clinicomm = record.raw_fields['all clinical comments (semi colon separated).all clinical comment text']
             raw_genotype = record.raw_fields['genotype']
             genotypes = []
-            if clinicomm.scan(BRCA_TP53).count.positive? && clinicomm !~ BRCA &&
-              process_tp53_entries(raw_genotype, clinicomm, genotype, genotypes)
-            elsif clinicomm.scan(BRCA).count.positive?
+            if clinicomm.scan(BRCA_TP53).count.positive? && clinicomm =~ BRCA_TP53
+               process_tp53_entries(raw_genotype, clinicomm, genotype, genotypes)
+            elsif clinicomm.scan(BRCA).count.positive? && clinicomm =~ BRCA
               process_brcagenes(raw_genotype, clinicomm, genotype, genotypes)
             # This block is to see if there are NON LYNCH and BROAD LYNCH records
             else
