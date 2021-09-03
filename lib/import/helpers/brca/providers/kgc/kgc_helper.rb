@@ -79,14 +79,14 @@ module Import
               PROTEIN_REGEX.match(raw_genotype)[:impact]
             end
 
-            def tp53_genes_from(clinicomm)
-              tp53genes = []
-              clinicomm.scan(BRCA_TP53).each do |gene|
-                tp53genes.append(TP53_GENES[gene])
-              end
-
-              tp53genes
-            end
+            # def tp53_genes_from(clinicomm)
+            #   tp53genes = []
+            #   clinicomm.scan(BRCA_TP53).each do |gene|
+            #     tp53genes.append(TP53_GENES[gene])
+            #   end
+            #   binding.pry
+            #   tp53genes
+            # end
           end
         end
       end

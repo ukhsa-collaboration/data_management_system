@@ -24,9 +24,9 @@ module Import
             EXON_REGEX = /ex(?:on) (?<exno>[0-9]{1,2}(-[0-9]{1,2})?).+(?<deldupins>(del|dup|ins))|(?<deldupins>(del|dup|ins)).+ex(?:on(s)?) (?<exno>[0-9]{1,2}(-[0-9]{1,2})?)/i.freeze
             # CDNA_REGEX = /c\.(?<dna>[0-9]+([a-z]+|[^[:alnum:]])([0-9]+[a-z]+>[a-z]|[0-9]+[a-z]+|[^[:alnum:]][a-z]+)))/i .freeze
             CDNA_REGEX = /(?<dna>c\.[0-9]+_[0-9]+[a-z]+|
-                         [0-9]+\+[0-9]+[a-z]+>[a-z]+|
-                         [0-9]+[a-z]+>[a-z]+|
-                         [0-9]+[a-z]+|1100delC)/ix.freeze
+                         c\.[0-9]+\+[0-9]+[a-z]+>[a-z]+|
+                         c\.[0-9]+[a-z]+>[a-z]+|
+                         c\.[0-9]+[a-z]+|1100delC)/ix.freeze
             PROTEIN_REGEX = /p\.(\(|\[)?(?<impact>[a-z]+[0-9]+([a-z]+[^[:alnum:]]|[a-z]+|[^[:alnum:]]))/i.freeze
             BRCA_GENES_REGEX = /(?<brca>BRCA1|
                                       BRCA2|
