@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class LondonKgcHandlerColorectalTest < ActiveSupport::TestCase
+class LondonKgcHandlerTest < ActiveSupport::TestCase
   def setup
     @record   = build_raw_record('pseudo_id1' => 'bob')
     @genotype = Import::Brca::Core::GenotypeBrca.new(@record)
@@ -56,15 +56,16 @@ class LondonKgcHandlerColorectalTest < ActiveSupport::TestCase
   test 'process record with mixed cdna mutation and chromosomal aberration' do
     chromosomecdnamutation_record = build_raw_record('pseudo_id1' => 'bob')
     chromosomecdnamutation_record.raw_fields['genotype'] = 'BRCA2 exon 1-6 deletion plus TP53 c.1847C>G p.Pro616Arg'
-    @logger.expects(:debug).with('SUCCESSFUL gene parse for negative test for: MLH1')
-    @logger.expects(:debug).with('SUCCESSFUL gene parse for MLH1')
-    @logger.expects(:debug).with('SUCCESSFUL gene parse for negative test for: EPCAM')
-    @logger.expects(:debug).with('SUCCESSFUL gene parse for EPCAM')
-    @logger.expects(:debug).with('SUCCESSFUL gene parse for MSH2')
-    @logger.expects(:debug).with('SUCCESSFUL gene parse for MSH6')
+    @logger.expects(:debug).with('SUCCESSFUL gene parse for negative test for: ["BRCA1"]')
+    @logger.expects(:debug).with('SUCCESSFUL gene parse for negative test for: BRCA1')
+    @logger.expects(:debug).with('SUCCESSFUL gene parse for BRCA1')
+    @logger.expects(:debug).with('SUCCESSFUL gene parse for BRCA2')
+    @logger.expects(:debug).with('SUCCESSFUL gene parse for TP53')
     genotypes = @handler.extract_variants_from_record(@genotype, chromosomecdnamutation_record)
     assert_equal 3, genotypes.size
   end
+
+  private
 
   def build_raw_record(options = {})
     default_options = { 'pseudo_id1' => '',
