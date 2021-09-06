@@ -41,7 +41,7 @@ module Import
             raw_genotype = record.raw_fields['genotype']
             genotypes = []
             if clinicomm.scan(BRCA_TP53).count.positive? && clinicomm =~ BRCA_TP53
-               process_tp53_entries(raw_genotype, clinicomm, genotype, genotypes)
+              process_tp53_entries(raw_genotype, clinicomm, genotype, genotypes)
             elsif clinicomm.scan(BRCA).count.positive? && clinicomm =~ BRCA
               process_brcagenes(raw_genotype, clinicomm, genotype, genotypes)
             # This block is to see if there are NON LYNCH and BROAD LYNCH records

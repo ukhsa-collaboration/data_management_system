@@ -24,6 +24,45 @@ class LondonKgcHandlerTest < ActiveSupport::TestCase
     assert_equal 3, genotypes.size
   end
 
+  test 'process protein impact' do
+    roundbrackets_record = build_raw_record('pseudo_id1' => 'bob')
+    roundbrackets_record.raw_fields['genotype'] = 'BRCA2 c.2836_2837delGA; p.(Asp946Phefs*12)'
+    @logger.expects(:debug).with('Found dna mutation in ["BRCA2"] GENE(s) in position [["c.2836_2837delGA"]] with impact [["Asp946Phefs*"]]')
+    @logger.expects(:debug).with('SUCCESSFUL gene parse for positive test for: BRCA2, c.2836_2837delGA, Asp946Phefs*')
+    @logger.expects(:debug).with('SUCCESSFUL gene parse for BRCA2')
+    @logger.expects(:debug).with('SUCCESSFUL gene parse for negative test for: ["BRCA1", "TP53"]')
+    @logger.expects(:debug).with('SUCCESSFUL gene parse for negative test for: BRCA1')
+    @logger.expects(:debug).with('SUCCESSFUL gene parse for BRCA1')
+    @logger.expects(:debug).with('SUCCESSFUL gene parse for negative test for: TP53')
+    @logger.expects(:debug).with('SUCCESSFUL gene parse for TP53')
+    genotypes = @handler.extract_variants_from_record(@genotype, roundbrackets_record)
+    assert_equal 'p.Asp946PhefsTer', genotypes[0].attribute_map["proteinimpact"]
+    squarebrackets_record = build_raw_record('pseudo_id1' => 'bob')
+    squarebrackets_record.raw_fields['genotype'] = 'BRCA2 c.2836_2837delGA; p.[Asp669Phefs*12]'
+    @logger.expects(:debug).with('Found dna mutation in ["BRCA2"] GENE(s) in position [["c.2836_2837delGA"]] with impact [["Asp669Phefs*"]]')
+    @logger.expects(:debug).with('SUCCESSFUL gene parse for positive test for: BRCA2, c.2836_2837delGA, Asp669Phefs*')
+    @logger.expects(:debug).with('SUCCESSFUL gene parse for BRCA2')
+    @logger.expects(:debug).with('SUCCESSFUL gene parse for negative test for: ["BRCA1", "TP53"]')
+    @logger.expects(:debug).with('SUCCESSFUL gene parse for negative test for: BRCA1')
+    @logger.expects(:debug).with('SUCCESSFUL gene parse for BRCA1')
+    @logger.expects(:debug).with('SUCCESSFUL gene parse for negative test for: TP53')
+    @logger.expects(:debug).with('SUCCESSFUL gene parse for TP53')
+    genotypes = @handler.extract_variants_from_record(@genotype, squarebrackets_record)
+    assert_equal 'p.Asp669PhefsTer', genotypes[0].attribute_map["proteinimpact"]
+    nobrackets_record = build_raw_record('pseudo_id1' => 'bob')
+    nobrackets_record.raw_fields['genotype'] = 'BRCA2 c.2836_2837delGA; p.His669Phefs*12'
+    @logger.expects(:debug).with('Found dna mutation in ["BRCA2"] GENE(s) in position [["c.2836_2837delGA"]] with impact [["His669Phefs*"]]')
+    @logger.expects(:debug).with('SUCCESSFUL gene parse for positive test for: BRCA2, c.2836_2837delGA, His669Phefs*')
+    @logger.expects(:debug).with('SUCCESSFUL gene parse for BRCA2')
+    @logger.expects(:debug).with('SUCCESSFUL gene parse for negative test for: ["BRCA1", "TP53"]')
+    @logger.expects(:debug).with('SUCCESSFUL gene parse for negative test for: BRCA1')
+    @logger.expects(:debug).with('SUCCESSFUL gene parse for BRCA1')
+    @logger.expects(:debug).with('SUCCESSFUL gene parse for negative test for: TP53')
+    @logger.expects(:debug).with('SUCCESSFUL gene parse for TP53')
+    genotypes = @handler.extract_variants_from_record(@genotype, nobrackets_record)
+    assert_equal 'p.His669PhefsTer', genotypes[0].attribute_map["proteinimpact"]
+  end
+  
   test 'process record with cdna mutation' do
     genemutation_record = build_raw_record('pseudo_id1' => 'bob')
     genemutation_record.raw_fields['genotype'] = 'BRCA2 c.2836_2837delGA; p.Asp946Phefs*12'
