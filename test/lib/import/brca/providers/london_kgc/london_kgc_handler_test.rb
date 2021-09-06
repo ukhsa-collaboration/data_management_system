@@ -36,7 +36,7 @@ class LondonKgcHandlerTest < ActiveSupport::TestCase
     @logger.expects(:debug).with('SUCCESSFUL gene parse for negative test for: TP53')
     @logger.expects(:debug).with('SUCCESSFUL gene parse for TP53')
     genotypes = @handler.extract_variants_from_record(@genotype, roundbrackets_record)
-    assert_equal 'p.Asp946PhefsTer', genotypes[0].attribute_map["proteinimpact"]
+    assert_equal 'p.Asp946PhefsTer', genotypes[0].attribute_map['proteinimpact']
     squarebrackets_record = build_raw_record('pseudo_id1' => 'bob')
     squarebrackets_record.raw_fields['genotype'] = 'BRCA2 c.2836_2837delGA; p.[Asp669Phefs*12]'
     @logger.expects(:debug).with('Found dna mutation in ["BRCA2"] GENE(s) in position [["c.2836_2837delGA"]] with impact [["Asp669Phefs*"]]')
@@ -48,7 +48,7 @@ class LondonKgcHandlerTest < ActiveSupport::TestCase
     @logger.expects(:debug).with('SUCCESSFUL gene parse for negative test for: TP53')
     @logger.expects(:debug).with('SUCCESSFUL gene parse for TP53')
     genotypes = @handler.extract_variants_from_record(@genotype, squarebrackets_record)
-    assert_equal 'p.Asp669PhefsTer', genotypes[0].attribute_map["proteinimpact"]
+    assert_equal 'p.Asp669PhefsTer', genotypes[0].attribute_map['proteinimpact']
     nobrackets_record = build_raw_record('pseudo_id1' => 'bob')
     nobrackets_record.raw_fields['genotype'] = 'BRCA2 c.2836_2837delGA; p.His669Phefs*12'
     @logger.expects(:debug).with('Found dna mutation in ["BRCA2"] GENE(s) in position [["c.2836_2837delGA"]] with impact [["His669Phefs*"]]')
@@ -60,9 +60,9 @@ class LondonKgcHandlerTest < ActiveSupport::TestCase
     @logger.expects(:debug).with('SUCCESSFUL gene parse for negative test for: TP53')
     @logger.expects(:debug).with('SUCCESSFUL gene parse for TP53')
     genotypes = @handler.extract_variants_from_record(@genotype, nobrackets_record)
-    assert_equal 'p.His669PhefsTer', genotypes[0].attribute_map["proteinimpact"]
+    assert_equal 'p.His669PhefsTer', genotypes[0].attribute_map['proteinimpact']
   end
-  
+
   test 'process record with cdna mutation' do
     genemutation_record = build_raw_record('pseudo_id1' => 'bob')
     genemutation_record.raw_fields['genotype'] = 'BRCA2 c.2836_2837delGA; p.Asp946Phefs*12'
@@ -103,8 +103,6 @@ class LondonKgcHandlerTest < ActiveSupport::TestCase
     genotypes = @handler.extract_variants_from_record(@genotype, chromosomecdnamutation_record)
     assert_equal 3, genotypes.size
   end
-
-  private
 
   def build_raw_record(options = {})
     default_options = { 'pseudo_id1' => '',
