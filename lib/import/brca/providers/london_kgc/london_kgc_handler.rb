@@ -37,7 +37,8 @@ module Import
           end
 
           def extract_variants_from_record(genotype, record)
-            clinicomm = record.raw_fields['all clinical comments (semi colon separated).all clinical comment text']
+            clinicomm = record.raw_fields['all clinical comments (semi colon separated).'\
+                                          'all clinical comment text']
             raw_genotype = record.raw_fields['genotype']
             genotypes = []
             if clinicomm.scan(BRCA_TP53).count.positive? && clinicomm =~ BRCA_TP53
