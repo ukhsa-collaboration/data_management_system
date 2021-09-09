@@ -82,21 +82,16 @@
         <% end %>
 
         <%= form.control_group(:start_data_date, t('start_data_date', scope: i18n_scope), {}, class: 'col-md-3') do %>
-          <%= form.datepicker_field :start_data_date,
-          "data-target": "project.start",
-          "data-action": "blur->project#update_duration" %>
+          <%= form.datepicker_field :start_data_date %>
         <% end %>
         <%= form.control_group(:end_data_date, t('end_data_date', scope: i18n_scope), {}, class: 'col-md-3') do %>
-          <%= form.datepicker_field :end_data_date,
-          "data-target": "project.end",
-          "data-action": "blur->project#update_duration" %>
+          <%= form.datepicker_field :end_data_date %>
         <% end %>
-        <%= form.control_group(:duration, t('duration', scope: i18n_scope), {}, class: 'col-md-3') do %>
-          <%= content_tag(:p, '',
-            class: 'form-control-static',
-            id: 'project_duration',
-            "data-target": 'project.duration'
-          ) %>
+
+        <% if form.readonly %>
+          <%= form.control_group(:duration, t('duration', scope: i18n_scope), {}, class: 'col-md-3') do %>
+            <p class="form-control-static"><%= pluralize(form.object.duration, 'Month') %></p>
+          <% end %>
         <% end %>
       </fieldset>
 
