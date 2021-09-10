@@ -86,10 +86,10 @@ class Project < ApplicationRecord
   # The `assigned_user` will generally be an ODR representative responsible for the project
   belongs_to :assigned_user, class_name: 'User', inverse_of: :assigned_projects, optional: true
 
-  before_save :update_duration
-  after_save :reset_project_data_items
+  before_save  :update_duration
   after_create :notify_cas_manager_new_cas_project_saved
-  after_save :destroy_project_datasets_without_any_levels
+  after_save   :reset_project_data_items
+  after_save   :destroy_project_datasets_without_any_levels
 
   # effectively belongs_to .. through: .. association
   # delegate :dataset,      to: :team_dataset, allow_nil: true
