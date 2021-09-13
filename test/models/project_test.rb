@@ -689,6 +689,13 @@ class ProjectTest < ActiveSupport::TestCase
       project.end_data_date   = 2.months.from_now
       project.save!
     end
+
+    # Don't attempt to recalculate/sync if the duration has been explicitly set...
+    project.duration = 6
+    assert_no_changes -> { project[:duration] } do
+      project.end_data_date = 5.months.from_now
+      project.save!
+    end
   end
 
   private

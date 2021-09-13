@@ -734,7 +734,9 @@ class Project < ApplicationRecord
     delta + offset
   end
 
+  # NOTE: ODR want to use `duration` to confirm end date has been corractly calculated.
   def update_duration
+    return if duration_changed? # Avoid feedback loop...
     return unless (changed_attributes.keys & %w[start_data_date end_data_date]).any?
     return unless new_duration ||= calculate_duration_in_months
 
