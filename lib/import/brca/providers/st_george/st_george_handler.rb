@@ -50,11 +50,12 @@ module Import
 
           DEPRECATED_BRCA_NAMES_REGEX = /B1|BR1|BRCA\s1|B2|BR2|BRCA\s2/i.freeze
 
-          def initialize(batch)
-            @extractor = Import::ExtractionUtilities::LocationExtractor.new
-            @failed_genotype_parse_counter = 0
-            super
-          end
+          # commented it looks a reduntant code
+          # def initialize(batch)
+#             @extractor = Import::ExtractionUtilities::LocationExtractor.new
+#             @failed_genotype_parse_counter = 0
+#             super
+#           end
 
           def process_fields(record)
             genotype = Import::Brca::Core::GenotypeBrca.new(record)
