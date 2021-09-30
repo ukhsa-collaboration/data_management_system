@@ -52,10 +52,10 @@ module Import
 
           # commented it looks a reduntant code
           # def initialize(batch)
-#             @extractor = Import::ExtractionUtilities::LocationExtractor.new
-#             @failed_genotype_parse_counter = 0
-#             super
-#           end
+          #             @extractor = Import::ExtractionUtilities::LocationExtractor.new
+          #             @failed_genotype_parse_counter = 0
+          #             super
+          #           end
 
           def process_fields(record)
             genotype = Import::Brca::Core::GenotypeBrca.new(record)
@@ -269,7 +269,7 @@ module Import
               add_variants_multiple_results(variants, genotype, genotypes)
             elsif positive_genes.flatten.uniq.size == 1
               positive_genes *= record.raw_fields['genotype'].
-                               scan(CDNA_REGEX).flatten.compact.size
+                                scan(CDNA_REGEX).flatten.compact.size
               variants = positive_genes.zip(record.raw_fields['genotype'].
                          scan(CDNA_REGEX).flatten.compact)
               add_variants_multiple_results(variants, genotype, genotypes)
