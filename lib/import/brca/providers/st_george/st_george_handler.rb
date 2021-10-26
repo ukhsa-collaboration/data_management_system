@@ -268,6 +268,11 @@ module Import
               variants = process_multi_genes_rec(record, positive_genes)
             elsif positive_genes.flatten.uniq.size == 1
               variants = process_uniq_gene_rec(record, positive_genes)
+              positive_genes *= record.raw_fields['genotype'].
+                                scan(CDNA_REGEX).flatten.compact.size
+              variants = positive_genes.zip(record.raw_fields['genotype'].
+                         scan(CDNA_REGEX).flatten.compact)
+              add_variants_multiple_results(variants, genotype, genotypes)
             end
 
             add_variants_multiple_results(variants, genotype, genotypes) unless variants.nil?
