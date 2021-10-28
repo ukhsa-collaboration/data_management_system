@@ -296,32 +296,32 @@ module Import
 
           def process_split_variants(record, positive_genes)
             record.raw_fields['genotype'].scan(DELIMETER_REGEX)
-            split_records = record.raw_fields['genotype'].split($LAST_MATCH_INFO[0])
+            raw_genotypes = record.raw_fields['genotype'].split($LAST_MATCH_INFO[0])
             variants = []
-            split_records.each do |split_rec|
+            raw_genotypes.each do |raw_genotype|
               if positive_genes == []
                 positive_gene_rec = []
-                gene = split_rec.scan(BRCA_GENES_REGEX)
-                deprec_gene = split_rec.scan(DEPRECATED_BRCA_NAMES_REGEX)
+                gene = raw_genotype.scan(BRCA_GENES_REGEX)
+                deprec_gene = raw_genotype.scan(DEPRECATED_BRCA_NAMES_REGEX)
                 process_rightname_gene(gene, positive_gene_rec) if gene.present?
                 process_deprecated_gene(deprec_gene, positive_gene_rec) if deprec_gene.present?
               else
                 positive_gene_rec = positive_genes
               end
-              mutation = get_cdna_mutation(split_rec)
-              protein = get_protein_impact(split_rec)
+              mutation = get_cdna_mutation(raw_genotype)
+              protein = get_protein_impact(raw_genotype)
               variants << positive_gene_rec.zip(mutation, protein.flatten.compact).flatten
             end
             variants
           end
 
-          def get_protein_impact(rec_genotype)
-            rec_genotype.scan(PROTEIN_REGEX)
+          def get_protein_impact(raw_genotype)
+            raw_genotype.scan(PROTEIN_REGEX)
             $LAST_MATCH_INFO.nil? ? [] : [$LAST_MATCH_INFO[:impact]]
           end
 
-          def get_cdna_mutation(rec_genotype)
-            rec_genotype.scan(CDNA_REGEX).flatten.compact
+          def get_cdna_mutation(raw_genotype)
+            raw_genotype.scan(CDNA_REGEX).flatten.compact
           end
 
           def add_gene_from_deprecated_nomenclature(genotype, record)
