@@ -7,127 +7,48 @@ module Import
       module Newcastle
         # Process Newcastle-specific record details into generalized internal genotype format
         class NewcastleHandler < Import::Brca::Core::ProviderHandler
-          TEST_SCOPE_MAP = { 'brca-ng'           => :full_screen,
-                             'brca-rapid screen' => :full_screen,
-                             'brca top up'       => :full_screen,
-                             'brca-pred'         => :targeted_mutation,
-                             'brca1'             => :targeted_mutation,
-                             'brca2'             => :targeted_mutation }.freeze
-
-          TEST_TYPE_MAP = { 'diag - symptoms'    => :diagnostic,
-                            'diagnosis'          => :diagnostic,
-                            'diagnostic'         => :diagnostic,
-                            'diagnostic test'    => :diagnostic,
-                            'presymptomatic'     => :predictive,
-                            'predictive'         => :predictive,
-                            'predictive test'    => :predictive,
-                            'carrier'            => :carrier,
-                            'carrier test'       => :carrier,
-                            'prenatal diagnosis' => :prenatal }.freeze
-
-          TEST_SCOPE_FROM_TYPE_MAP =   {  'carrier' => :targeted_mutation,
-                                          'carrier test' => :targeted_mutation,
-                                          'diag - symptoms' => :full_screen,
-                                          'diagnosis' => :full_screen,
-                                          'diagnostic' => :full_screen,
-                                          'diagnostic test' => :full_screen,
-                                          'diagnostic/forward' => :full_screen,
-                                          'family studies' => :targeted_mutation,
-                                          'predictive' => :targeted_mutation,
-                                          'predictive test' => :targeted_mutation,
-                                          'presymptomatic' => :targeted_mutation,
-                                          'presymptomatic test' => :targeted_mutation,
-                                          'storage' => :full_screen }.freeze
-
-          PASS_THROUGH_FIELDS = %w[age authoriseddate
-                                   requesteddate
-                                   specimentype
-                                   providercode
-                                   consultantcode
-                                   servicereportidentifier].freeze
-
-          FIELD_NAME_MAPPINGS = { 'consultantcode'    => 'practitionercode',
-                                  'ngs sample number' => 'servicereportidentifier' }.freeze
-
-          PROTEIN_REGEX = /p\.\((?<impact>.+)\)|
-                          \(p\.(?<impact>[A-Za-z]+.+)\)|
-                          p\.(?<impact>[A-Za-z]+.+)/ix.freeze # Added by Francesco
-          BRCA1_REGEX = /BRCA1/i.freeze
-          BRCA2_REGEX = /BRCA2/i.freeze
-          CDNA_REGEX = /c\.(?<cdna>[0-9]+[a-z]+>[a-z]+)(.+)?|
-                        c\.(?<cdna>[0-9]+.[0-9]+[a-z]+>[a-z]+)(.+)?|
-                        c\.(?<cdna>[0-9]+.[0-9]+[a-z]+)(.+)?/ix.freeze
+          include Import::Helpers::Brca::Providers::Rtd::RtdConstants
 
           def initialize(batch)
-            @records_attempted_counter = 0
-            @failed_variant_counter    = 0
+            @failed_variant_counter = 0
             @variants_processed_counter = 0
             @ex = Import::ExtractionUtilities::LocationExtractor.new
             super
           end
 
-          def attach_persister(batch)
-            @persister = Import::Brca::Providers::Newcastle::NewcastlePersister.new(batch)
-          end
-
           def process_fields(record)
-            @records_attempted_counter += 1
             genotype = Import::Brca::Core::GenotypeBrca.new(record)
             genotype.add_passthrough_fields(record.mapped_fields,
                                             record.raw_fields,
                                             PASS_THROUGH_FIELDS,
                                             FIELD_NAME_MAPPINGS)
-            investigation_code = record.raw_fields['investigation code']
-            genotype.add_gene(investigation_code) unless investigation_code.nil?
-            gene = record.raw_fields['gene']
-            genotype.add_gene(gene) unless gene.nil?
-            identifier = record.raw_fields['ngs sample number']
-            genotype.add_servicereportidentifier(identifier) unless identifier.nil?
-            process_test_type(genotype, record)
-            process_investigation_code(genotype, record)
-            process_variant_details(genotype, record)
-            add_brca_from_raw_genotype(genotype, record) # Added by Francesco
-            add_cdna_change_from_report(genotype, record) # Added by Francesco
-            process_protein_impact(genotype, record) # Added by Francesco
             add_organisationcode_testresult(genotype)
-            final_results = process_raw_genotype(genotype, record)
-            final_results.map { |x| @persister.integrate_and_store(x) }
+            add_variantpathclass(genotype, record)
+            # add_serviceport_identifier(genotype, record)
+            process_test_type(genotype, record)
+            process_test_scope(genotype, record)
+            # process_test_status(genotype, record)
+            final_results = process_variant_records(genotype, record)
+            final_results.map do |x|
+              # binding.pry if x.attribute_map['teststatus'] == 4
+              @persister.integrate_and_store(x)
+            end
           end
 
           def add_organisationcode_testresult(genotype)
             genotype.attribute_map['organisationcode_testresult'] = '699A0'
           end
 
-          def process_investigation_code(genotype, record)
-            if record.raw_fields['service category'].to_s.downcase.strip == 'o'
-              @logger.info 'Found O'
-              add_scope_from_service_category(record.raw_fields['service category'].to_s, genotype)
-            elsif TEST_SCOPE_MAP.key?(record.raw_fields['investigation code'].downcase.strip)
-              genotype.add_test_scope(TEST_SCOPE_MAP[record.raw_fields['investigation code'].
-                                      downcase.strip])
-              @logger.info 'ADDED SCOPE FROM SCOPE'
-            elsif TEST_SCOPE_FROM_TYPE_MAP.key?(record.raw_fields['moleculartestingtype']&.
-                                                downcase.strip)
-              genotype.add_test_scope(TEST_SCOPE_FROM_TYPE_MAP[record.raw_fields['moleculartestingtype'].
-                                                               downcase.strip])
-              @logger.info 'ADDED SCOPE FROM TYPE'
-            else
-              @logger.info 'NOTHING TO BE DONE'
-            end
+          def add_variantpathclass(genotype, record)
+            genotype.add_variant_class(record.raw_fields['variantpathclass'])
           end
 
-          def process_variant_details(genotype, record)
-            #      Maybe(record.mapped_fields['variantpathclass']).
-            #        or_else(Maybe(record.raw_fields['variant type'])).
-            #        map { |x| genotype.add_variant_class(x) }
-            variantclass = Maybe(record.mapped_fields['variantpathclass']).
-                           or_else(Maybe(record.raw_fields['variant type']))
-            genotype.add_variant_class(variantclass)
-            Maybe(record.raw_fields['variant name']).each do |variant|
-              @variants_processed_counter += 1
-              @failed_variant_counter += genotype.add_typed_location(@ex.extract_type(variant))
-            end
-          end
+          # def add_gene_info(genotype, record)
+          #   investigation_code = record.raw_fields['investigation code']
+          #   genotype.add_gene(investigation_code) if investigation_code.present?
+          #   gene = record.raw_fields['gene']
+          #   genotype.add_gene(gene) if gene.present?
+          # end
 
           def process_test_type(genotype, record)
             # cludge to handle their change in field mapping...
@@ -138,81 +59,238 @@ module Import
               )
             end
             mtype = record.raw_fields['moleculartestingtype']
-            unless mtype.nil?
-              genotype.add_molecular_testing_type_strict(
-                TEST_TYPE_MAP[mtype.downcase.strip]
-              )
+            return if mtype.nil?
+
+            genotype.add_molecular_testing_type_strict(
+              TEST_TYPE_MAP[mtype.downcase.strip]
+            )
+          end
+
+          def process_test_scope(genotype, record)
+            moleculartestingtype = record.raw_fields['moleculartestingtype']&.downcase&.strip
+            investigationcode = record.raw_fields['investigation code']&.downcase&.strip
+            servicecategory = record.raw_fields['service category']&.downcase&.strip
+
+            if servicecategory.present? && %w[o c a2].include?(servicecategory)
+              add_scope_from_service_category(servicecategory, genotype)
+
+            elsif TEST_SCOPE_MAP.key?(investigationcode)
+
+              genotype.add_test_scope(TEST_SCOPE_MAP[investigationcode])
+              @logger.info 'ADDED SCOPE FROM INVESTIGATION CODE'
+
+            elsif TEST_SCOPE_FROM_TYPE_MAP.key?(moleculartestingtype)
+
+              genotype.add_test_scope(TEST_SCOPE_FROM_TYPE_MAP[moleculartestingtype])
+              @logger.info 'ADDED SCOPE FROM MOLECULAR TESTING TYPE'
+
+            else
+              @logger.info 'NOTHING TO BE DONE'
             end
           end
 
-          def process_raw_genotype(genotype, record)
-            # **************** These are dependant on the format change *****************
+          def process_test_status(genotype, record)
             geno = record.raw_fields['teststatus']
+            variant = get_variant(record)
             case geno
             when /nmd/
-              genotype.add_status(1)
-              if genotype.get('gene').nil?
-                genotype2 = genotype.dup
-                genotype.add_gene(1)
-                genotype2.add_gene(2)
-                [genotype, genotype2]
-              else
-                [genotype]
-              end
+              genotype.add_status(1) if normal?(variant)
             when /variant/, /abnormal/, /pathogenic/
               genotype.add_status(2)
-              [genotype]
-            when /het/, /hemi/
+            when /het/
+              genotype.add_status(4)
+              genotype.add_zygosity(geno)
+            when /hemi/
               genotype.add_status(2)
               genotype.add_zygosity(geno)
-              [genotype]
             when /fail/
               genotype.add_status(9)
-              [genotype]
             when /completed/, /no-result/, /other/, /verify/, /low/ # No appropriate status
-              [genotype]
+              @logger.info 'Encountered teststatus No appropriate status'
             when nil
-              [genotype]
+              @logger.info 'Encountered teststatus nil'
             else
-              @logger.info "Encountered unfamiliar genotype string: #{geno}"
-              [genotype]
+              @logger.info "Encountered unfamiliar teststatus string: #{geno}"
             end
+            genotype
           end
 
-          def add_brca_from_raw_genotype(genotype, record)
-            case record.raw_fields['gene']
-            when BRCA1_REGEX
-              genotype.add_gene('BRCA1')
-            when BRCA2_REGEX
-              genotype.add_gene('BRCA2')
-            end
-          end
-
-          def add_cdna_change_from_report(genotype, record)
-            case record.raw_fields['genotype']
-            when CDNA_REGEX
-              genotype.add_gene_location($LAST_MATCH_INFO[:cdna])
-              @logger.debug "SUCCESSFUL cdna change parse for: #{$LAST_MATCH_INFO[:cdna]}"
-            end
-          end
-
-          def process_protein_impact(genotype, record)
-            case record.raw_fields['genotype']
-            when PROTEIN_REGEX
-              genotype.add_protein_impact($LAST_MATCH_INFO[:impact])
-              @logger.debug "SUCCESSFUL protein change parse for: #{$LAST_MATCH_INFO[:impact]}"
+          def process_variant_records(genotype, record)
+            genotypes = []
+            if full_screen?(genotype)
+              process_fullscreen_records(genotype, record, genotypes)
+            elsif targeted?(genotype)
+              process_targeted_screen(genotype, record, genotypes)
             else
-              @logger.debug "FAILED protein change parse for: #{record.raw_fields['genotype']}"
+              process_no_testscope_records(genotype, record, genotypes)
             end
+            genotypes
           end
 
           def add_scope_from_service_category(service_category, genotype)
-            return if service_category.blank?
-
-            if service_category.downcase.strip == 'o'
+            if %w[o c].include? service_category
+              @logger.debug 'Found O/C'
               genotype.add_test_scope(:full_screen)
+            elsif service_category == 'a2'
+              @logger.debug 'Found A2'
+              genotype.add_test_scope(:targeted_mutation)
             else
-              @logger.info 'Possibly not a full screen'
+              @logger.info 'Test scope not determined via service category'
+            end
+          end
+
+          def process_fullscreen_records(genotype, record, genotypes)
+            gene = record.raw_fields['gene']
+            genotype.add_gene(gene) if gene.present?
+
+            variant = get_variant(record)
+            if variant.nil?
+              process_normal_full_screen(genotype, record, genotypes)
+            elsif positive_cdna?(variant) || positive_exonvariant?(variant)
+              if [7, 8].include? genotype.other_gene
+                genotype_dup = genotype.dup
+                genotype_dup.add_gene(genotype.other_gene)
+                genotype_dup.add_status(1)
+                genotypes.append(genotype_dup)
+              end
+              process_variants(genotype, variant)
+              genotypes.append(genotype)
+            end
+            genotypes
+          end
+
+          def process_normal_full_screen(genotype, record, genotypes)
+            teststatus = record.raw_fields['teststatus']
+            %w[BRCA1 BRCA2].each do |gene|
+              if genotype.get('gene').nil? && (pathogenic?(record) ||
+                %w[het variant pathogenic abnormal hemi other].include?(teststatus))
+                genotype.add_status(4)
+              elsif teststatus.blank? || teststatus&.scan(/nmd/i)&.size&.positive?
+                genotype.add_status(1)
+              elsif teststatus&.scan(/fail/i)&.size&.positive?
+                genotype.add_status(9)
+              end
+              genotype_dup = genotype.dup
+              genotype_dup.add_gene(gene)
+              genotypes.append(genotype_dup)
+            end
+            genotypes
+          end
+
+          def process_targeted_screen(genotype, record, genotypes)
+            investigation_code = record.raw_fields['investigation code']
+            gene = record.raw_fields['gene']
+            if investigation_code == 'BRCA1+2' && gene.nil?
+              genotype.add_gene(nil)
+            else
+              genotype.add_gene(investigation_code) if investigation_code.present?
+              genotype.add_gene(gene) if gene.present?
+            end
+
+            variant = get_variant(record)
+            if variant.nil?
+              process_normal_targeted(genotype, record)
+            elsif positive_cdna?(variant) || positive_exonvariant?(variant)
+              process_variants(genotype, variant)
+            end
+            genotypes.append(genotype)
+            genotypes
+          end
+
+          def process_normal_targeted(genotype, record)
+            teststatus = record.raw_fields['teststatus']&.strip
+            if (genotype.get('gene').present? && teststatus.blank?) ||
+               (genotype.get('gene').blank? && pathogenic?(record)) ||
+               teststatus.blank? ||
+               %w[het variant pathogenic abnormal hemi other].include?(teststatus)
+              genotype.add_status(4)
+            elsif teststatus.scan(/fail/i).size.positive?
+              genotype.add_status(9)
+            elsif teststatus.scan(/nmd/i).size.positive?
+              genotype.add_status(1)
+            end
+          end
+
+          def process_no_testscope_records(genotype, record, genotypes)
+            gene = record.raw_fields['gene']
+            genotype.add_gene(gene) if gene.present?
+
+            variant = get_variant(record)
+            teststatus = record.raw_fields['teststatus']
+            if variant.nil?
+              if genotype.get('gene').nil? &&
+                 (pathogenic?(record) || teststatus.blank?)
+                genotype.add_status(4)
+              end
+            elsif positive_cdna?(variant) || positive_exonvariant?(variant)
+              process_variants(genotype, variant)
+            end
+            genotypes.append(genotype)
+            genotypes
+          end
+
+          def process_variants(genotype, variant)
+            process_cdna_variant(genotype, variant)
+            process_exonic_variant(genotype, variant)
+            process_protein_impact(genotype, variant)
+          end
+
+          def get_variant(record)
+            record.raw_fields['genotype'].presence || record.raw_fields['variant name']
+          end
+
+          def full_screen?(genotype)
+            return if genotype.attribute_map['genetictestscope'].nil?
+
+            genotype.attribute_map['genetictestscope'].scan(/Full screen/i).size.positive?
+          end
+
+          def targeted?(genotype)
+            return if genotype.attribute_map['genetictestscope'].nil?
+
+            genotype.attribute_map['genetictestscope'].scan(/Targeted/i).size.positive?
+          end
+
+          def positive_cdna?(variant)
+            variant.scan(CDNA_REGEX).size.positive?
+          end
+
+          def positive_exonvariant?(variant)
+            variant.scan(EXON_VARIANT_REGEX).size.positive?
+          end
+
+          def pathogenic?(record)
+            varpathclass = record.raw_fields['variantpathclass']
+            true if !varpathclass.nil? && varpathclass.scan(PATHOGENICITY_REGEX).size.positive?
+          end
+
+          def normal?(variant)
+            true if variant.nil? || (!positive_exonvariant?(variant) && !positive_cdna?(variant))
+          end
+
+          def process_exonic_variant(genotype, variant)
+            return unless variant.scan(EXON_VARIANT_REGEX).size.positive?
+
+            genotype.add_exon_location($LAST_MATCH_INFO[:exons])
+            genotype.add_variant_type($LAST_MATCH_INFO[:variant])
+            genotype.add_status(2)
+            @logger.debug "SUCCESSFUL exon variant parse for: #{variant}"
+          end
+
+          def process_cdna_variant(genotype, variant)
+            return unless variant.scan(CDNA_REGEX).size.positive?
+
+            genotype.add_gene_location($LAST_MATCH_INFO[:cdna])
+            genotype.add_status(2)
+            @logger.debug "SUCCESSFUL cdna change parse for: #{$LAST_MATCH_INFO[:cdna]}"
+          end
+
+          def process_protein_impact(genotype, variant)
+            if variant.scan(PROTEIN_REGEX).size.positive?
+              genotype.add_protein_impact($LAST_MATCH_INFO[:impact])
+              @logger.debug "SUCCESSFUL protein parse for: #{$LAST_MATCH_INFO[:impact]}"
+            else
+              @logger.debug "FAILED protein parse for: #{variant}"
             end
           end
 
