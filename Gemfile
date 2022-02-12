@@ -5,7 +5,7 @@ gem 'rails', '~> 6.0.4.4'
 # Use postgresql as the database for Active Record
 gem 'pg'
 # use Puma as the app server
-gem 'puma', '~> 4.0', '>= 4.3.5' # Bump to >= 4.3.5 in response to CVE-2020-11076 & CVE-2020-11077
+gem 'puma', '~> 4.3' # Bump to >= 4.3.5 in response to CVE-2020-11076 & CVE-2020-11077
 # Use SCSS for stylesheets
 gem 'sass-rails'
 # Use Uglifier as compressor for JavaScript assets
