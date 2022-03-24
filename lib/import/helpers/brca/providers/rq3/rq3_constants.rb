@@ -69,7 +69,8 @@ module Import
             EXON_LOCATION = /(?<chr>[a-z (]+)(?<nm>exon|exons)\s(?<exons>[0-9]+
                              (?<chr>[a-z -,]+[0-9]+[a-z -]*[0-9]?)?)?/x.freeze
             MUTATION_REGEX = /(?<mutation>[0-9_]+[delins][a-z0-9]+)/ix.freeze
-            MALFORMED_MUTATION_REGEX = %r{(?<cdnamutation>[0-9-]+[ACGT](?<sym>>|/)[ACGT]+)}ix.freeze
+            MALFORMED_MUTATION_REGEX = %r{(?<cdnamutation>[0-9-]+[ACGT]>[ACGT]+|
+            [0-9-]+[ACGT]/[ACGT]+)}ix.freeze
             EXON_LOCATION_REGEX_COLO = /exons? (\d+[a-z]*(?: ?- ?\d+[a-z]*)?)/i.freeze
           end
         end
