@@ -255,6 +255,21 @@ class BirminghamHandlerNewformatTest < ActiveSupport::TestCase
     assert_equal 'c.', genotypes[0].attribute_map['codingdnasequencechange']
   end
 
+  test 'process_negative_records' do
+    negative_record = build_raw_record('pseudo_id1' => 'bob')
+    negative_record.raw_fields['overall2'] = 'N'
+    negative_record.raw_fields['teststatus'] = 'Molecular analysis has shown no evidence of the familial pathogenic mutation in the BRCA2 gene.'
+    negative_record.raw_fields['report'] = 'Exon 20 of the BRCA2 gene has been sequenced to detect a pathogenic mutation previously identified in this family. Sequence nomenclature according to HGVS guidelines using GenBank accession number U43746.1 (BRCA2). Non-amplification of an allele due to possible polymorphisms within the primer binding site cannot be fully excluded. DNA has been stored.'
+    processor = variant_processor_for(negative_record)
+    @handler.process_genetictestscope(@genotype, negative_record)
+    genotypes = processor.process_variants_from_report
+    assert_equal 1, genotypes.size
+    assert_equal 'Targeted BRCA mutation test', genotypes[0].attribute_map['genetictestscope']
+    assert_equal 8, genotypes[0].attribute_map['gene']
+    assert_equal 1, genotypes[0].attribute_map['teststatus']
+    assert_nil genotypes[0].attribute_map['codingdnasequencechange']
+  end
+  
   private
 
   def build_raw_record(options = {})
