@@ -38,6 +38,7 @@ module Import
               'p.(Thr246Ser), in the PLAB2 gene.' => 'PALB2'
             }.freeze
 
+            # rubocop:disable Lint/MixedRegexpCaptureTypes
             BRCA_REGEX = /(?<brca>BRCA1|BRCA2|PALB2|ATM|CHEK2|TP53|MLH1|
                           MSH2|MSH6|PMS2|STK11|PTEN|BRIP1|NBN|RAD51C|RAD51D)/ix.freeze
 
@@ -50,7 +51,7 @@ module Import
 
             NO_EVIDENCE_REGEX = /no evidence.*?[^cp]\.|no further.*?[^cp]\./i.freeze
 
-            PROTEIN_REGEX = /p\.\(?(?<impact>.[a-z]+[0-9]+[a-z]+(?<chr>[^[:alnum:]][0-9]+)?|
+            PROTEIN_REGEX = /p\.\(?(?<impact>.[a-z]+[0-9]+[a-z]+([^[:alnum:]][0-9]+)?|
             [a-z]+[0-9]+[^[:alnum:]])/ix.freeze
 
             CHR_VARIANTS_REGEX = /truncation|
@@ -66,12 +67,13 @@ module Import
                                   substitution|
                                   Splice site mutation|
                                   Nonsense/ix.freeze
-            EXON_LOCATION = /(?<chr>[a-z (]+)(?<nm>exon|exons)\s(?<exons>[0-9]+
-                             (?<chr>[a-z -,]+[0-9]+[a-z -]*[0-9]?)?)?/x.freeze
-            MUTATION_REGEX = /(?<mutation>[0-9_]+[delins][a-z0-9]+)/ix.freeze
+            EXON_LOCATION = /([a-z (]+)(exon|exons)\s(?<exons>[0-9]+
+                             ([a-z -,]+[0-9]+[a-z -]*[0-9]?)?)?/x.freeze
+            MUTATION_REGEX = /(?<mutation>[0-9_-]+(del|ins)[a-z0-9]+)/ix.freeze
             MALFORMED_MUTATION_REGEX = %r{(?<cdnamutation>[0-9-]+[ACGT]>[ACGT]+|
             [0-9-]+[ACGT]/[ACGT]+)}ix.freeze
             EXON_LOCATION_REGEX_COLO = /exons? (\d+[a-z]*(?: ?- ?\d+[a-z]*)?)/i.freeze
+            # rubocop:enable Lint/MixedRegexpCaptureTypes
           end
         end
       end
