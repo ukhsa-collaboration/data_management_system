@@ -31,22 +31,34 @@ module Import
                 process_result_without_brca_genes
               elsif @testresult.scan(NO_EVIDENCE_REGEX).join.size.positive?
                 process_noevidence_records
-              elsif @testresult.scan(CDNA_REGEX).size.positive? ||
-                    @testresult.scan(MUTATION_REGEX).size.positive? ||
-                    @testresult.scan(MALFORMED_MUTATION_REGEX).size.positive?
+              elsif check_cdna_variant?
                 process_testresult_cdna_variants
               elsif @testresult.scan(CHR_VARIANTS_REGEX).size.positive?
                 process_chr_variants
               elsif @testresult.scan(CHR_MALFORMED_REGEX).size.positive?
                 process_chr_malformed_variants
-              elsif @testresult.scan(CDNA_REGEX).blank? &&
-                    @testresult.scan(BRCA_REGEX).size.positive? &&
-                    @testreport.scan(BRCA_REGEX).size.positive?
+              elsif check_malformed_cdna_variant?
                 process_positive_malformed_variants
-              elsif @testreport.scan(BRCA_REGEX).blank? &&
-                    @testresult.scan(BRCA_REGEX).size.positive?
+              elsif check_emptyreport_result?
                 process_empty_testreport_results
               end
+            end
+
+            def check_cdna_variant?
+              @testresult.scan(CDNA_REGEX).size.positive? ||
+                @testresult.scan(MUTATION_REGEX).size.positive? ||
+                @testresult.scan(MALFORMED_MUTATION_REGEX).size.positive?
+            end
+
+            def check_malformed_cdna_variant?
+              @testresult.scan(CDNA_REGEX).blank? &&
+                @testresult.scan(BRCA_REGEX).size.positive? &&
+                @testreport.scan(BRCA_REGEX).size.positive?
+            end
+
+            def check_emptyreport_result?
+              @testreport.scan(BRCA_REGEX).blank? &&
+                @testresult.scan(BRCA_REGEX).size.positive?
             end
 
             def process_result_without_brca_genes
@@ -58,6 +70,7 @@ module Import
               end
               @genotype.add_gene(positive_gene)
               @genotype.add_gene_location(get_cdna_for_positive_cases(@testresult))
+              @genotype.add_protein_impact(get_protein_impact(@testresult))
               @genotype.add_status(2)
               @genotypes.append(@genotype)
             end
@@ -103,14 +116,14 @@ module Import
 
             def process_testresult_multiple_cdnavariant
               process_full_screen_negative_genes
-              if @testresult.scan(BRCA_REGEX).uniq.size > 1
-                genes = unique_brca_genes_from(@testresult)
+              genes = unique_brca_genes_from(@testresult)
+              if genes.size > 1
                 cdnas = collect_cdnas
-              elsif unique_brca_genes_from(@testresult).one?
+              elsif genes.one?
                 cdnas = check_false_cdnas
-                genes = unique_brca_genes_from(@testresult) * cdnas.size
+                genes *= cdnas.size
               end
-              proteins = [get_protein_impact(@testresult)]
+              proteins = @testresult.scan(PROTEIN_REGEX).flatten.compact
               if cdnas.size > proteins.size && !proteins.size.zero?
                 proteins = [] # to avoid assosciating wrong protein with mutation
               end
@@ -293,6 +306,11 @@ module Import
               end
             end
 
+            def get_protein_impact(testcolumn)
+              testcolumn.match(PROTEIN_REGEX)
+              $LAST_MATCH_INFO[:impact] unless $LAST_MATCH_INFO.nil?
+            end
+
             def collect_cdnas
               cdnas = @testresult.scan(CDNA_REGEX).flatten.compact
               cdnas = @testresult.scan(MUTATION_REGEX).flatten.compact unless cdnas.size.positive?
@@ -300,11 +318,6 @@ module Import
                 cdnas = @testresult.scan(MALFORMED_MUTATION_REGEX).flatten.compact
               end
               cdnas
-            end
-
-            def get_protein_impact(testcolumn)
-              testcolumn.match(PROTEIN_REGEX)
-              $LAST_MATCH_INFO[:impact] unless $LAST_MATCH_INFO.nil?
             end
 
             def process_protein_impact(testcolumn, genotype)
