@@ -30,8 +30,8 @@ module Import
           end
 
           def add_test_scope_from_geno_karyo(genotype, record)
-            genotype_str = record.raw_fields['genetictestscope']
-            karyo = record.raw_fields['karyotypingmethod']
+            genotype_str = record.raw_fields['genetictestscope'].strip
+            karyo = record.raw_fields['karyotypingmethod'].strip
             process_method = GENETICTESTSCOPE_METHOD_MAPPING[genotype_str]
             if process_method
               send(process_method, karyo, genotype)
@@ -121,11 +121,16 @@ module Import
           end
 
           def process_scope_r207(karyo, genotype)
-            if R207_GENE_MAPPING.keys.include? karyo
+            if R207_GENE_MAPPING_FS.keys.include? karyo
 
               @logger.debug "ADDED FULL_SCREEN TEST for: #{karyo}"
               genotype.add_test_scope(:full_screen)
-              @genes_set = R207_GENE_MAPPING[karyo]
+              @genes_set = R207_GENE_MAPPING_FS[karyo]
+            elsif R207_GENE_MAPPING_TAR.keys.include? karyo
+
+              @logger.debug "ADDED TARGETED TEST for: #{karyo}"
+              genotype.add_test_scope(:targeted_mutation)
+              @genes_set = R207_GENE_MAPPING_TAR[karyo]
             else
               genotype.add_test_scope(:no_genetictestscope)
             end
@@ -184,7 +189,6 @@ module Import
           def process_targeted_no_scope_records(genotype, record, genotypes)
             genotype_str = record.raw_fields['genotype']
             positive_gene = genotype_str.scan(BRCA_REGEX).flatten.uniq
-
             if positive_gene.size > 1
               process_multi_genes(genotype, record, genotypes)
             elsif positive_cdna?(genotype_str) || positive_exonvariant?(genotype_str)
@@ -345,12 +349,13 @@ module Import
             positive_gene = record.raw_fields['genotype'].scan(BRCA_REGEX).flatten.uniq
             if positive_gene.blank?
               process_unknown_status_record(genotype, genotypes)
-            else
+            elsif positive_gene.size > 1
               process_multi_genes(genotype, record, genotypes)
-              negative_genes = @genes_set - positive_gene
-              add_negative_genes(negative_genes, genotype, genotypes)
+            else
+              process_positive_record(genotype, record, genotypes, positive_gene)
             end
-
+            negative_genes = @genes_set - positive_gene
+            add_negative_genes(negative_genes, genotype, genotypes)
             genotypes
           end
 
@@ -362,7 +367,6 @@ module Import
               process_unknown_status_record(genotype, genotypes)
             else
               process_positive_record(genotype, record, genotypes, positive_gene)
-
               negative_genes = @genes_set - positive_gene
               add_negative_genes(negative_genes, genotype, genotypes)
             end
