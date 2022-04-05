@@ -23,7 +23,8 @@ module Import
               'R206 :: Inherited breast cancer'\
               ' and ovarian cancer at high familial risk levels' => :process_scope_r206,
               'R207 :: Inherited ovarian cancer (without breast cancer)' => :process_scope_r207,
-              'R208 :: BRCA1 and BRCA2 testing at high familial risk' => :process_scope_r208
+              'R208 :: BRCA1 and BRCA2 testing at high familial risk' => :process_scope_r208,
+              'R208 :: Inherited breast cancer and ovarian cancer' => :process_scope_r208
             }.freeze
 
             BRCA_FAMILIAL_GENE_MAPPING = {
@@ -77,11 +78,16 @@ module Import
             R205_GENE_MAPPING_FS = {
               'R205.1 :: Unknown mutation(s) by Small panel' => %w[ATM BRCA1 BRCA2 CDH1 CHEK2
                                                                    PALB2 PTEN STK11 TP53],
-              'R387.1 :: NGS Analysis only' => %w[ATM BRCA1 BRCA2 CDH1 CHEK2 PALB2 PTEN STK11 TP53]
+              'R387.1 :: NGS Analysis only' => %w[ATM BRCA1 BRCA2 CDH1 CHEK2 PALB2 PTEN STK11 TP53],
+              'R205.2 :: Unknown mutation(s) by MLPA or equivalent' => %w[ATM BRCA1 BRCA2 CDH1
+                                                                          CHEK2 PALB2 PTEN
+                                                                          STK11 TP53]
             }.freeze
 
             R205_GENE_MAPPING_TAR = {
-              'R242.1 :: Predictive testing' => %w[ATM BRCA1 BRCA2 CDH1 CHEK2 PALB2 PTEN STK11 TP53]
+              'R242.1 :: Predictive testing' => %w[ATM BRCA1 BRCA2 CDH1 CHEK2 PALB2 PTEN STK11
+                                                   TP53],
+              'R242.1 :: Predictive - MLPA' => %w[ATM BRCA1 BRCA2 CDH1 CHEK2 PALB2 PTEN STK11 TP53]
             }.freeze
 
             R206_GENE_MAPPING = {
@@ -102,26 +108,38 @@ module Import
                                                                                       PMS2]
             }.freeze
 
-            R207_GENE_MAPPING = {
+            R207_GENE_MAPPING_FS = {
               'R207.1 :: Unknown mutation(s) by Small panel' => %w[BRCA1 BRCA2 BRIP1 EPCAM MLH1
                                                                    MSH2 MSH6 PALB2 RAD51C RAD51D
                                                                    PMS2],
               'R207.2 :: Unknown mutation(s) by MLPA or equivalent' => %w[BRCA1 BRCA2 MLH1 MSH2],
               'R387.1 :: NGS analysis only' => %w[BRCA1 BRCA2 BRIP1 EPCAM MLH1 MSH2
-                                                  MSH6 PALB2 RAD51C RAD51D PMS2]
+                                                  MSH6 PALB2 RAD51C RAD51D PMS2],
+              'R207.1 :: NGS in Leeds' => %w[BRCA1 BRCA2 BRIP1 EPCAM MLH1 MSH2
+                                             MSH6 PALB2 RAD51C RAD51D PMS2]
+            }.freeze
+
+            R207_GENE_MAPPING_TAR = {
+              'R240.1 :: Diagnostic familial' => %w[BRCA1 BRCA2 BRIP1 EPCAM MLH1
+                                                    MSH2 MSH6 PALB2 RAD51C RAD51D PMS2],
+              'R242.1 :: Predictive testing' => %w[BRCA1 BRCA2 BRIP1 EPCAM MLH1
+                                                   MSH2 MSH6 PALB2 RAD51C RAD51D PMS2]
             }.freeze
 
             R208_GENE_MAPPING_FS = {
               'R208.1 :: Unknown mutation(s) by Single gene sequencing' => %w[BRCA1 BRCA2 PALB2],
               'R208.2 :: Unknown mutation(s) by MLPA or equivalent' => %w[BRCA1 BRCA2],
-              'R387.1 :: BRCA1 BRCA2 PALB2 analysis only' => %w[BRCA1 BRCA2 PALB2]
+              'R387.1 :: BRCA1 BRCA2 PALB2 analysis only' => %w[BRCA1 BRCA2 PALB2],
+              'R208.1 :: NGS in Leeds' => %w[BRCA1 BRCA2 PALB2],
+              'R208.1 :: PALB2 - NGS in Leeds - Analysis only' => %w[PALB2]
             }.freeze
 
             R208_GENE_MAPPING_TAR = {
               'R242.1 :: Predictive testing' => %w[BRCA1 BRCA2 PALB2],
               'R242.1 :: Predictive testing MLPA' => %w[BRCA1 BRCA2],
               'R240.1 :: Diagnostic familial' => %w[BRCA1 BRCA2 PALB2],
-              'R240.1 :: Diagnostic Familial BRCA1 MLPA' => %w[BRCA1]
+              'R240.1 :: Diagnostic Familial BRCA1 MLPA' => %w[BRCA1],
+              'R370.1 :: Confirmation of research result' => %w[BRCA1 BRCA2 PALB2]
             }.freeze
 
             PASS_THROUGH_FIELDS = %w[consultantcode
@@ -149,36 +167,37 @@ module Import
             BRCA_REGEX = /(?<brca>BRCA1|BRCA2|PALB2|ATM|CHEK2|TP53|MLH1|CDH1|
                           MSH2|MSH6|PMS2|STK11|PTEN|BRIP1|NBN|RAD51C|RAD51D)/ix.freeze
 
+            # rubocop:disable Lint/MixedRegexpCaptureTypes
             CDNA_REGEX = /c\.\[?(?<cdna>
-                                (?<mut>[0-9]+[+>_-][0-9][+>_-][0-9]+[+>_-][0-9][ACGTdelinsup]+)|
-                                (?<mut>[0-9]+[+>_-][0-9][+>_-][0-9]+[+>_-][0-9]+[ACGTdelinsup]+)|
-                                (?<mut>[0-9]+[+>_-][0-9]+[ACGTdelinsup][+>_-][ACGTdelinsup])|
-                                (?<mut>[0-9]+[ACGTdelinsup]+[+>_-][ACGTdelinsup])|
-                                (?<mut>[0-9]+[+>_-][0-9]+[ACGTdelinsup]+)|
-                                (?<mut>[0-9]+[+>_-][0-9]+[+>_-][0-9]+[0-9]+[ACGTdelinsup]+)|
-                                (?<mut>[0-9]+[?+>_-]+[0-9]+[?+>_-]+[ACGTdelinsup]+)|
-                                (?<mut>[0-9]+[ACGTdelinsup]+)
+                                ([0-9]+[+>_-][0-9][+>_-][0-9]+[+>_-][0-9][ACGTdelinsup]+)|
+                                ([0-9]+[+>_-][0-9][+>_-][0-9]+[+>_-][0-9]+[ACGTdelinsup]+)|
+                                ([0-9]+[+>_-][0-9]+[ACGTdelinsup][+>_-][ACGTdelinsup])|
+                                ([0-9]+[ACGTdelinsup]+[+>_-][ACGTdelinsup])|
+                                ([0-9]+[+>_-][0-9]+[ACGTdelinsup]+)|
+                                ([0-9]+[+>_-][0-9]+[+>_-][0-9]+[0-9]+[ACGTdelinsup]+)|
+                                ([0-9]+[?+>_-]+[0-9]+[?+>_-]+[ACGTdelinsup]+)|
+                                ([0-9]+[ACGTdelinsup]+)
                                 )\]?/ix.freeze
 
             MLPA_FAIL_REGEX = /#{BRCA_REGEX}\s(?<mlpa>MLPA?\sfail)+/ix.freeze
 
-            PROTEIN_REGEX = /p\.\[?(?<esc>\()?(?<pi>
-                                   (?<impact>.(?<pi>[a-z]+[0-9]+[a-z]+(?<pi>[^[:alnum:]][0-9]+)?)|
-                                   (?<pi>[a-z]+[0-9]+[^[:alnum:]])))\]?/ix.freeze
+            PROTEIN_REGEX = /p\.(\[\()?(?<impact>.([a-z]+[0-9]+[a-z]+([^[:alnum:]][0-9]+)?)|
+                                   ([a-z]+[0-9]+[^[:alnum:]]))(\)\])?/ix.freeze
 
             EXON_VARIANT_REGEX = /(?<ex>(?<zygosity>het|homo)[a-z ]+)?
                                   (?<mutationtype>deletion|duplication|duplicated)\s?
-                                  (?<chr>[a-z 0-9]+ (?<nm>exon|exons)\s
-                                  (?<exons>[0-9]+(?<chr>[a-z -]+[0-9]+)?))|
+                                  ([a-z 0-9]+ (exon|exons)\s
+                                  (?<exons>[0-9]+([a-z -]+[0-9]+)?))|
                                   (?<ex>(?<zygosity>het|homo)[a-z ]+)?
-                                  (?<ex>(?<nm>exon|exons)\s(?<exons>[0-9]+(?<chr>[a-z -]+[0-9]+)?))
-                                  (?<chr>[a-z ]+
+                                  (?<ex>(?<nm>exon|exons)\s(?<exons>[0-9]+([a-z -]+[0-9]+)?))
+                                  ([a-z ]+
                                   (?<mutationtype>deletion|duplication|duplicated))?/ix.freeze
 
             DEL_DUP_REGEX = /(?:\W*(del)(?:etion|[^\W])?)|(?:\W*(dup)(?:lication|[^\W])?)/i.freeze
 
             NORMAL_VAR_REGEX = %r{(?<not>no|not)[a-z /]+
                                   (?<det>detect|report|detet|mutation)+}ix.freeze
+            # rubocop:enable Lint/MixedRegexpCaptureTypes
           end
         end
       end
