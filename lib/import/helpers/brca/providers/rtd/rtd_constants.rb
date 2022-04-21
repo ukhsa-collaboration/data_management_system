@@ -56,19 +56,27 @@ module Import
                             p\.(?<impact>[A-Za-z]+.+)/ix.freeze # Added by Francesco
             BRCA1_REGEX = /BRCA1/i.freeze
             BRCA2_REGEX = /BRCA2/i.freeze
-            CDNA_REGEX = /c\.(?<cdna>[0-9]+[a-z]+>[a-z]+)(.+)?|
-                          c\.(?<cdna>[0-9]+.[0-9]+[a-z]+>[a-z]+)(.+)?|
-                          c\.(?<cdna>[0-9]+.[0-9]+[a-z]+)(.+)?/ix.freeze
+            CDNA_REGEX = /c\.\*?(?<cdna>
+                                ([0-9]+[a-z]+>[a-z]+)(.+)?|
+                                [0-9]+_[0-9]+|
+                                ([0-9]+.[0-9]+[a-z]+>[a-z]+)(.+)?|
+                                ([0-9]+.[0-9]+[a-z]+)(.+)?|
+                                [0-9]+[0-9]+[a-z]+|
+                                [0-9]+[+>_-][0-9]+[+>_-][0-9]+[+>_-][0-9]+[ACGTdelinsup]+|
+                                ([0-9]+.[0-9]+[a-z]+>[a-z]+)(.+)?)?/ix.freeze
 
             EXON_VARIANT_REGEX = /(?<variant>del|dup|ins).+ex(?<on>on)?(?<s>s)?\s
                                   (?<exons>[0-9]+(?<dgs>-[0-9]+)?)|
-                                ex(?<on>on)?(?<s>s)?\s(?<exons>[0-9]+(?<dgs>-[0-9]+)?)\s
+                                ex(?<on>on)?(?<s>s)?\s?(?<exons>[0-9]+(?<dgs>-[0-9]+)?)\s?
                                 (?<variant>del|dup|ins)|
                                 (?<variant>del|dup|ins)\sexon(?<s>s)?\s
                                 (?<exons>[0-9]+(?<dgs>\sto\s[0-9]+))|
+                                ex(on)?(s)?\s?(?<exons>[0-9]+\s?(\s?-\s?[0-9]+)?)\s?(?<variant>del|dup|ins)?|
                                 (?<variant>del|dup|ins)(?<s>\s)?(?<exons>[0-9]+(?<dgs>-[0-9]+)?)|
                                 ex(?<on>on)?(?<s>s)?\s(?<exons>[0-9]+(?<dgs>\sto\s[0-9]+)?)\s
-                                (?<variant>del|dup|ins)/ix.freeze
+                                (?<variant>del|dup|ins)|
+                                x(?<exons>[0-9]+[-]?[0-9]+)\s?(?<variant>del|dup|ins)|
+                                x(?<exons>[0-9]+[-]?[0-9]?)\s?(?<variant>del|dup|ins)/ix.freeze
 
             PATHOGENICITY_REGEX = /abnormal|Likely benign|Likely pathogenic|
                                   non-pathological variant|pathogenic|unclassified variant/ix.freeze
