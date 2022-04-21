@@ -75,8 +75,8 @@ module Import
                                 (?<variant>del|dup|ins)(?<s>\s)?(?<exons>[0-9]+(?<dgs>-[0-9]+)?)|
                                 ex(?<on>on)?(?<s>s)?\s(?<exons>[0-9]+(?<dgs>\sto\s[0-9]+)?)\s
                                 (?<variant>del|dup|ins)|
-                                x(?<exons>[0-9]+[-]?[0-9]+)\s?(?<variant>del|dup|ins)|
-                                x(?<exons>[0-9]+[-]?[0-9]?)\s?(?<variant>del|dup|ins)/ix.freeze
+                                x(?<exons>[0-9]+-?[0-9]+)\s?(?<variant>del|dup|ins)|
+                                x(?<exons>[0-9]+-?[0-9]?)\s?(?<variant>del|dup|ins)/ix.freeze
 
             PATHOGENICITY_REGEX = /abnormal|Likely benign|Likely pathogenic|
                                   non-pathological variant|pathogenic|unclassified variant/ix.freeze
