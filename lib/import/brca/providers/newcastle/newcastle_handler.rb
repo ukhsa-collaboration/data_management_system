@@ -24,13 +24,10 @@ module Import
                                             FIELD_NAME_MAPPINGS)
             add_organisationcode_testresult(genotype)
             add_variantpathclass(genotype, record)
-            # add_serviceport_identifier(genotype, record)
             process_test_type(genotype, record)
             process_test_scope(genotype, record)
-            # process_test_status(genotype, record)
             final_results = process_variant_records(genotype, record)
             final_results.map do |x|
-              # binding.pry if x.attribute_map['teststatus'] == 4
               @persister.integrate_and_store(x)
             end
           end
@@ -42,13 +39,6 @@ module Import
           def add_variantpathclass(genotype, record)
             genotype.add_variant_class(record.raw_fields['variantpathclass'])
           end
-
-          # def add_gene_info(genotype, record)
-          #   investigation_code = record.raw_fields['investigation code']
-          #   genotype.add_gene(investigation_code) if investigation_code.present?
-          #   gene = record.raw_fields['gene']
-          #   genotype.add_gene(gene) if gene.present?
-          # end
 
           def process_test_type(genotype, record)
             # cludge to handle their change in field mapping...
@@ -87,32 +77,6 @@ module Import
             else
               @logger.info 'NOTHING TO BE DONE'
             end
-          end
-
-          def process_test_status(genotype, record)
-            geno = record.raw_fields['teststatus']
-            variant = get_variant(record)
-            case geno
-            when /nmd/
-              genotype.add_status(1) if normal?(variant)
-            when /variant/, /abnormal/, /pathogenic/
-              genotype.add_status(2)
-            when /het/
-              genotype.add_status(4)
-              genotype.add_zygosity(geno)
-            when /hemi/
-              genotype.add_status(2)
-              genotype.add_zygosity(geno)
-            when /fail/
-              genotype.add_status(9)
-            when /completed/, /no-result/, /other/, /verify/, /low/ # No appropriate status
-              @logger.info 'Encountered teststatus No appropriate status'
-            when nil
-              @logger.info 'Encountered teststatus nil'
-            else
-              @logger.info "Encountered unfamiliar teststatus string: #{geno}"
-            end
-            genotype
           end
 
           def process_variant_records(genotype, record)
@@ -163,7 +127,7 @@ module Import
             teststatus = record.raw_fields['teststatus']
             %w[BRCA1 BRCA2].each do |gene|
               if (genotype.get('gene').nil? && pathogenic?(record)) ||
-                 %w[het variant pathogenic abnormal hemi other].include?(teststatus)
+                 TEST_STATUS_NO_GENOTYPE.include?(teststatus)
                 genotype.add_status(4)
               elsif teststatus.blank? || teststatus&.scan(/nmd/i)&.size&.positive?
                 genotype.add_status(1)
@@ -204,7 +168,7 @@ module Import
             if (genotype.get('gene').present? && teststatus.blank?) ||
                (genotype.get('gene').blank? && pathogenic?(record)) ||
                teststatus.blank? ||
-               %w[het variant pathogenic abnormal hemi other].include?(teststatus)
+               TEST_STATUS_NO_GENOTYPE.include?(teststatus)
               genotype.add_status(4)
             elsif teststatus.scan(/fail/i).size.positive?
               genotype.add_status(9)

@@ -48,6 +48,9 @@ module Import
                                      consultantcode
                                      servicereportidentifier].freeze
 
+            TEST_STATUS_NO_GENOTYPE = %w[het variant pathogenic abnormal hemi other verify
+                                         no-result completed low].freeze
+
             FIELD_NAME_MAPPINGS = { 'consultantcode'    => 'practitionercode',
                                     'ngs sample number' => 'servicereportidentifier' }.freeze
 
