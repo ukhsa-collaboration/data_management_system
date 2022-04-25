@@ -162,8 +162,8 @@ module Import
           def process_normal_full_screen(genotype, record, genotypes)
             teststatus = record.raw_fields['teststatus']
             %w[BRCA1 BRCA2].each do |gene|
-              if genotype.get('gene').nil? && (pathogenic?(record) ||
-                %w[het variant pathogenic abnormal hemi other].include?(teststatus))
+              if (genotype.get('gene').nil? && pathogenic?(record)) ||
+                 %w[het variant pathogenic abnormal hemi other].include?(teststatus)
                 genotype.add_status(4)
               elsif teststatus.blank? || teststatus&.scan(/nmd/i)&.size&.positive?
                 genotype.add_status(1)
@@ -192,6 +192,8 @@ module Import
               process_normal_targeted(genotype, record)
             elsif positive_cdna?(variant) || positive_exonvariant?(variant)
               process_variants(genotype, variant)
+            else # Malformed genotypes unable to extract
+              genotype.add_status(2)
             end
             genotypes.append(genotype)
             genotypes
