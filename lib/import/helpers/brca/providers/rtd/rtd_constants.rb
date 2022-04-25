@@ -58,6 +58,7 @@ module Import
             BRCA2_REGEX = /BRCA2/i.freeze
             CDNA_REGEX = /c\.\*?(?<cdna>
                                  [0-9]+[a-z]+>[a-z]+|
+                                 [0-9]+_[0-9]+[ACGTdelinsup]+|
                                  [0-9]+_[0-9]+|
                                  [0-9]+.[0-9]+[a-z]+>[a-z]+|
                                  [0-9]+.[0-9]+[a-z]+|
