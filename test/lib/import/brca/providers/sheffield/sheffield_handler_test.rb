@@ -52,18 +52,15 @@ class SheffieldHandlerTest < ActiveSupport::TestCase
     mlpa_fail_fs_record.raw_fields['genotype'] = 'No pathogenic mutation detected - BRCA2 MLPA failed'
     @handler.add_test_scope_from_geno_karyo(@genotype, mlpa_fail_fs_record)
     genotypes = @handler.process_variants_from_record(@genotype, mlpa_fail_fs_record)
-    assert_equal 3, genotypes.size
+    assert_equal 2, genotypes.size
     # MLPA failed gene
     assert_equal 8, genotypes[0].attribute_map['gene']
     assert_equal 9, genotypes[0].attribute_map['teststatus']
     # MLPA method
     assert_equal 15, genotypes[0].attribute_map['karyotypingmethod']
-
-    # rest negative genes
+    # Rest negative genes
     assert_equal 1, genotypes[1].attribute_map['teststatus']
-    assert_equal 1, genotypes[2].attribute_map['teststatus']
     assert_equal 7, genotypes[1].attribute_map['gene']
-    assert_equal 8, genotypes[2].attribute_map['gene']
   end
 
   test 'normal_full_screen' do
@@ -89,9 +86,11 @@ class SheffieldHandlerTest < ActiveSupport::TestCase
     fail_fs_record.raw_fields['genotype'] = 'FAIL'
     @handler.add_test_scope_from_geno_karyo(@genotype, fail_fs_record)
     genotypes = @handler.process_variants_from_record(@genotype, fail_fs_record)
-    assert_equal 1, genotypes.size
+    assert_equal 2, genotypes.size
     assert_equal 9, genotypes[0].attribute_map['teststatus']
-    assert_nil genotypes[0].attribute_map['gene']
+    assert_equal 9, genotypes[1].attribute_map['teststatus']
+    assert_equal 7, genotypes[0].attribute_map['gene']
+    assert_equal 8, genotypes[1].attribute_map['gene']
     assert_equal 'Full screen BRCA1 and BRCA2', genotypes[0].attribute_map['genetictestscope']
   end
 
@@ -154,8 +153,11 @@ class SheffieldHandlerTest < ActiveSupport::TestCase
     @handler.add_test_scope_from_geno_karyo(@genotype, protein_fs_record)
     genotypes = @handler.process_variants_from_record(@genotype, protein_fs_record)
     assert_equal %w[BRCA1 BRCA2], @handler.instance_variable_get('@genes_set')
-    assert_equal 1, genotypes.size
+    assert_equal 2, genotypes.size
     assert_equal 4, genotypes[0].attribute_map['teststatus']
+    assert_equal 4, genotypes[1].attribute_map['teststatus']
+    assert_equal 7, genotypes[0].attribute_map['gene']
+    assert_equal 8, genotypes[1].attribute_map['gene']
     assert_equal 'Full screen BRCA1 and BRCA2', genotypes[0].attribute_map['genetictestscope']
   end
 
@@ -247,13 +249,16 @@ class SheffieldHandlerTest < ActiveSupport::TestCase
     malformed_mutation_fs_record.raw_fields['genotype'] = 'BRCA2 c[8575del];[=]  p.[(Gln2859fs)];[(=)]'
     @handler.add_test_scope_from_geno_karyo(@genotype, malformed_mutation_fs_record)
     genotypes = @handler.process_variants_from_record(@genotype, malformed_mutation_fs_record)
-    assert_equal 1, genotypes.size
+    assert_equal 2, genotypes.size
     assert_equal 4, genotypes[0].attribute_map['teststatus']
-    assert_nil genotypes[0].attribute_map['gene']
+    assert_equal 4, genotypes[1].attribute_map['teststatus']
+    assert_equal 7, genotypes[0].attribute_map['gene']
+    assert_equal 8, genotypes[1].attribute_map['gene']
     assert_nil genotypes[0].attribute_map['exonintroncodonnumber']
     assert_nil  genotypes[0].attribute_map['proteinimpact']
     assert_nil  genotypes[0].attribute_map['codingdnasequencechange']
     assert_equal 'Full screen BRCA1 and BRCA2', genotypes[0].attribute_map['genetictestscope']
+    assert_equal 'Full screen BRCA1 and BRCA2', genotypes[1].attribute_map['genetictestscope']
   end
 
   test 'mutation_but_no_gene_target' do

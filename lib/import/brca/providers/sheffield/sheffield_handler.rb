@@ -52,12 +52,10 @@ module Import
 
           def process_scope_gene_analysis(karyo, genotype)
             if BRCA_ANALYSIS_GENE_MAPPING_FS.keys.include? karyo
-
               @logger.debug "ADDED FULL_SCREEN TEST for: #{karyo}"
               genotype.add_test_scope(:full_screen)
               @genes_set = BRCA_ANALYSIS_GENE_MAPPING_FS[karyo]
             elsif BRCA_ANALYSIS_GENE_MAPPING_TAR.keys.include? karyo
-
               @logger.debug "ADDED TARGETED TEST for: #{karyo}"
               genotype.add_test_scope(:targeted_mutation)
               @genes_set = BRCA_ANALYSIS_GENE_MAPPING_TAR[karyo]
@@ -78,7 +76,6 @@ module Import
 
           def process_scope_colo_ovarian_panel(karyo, genotype)
             if OVRN_COLO_PNL_GENE_MAPPING.keys.include? karyo
-
               @logger.debug "ADDED TARGETED TEST for: #{karyo}"
               genotype.add_test_scope(:full_screen)
               @genes_set = OVRN_COLO_PNL_GENE_MAPPING[karyo]
@@ -89,12 +86,10 @@ module Import
 
           def process_scope_r205(karyo, genotype)
             if R205_GENE_MAPPING_FS.keys.include? karyo
-
               @logger.debug "ADDED FULL_SCREEN TEST for: #{karyo}"
               genotype.add_test_scope(:full_screen)
               @genes_set = R205_GENE_MAPPING_FS[karyo]
             elsif R205_GENE_MAPPING_TAR.keys.include? karyo
-
               @logger.debug "ADDED TARGETED TEST for: #{karyo}"
               genotype.add_test_scope(:targeted_mutation)
               @genes_set = R205_GENE_MAPPING_TAR[karyo]
@@ -105,12 +100,10 @@ module Import
 
           def process_scope_r206(karyo, genotype)
             if R206_GENE_MAPPING.keys.include? karyo
-
               @logger.debug "ADDED FULL_SCREEN TEST for: #{karyo}"
               genotype.add_test_scope(:full_screen)
               @genes_set = R206_GENE_MAPPING[karyo]
             elsif ['R242.1 :: Predictive testing'].include? karyo
-
               @logger.debug "ADDED TARGETED TEST for: #{karyo}"
               genotype.add_test_scope(:targeted_mutation)
               @genes_set = %w[ATM BRCA1 BRCA2 BRIP1 CDH1 CHEK2 EPCAM MLH1 MSH2 MSH6 PALB2 PTEN
@@ -122,12 +115,10 @@ module Import
 
           def process_scope_r207(karyo, genotype)
             if R207_GENE_MAPPING_FS.keys.include? karyo
-
               @logger.debug "ADDED FULL_SCREEN TEST for: #{karyo}"
               genotype.add_test_scope(:full_screen)
               @genes_set = R207_GENE_MAPPING_FS[karyo]
             elsif R207_GENE_MAPPING_TAR.keys.include? karyo
-
               @logger.debug "ADDED TARGETED TEST for: #{karyo}"
               genotype.add_test_scope(:targeted_mutation)
               @genes_set = R207_GENE_MAPPING_TAR[karyo]
@@ -138,15 +129,33 @@ module Import
 
           def process_scope_r208(karyo, genotype)
             if R208_GENE_MAPPING_FS.keys.include? karyo
-
               @logger.debug "ADDED FULL_SCREEN TEST for: #{karyo}"
               genotype.add_test_scope(:full_screen)
               @genes_set = R208_GENE_MAPPING_FS[karyo]
             elsif R208_GENE_MAPPING_TAR.keys.include? karyo
-
               @logger.debug "ADDED TARGETED TEST for: #{karyo}"
               genotype.add_test_scope(:targeted_mutation)
               @genes_set = R208_GENE_MAPPING_TAR[karyo]
+            else
+              genotype.add_test_scope(:no_genetictestscope)
+            end
+          end
+
+          def process_scope_r240(karyo, genotype)
+            if R240_GENE_MAPPING_TAR.keys.include? karyo
+              @logger.debug "ADDED TARGETED TEST for: #{karyo}"
+              genotype.add_test_scope(:targeted_mutation)
+              @genes_set = R240_GENE_MAPPING_TAR[karyo]
+            else
+              genotype.add_test_scope(:no_genetictestscope)
+            end
+          end
+
+          def process_scope_r242(karyo, genotype)
+            if R242_GENE_MAPPING_TAR.keys.include? karyo
+              @logger.debug "ADDED TARGETED TEST for: #{karyo}"
+              genotype.add_test_scope(:targeted_mutation)
+              @genes_set = R242_GENE_MAPPING_TAR[karyo]
             else
               genotype.add_test_scope(:no_genetictestscope)
             end
@@ -269,15 +278,15 @@ module Import
             @logger.debug "SUCCESSFUL gene parse for: #{positive_gene[0]&.upcase}"
           end
 
-          def add_negative_genes(negative_genes, genotype, genotypes)
-            negative_genes.each do |gene|
-              genotype_neg = genotype.dup
-              @logger.debug "SUCCESSFUL gene parse for negative test for: #{gene}"
-              genotype_neg.add_status(1)
-              genotype_neg.add_gene(gene)
-              genotype_neg.add_protein_impact(nil)
-              genotype_neg.add_gene_location(nil)
-              genotypes.append(genotype_neg)
+          def add_other_genes_with_status(other_genes, genotype, genotypes, status)
+            other_genes.each do |gene|
+              genotype_othr = genotype.dup
+              @logger.debug "SUCCESSFUL gene parse for #{status} status for: #{gene}"
+              genotype_othr.add_status(status)
+              genotype_othr.add_gene(gene)
+              genotype_othr.add_protein_impact(nil)
+              genotype_othr.add_gene_location(nil)
+              genotypes.append(genotype_othr)
             end
             genotypes
           end
@@ -328,17 +337,16 @@ module Import
               process_failed_full_screen(genotype, record, genotypes)
             elsif positive_cdna?(genotype_str) || positive_exonvariant?(genotype_str)
               process_variant_fs_records(genotype, record, genotypes)
-            elsif only_protein_impact?(record)
-              process_unknown_status_record(genotype, genotypes)
-            elsif record.raw_fields['genotype'].scan(/see\sbelow|comments/ix).size.positive?
-              genotype.add_status(4)
-              genotypes.append(genotype)
+            elsif only_protein_impact?(record) ||
+                  genotype_str.scan(/see\sbelow|comments/ix).size.positive?
+              add_other_genes_with_status(@genes_set, genotype, genotypes, 4)
             end
             genotypes
           end
 
           def process_variant_fs_records(genotype, record, genotypes)
-            if record.raw_fields['genotype'].scan(CDNA_REGEX).size > 1
+            if (record.raw_fields['genotype'].scan(CDNA_REGEX).size +
+                record.raw_fields['genotype'].scan(EXON_VARIANT_REGEX).size) > 1
               process_multiple_variant_fs_record(genotype, record, genotypes)
             else
               process_single_variant_fs_record(genotype, record, genotypes)
@@ -348,14 +356,14 @@ module Import
           def process_multiple_variant_fs_record(genotype, record, genotypes)
             positive_gene = record.raw_fields['genotype'].scan(BRCA_REGEX).flatten.uniq
             if positive_gene.blank?
-              process_unknown_status_record(genotype, genotypes)
+              add_other_genes_with_status(@genes_set, genotype, genotypes, 4)
             elsif positive_gene.size > 1
               process_multi_genes(genotype, record, genotypes)
             else
               process_positive_record(genotype, record, genotypes, positive_gene)
             end
             negative_genes = @genes_set - positive_gene
-            add_negative_genes(negative_genes, genotype, genotypes)
+            add_other_genes_with_status(negative_genes, genotype, genotypes, 1)
             genotypes
           end
 
@@ -364,11 +372,11 @@ module Import
             positive_gene = genotype_str.scan(BRCA_REGEX).flatten.uniq
 
             if positive_gene.blank?
-              process_unknown_status_record(genotype, genotypes)
+              add_other_genes_with_status(@genes_set, genotype, genotypes, 4)
             else
               process_positive_record(genotype, record, genotypes, positive_gene)
               negative_genes = @genes_set - positive_gene
-              add_negative_genes(negative_genes, genotype, genotypes)
+              add_other_genes_with_status(negative_genes, genotype, genotypes, 1)
             end
 
             genotypes
@@ -399,7 +407,7 @@ module Import
 
           def process_normal_full_screen(genotype, _record, genotypes)
             negative_genes = @genes_set
-            add_negative_genes(negative_genes, genotype, genotypes)
+            add_other_genes_with_status(negative_genes, genotype, genotypes, 1)
             genotypes
           end
 
@@ -410,9 +418,15 @@ module Import
           def process_failed_full_screen(genotype, record, genotypes)
             geno = record.raw_fields['genotype'].to_s
             failed_gene = geno.scan(BRCA_REGEX).flatten.uniq.join
-            genotype.add_gene(failed_gene&.upcase)
-            genotype.add_status(9)
-            genotypes.append(genotype)
+            if failed_gene.blank?
+              add_other_genes_with_status(@genes_set, genotype, genotypes, 9)
+            else
+              genotype.add_gene(failed_gene&.upcase)
+              genotype.add_status(9)
+              genotypes.append(genotype)
+              negative_genes = @genes_set - [failed_gene]
+              add_other_genes_with_status(negative_genes, genotype, genotypes, 1)
+            end
 
             genotypes
           end
@@ -423,18 +437,26 @@ module Import
 
           def process_mlpa_fail_full_screen(genotype, record, genotypes)
             geno = record.raw_fields['genotype'].to_s
-            mlpa_gene = geno.scan(BRCA_REGEX).flatten.uniq
-            mlpa_gene.each do |mlpa_fail_gene|
+            mlpa_genes = geno.scan(BRCA_REGEX).flatten.uniq
+
+            if mlpa_genes.blank?
+              add_other_genes_with_status(@genes_set, genotype, genotypes, 9)
+            else
+              process_mlpa_genes(mlpa_genes, genotype, genotypes)
+              negative_genes = @genes_set - mlpa_genes
+              add_other_genes_with_status(negative_genes, genotype, genotypes, 1)
+            end
+            genotypes
+          end
+
+          def process_mlpa_genes(mlpa_genes, genotype, genotypes)
+            mlpa_genes.each do |mlpa_fail_gene|
               genotype_dup = genotype.dup
               genotype_dup.add_gene(mlpa_fail_gene&.upcase)
               genotype_dup.add_method('mlpa')
               genotype_dup.add_status(9)
               genotypes.append(genotype_dup)
             end
-
-            negative_genes = @genes_set
-            add_negative_genes(negative_genes, genotype, genotypes)
-            genotypes
           end
 
           def positive_cdna?(genotype_string)
