@@ -84,7 +84,7 @@ gem 'zip-zip' # annoying backwards compatibility for old axlsx version
 
 gem 'regexp-examples'
 gem 'loofah', '>= 2.3.1' # address CVE-2019-15587
-gem 'nokogiri', '~> 1.11'
+gem 'nokogiri', '~> 1.13'
 
 gem 'jquery-rails'
 gem 'jquery-ui-rails'
