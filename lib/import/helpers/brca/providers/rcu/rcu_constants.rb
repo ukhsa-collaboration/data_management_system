@@ -24,7 +24,9 @@ module Import
               ' and ovarian cancer at high familial risk levels' => :process_scope_r206,
               'R207 :: Inherited ovarian cancer (without breast cancer)' => :process_scope_r207,
               'R208 :: BRCA1 and BRCA2 testing at high familial risk' => :process_scope_r208,
-              'R208 :: Inherited breast cancer and ovarian cancer' => :process_scope_r208
+              'R208 :: Inherited breast cancer and ovarian cancer' => :process_scope_r208,
+              'R240 - Familial Diagnostic testing - Hered Cancers' => :process_scope_r240,
+              'R242 - Predictive testing - Hered Cancers' => :process_scope_r242
             }.freeze
 
             BRCA_FAMILIAL_GENE_MAPPING = {
@@ -140,6 +142,14 @@ module Import
               'R240.1 :: Diagnostic familial' => %w[BRCA1 BRCA2 PALB2],
               'R240.1 :: Diagnostic Familial BRCA1 MLPA' => %w[BRCA1],
               'R370.1 :: Confirmation of research result' => %w[BRCA1 BRCA2 PALB2]
+            }.freeze
+
+            R240_GENE_MAPPING_TAR = {
+              'R242.1 :: Familial diagnostic testing - ATM gene' => %w[ATM]
+            }.freeze
+
+            R242_GENE_MAPPING_TAR = {
+              'R242.1 :: Predictive testing - ATM gene' => %w[ATM]
             }.freeze
 
             PASS_THROUGH_FIELDS = %w[consultantcode
