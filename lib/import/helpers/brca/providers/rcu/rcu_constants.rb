@@ -57,24 +57,23 @@ module Import
               'BRCA1 & BRCA2 only' => %w[BRCA1 BRCA2],
               'BRCA1 and BRCA2' => %w[BRCA1 BRCA2],
               'BRCA1 and BRCA2 - analysis only' => %w[BRCA1 BRCA2],
-              'Extended HBOC panel' => %w[ATM BRCA1 BRCA2 BRIP1 CDH1 CHEK2 PALB2 PTEN RAD51C RAD51D
-                                          STK11 TP53 PMS2 EPCAM MLH1 MSH2 MSH6 TP53 PMS2],
+              'Extended HBOC panel' => %w[ATM BRCA1 BRCA2 BRIP1 CDH1 CHEK2 EPCAM MLH1 MSH2 MSH6
+                                          PALB2 PTEN RAD51C RAD51D STK11 TP53 PMS2],
               'Extended HBOC panel - analysis only' => %w[ATM BRCA1 BRCA2 BRIP1 CDH1 CHEK2 EPCAM
                                                           MLH1 MSH2 MSH6 PALB2 PTEN RAD51C RAD51D
                                                           STK11 TP53 PMS2],
-              'Full panel' => %w[ATM BRCA1 BRCA2 BRIP1 CDH1 CHEK2 EPCAM MLH1 MSH2
-                                 MSH6 PALB2 PTEN RAD51C RAD51D STK11 TP53 PMS2],
-              'Full panel - analysis only' => %w[ATM BRCA1 BRCA2 BRIP1 CDH1 CHEK2
-                                                 EPCAM MLH1 MSH2 MSH6 PALB2 PTEN
-                                                 RAD51C RAD51D STK11 TP53 PMS2],
+              'Full panel' => %w[ATM BRCA1 BRCA2 BRIP1 CDH1 CHEK2 EPCAM MLH1 MSH2 MSH6 PALB2 PTEN
+                                 RAD51C RAD51D STK11 TP53 PMS2],
+              'Full panel - analysis only' => %w[ATM BRCA1 BRCA2 BRIP1 CDH1 CHEK2 EPCAM MLH1 MSH2
+                                                 MSH6 PALB2 PTEN RAD51C RAD51D STK11 TP53 PMS2],
               'Full panel - analysis only and TP53 MLPA' => %w[ATM BRCA1 BRCA2 BRIP1 CDH1 CHEK2
                                                                EPCAM MLH1 MSH2 MSH6 PALB2 PTEN
                                                                RAD51C RAD51D STK11 TP53 PMS2]
             }.freeze
 
             OVRN_COLO_PNL_GENE_MAPPING = {
-              'Full panel' => %w[ATM BRCA1 BRCA2 BRIP1 CDH1 CHEK2 EPCAM MLH1 MSH2 MSH6 PALB2
-                                 PTEN RAD51C RAD51D STK11 TP53 PMS2]
+              'Full panel' => %w[ATM BRCA1 BRCA2 BRIP1 CDH1 CHEK2 EPCAM MLH1 MSH2 MSH6 PALB2 PTEN
+                                 RAD51C RAD51D STK11 TP53 PMS2]
             }.freeze
 
             R205_GENE_MAPPING_FS = {
@@ -89,7 +88,7 @@ module Import
             R205_GENE_MAPPING_TAR = {
               'R242.1 :: Predictive testing' => %w[ATM BRCA1 BRCA2 CDH1 CHEK2 PALB2 PTEN STK11
                                                    TP53],
-              'R242.1 :: Predictive - MLPA' => %w[ATM BRCA1 BRCA2 CDH1 CHEK2 PALB2 PTEN STK11 TP53]
+              'R242.1 :: Predictive - MLPA' => %w[BRCA1 BRCA2 TP53]
             }.freeze
 
             R206_GENE_MAPPING = {
@@ -133,7 +132,7 @@ module Import
               'R208.2 :: Unknown mutation(s) by MLPA or equivalent' => %w[BRCA1 BRCA2],
               'R387.1 :: BRCA1 BRCA2 PALB2 analysis only' => %w[BRCA1 BRCA2 PALB2],
               'R208.1 :: NGS in Leeds' => %w[BRCA1 BRCA2 PALB2],
-              'R208.1 :: PALB2 - NGS in Leeds - Analysis only' => %w[PALB2]
+              'R208.1 :: PALB2 - NGS in Leeds - Analysis only' => %w[BRCA1 BRCA2 PALB2]
             }.freeze
 
             R208_GENE_MAPPING_TAR = {
