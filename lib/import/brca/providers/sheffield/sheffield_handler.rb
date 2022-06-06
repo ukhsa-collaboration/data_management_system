@@ -66,7 +66,7 @@ module Import
 
           def process_scope_ovarian_panel(karyo, genotype)
             if OVRN_CNCR_PNL_GENE_MAPPING.keys.include? karyo
-              @logger.debug "ADDED TARGETED TEST for: #{karyo}"
+              @logger.debug "ADDED FULL_SCREEN for: #{karyo}"
               genotype.add_test_scope(:full_screen)
               @genes_set = OVRN_CNCR_PNL_GENE_MAPPING[karyo]
             else
@@ -76,7 +76,7 @@ module Import
 
           def process_scope_colo_ovarian_panel(karyo, genotype)
             if OVRN_COLO_PNL_GENE_MAPPING.keys.include? karyo
-              @logger.debug "ADDED TARGETED TEST for: #{karyo}"
+              @logger.debug "ADDED FULL_SCREEN for: #{karyo}"
               genotype.add_test_scope(:full_screen)
               @genes_set = OVRN_COLO_PNL_GENE_MAPPING[karyo]
             else
