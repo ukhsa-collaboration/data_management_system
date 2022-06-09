@@ -195,6 +195,7 @@ module Import
             genotype.attribute_map['genetictestscope'].scan(/Unable to assign/i).size.positive?
           end
 
+          # rubocop:disable Metrics/MethodLength disabled as rubcop reduces redability if the method
           def process_targeted_no_scope_records(genotype, record, genotypes)
             genotype_str = record.raw_fields['genotype']
             positive_gene = genotype_str.scan(BRCA_REGEX).flatten.uniq
@@ -215,6 +216,7 @@ module Import
             end
             genotypes
           end
+          # rubocop:enable Metrics/MethodLength
 
           def process_normal_targeted(genotype, record, genotypes)
             process_single_gene(genotype, record)
