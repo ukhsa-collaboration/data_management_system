@@ -198,8 +198,8 @@ module Import
           # rubocop:disable Metrics/MethodLength disabled as rubcop reduces redability if the method
           def process_targeted_no_scope_records(genotype, record, genotypes)
             genotype_str = record.raw_fields['genotype']
-            positive_gene = genotype_str.scan(BRCA_REGEX).flatten.uniq
-            if positive_gene.size > 1
+            positive_genes = genotype_str.scan(BRCA_REGEX).flatten.uniq
+            if positive_genes.size > 1
               process_multi_genes(genotype, record, genotypes)
             elsif positive_cdna?(genotype_str) || positive_exonvariant?(genotype_str)
               process_single_variant(genotype, record, genotypes)
@@ -273,30 +273,30 @@ module Import
           end
 
           def process_single_gene(genotype, record)
-            positive_gene = get_gene(record)
-            genotype.add_gene(positive_gene[0]&.upcase) if positive_gene.present?
-            return if positive_gene.blank?
+            positive_genes = get_gene(record)
+            genotype.add_gene(positive_genes[0]&.upcase) if positive_genes.present?
+            return if positive_genes.blank?
 
-            @logger.debug "SUCCESSFUL gene parse for: #{positive_gene[0]&.upcase}"
+            @logger.debug "SUCCESSFUL gene parse for: #{positive_genes[0]&.upcase}"
           end
 
           def add_other_genes_with_status(other_genes, genotype, genotypes, status)
             other_genes.each do |gene|
-              genotype_othr = genotype.dup
+              genotype_other = genotype.dup
               @logger.debug "SUCCESSFUL gene parse for #{status} status for: #{gene}"
-              genotype_othr.add_status(status)
-              genotype_othr.add_gene(gene)
-              genotype_othr.add_protein_impact(nil)
-              genotype_othr.add_gene_location(nil)
-              genotypes.append(genotype_othr)
+              genotype_other.add_status(status)
+              genotype_other.add_gene(gene)
+              genotype_other.add_protein_impact(nil)
+              genotype_other.add_gene_location(nil)
+              genotypes.append(genotype_other)
             end
             genotypes
           end
 
           def process_multi_genes(genotype, record, genotypes)
-            positive_gene = record.raw_fields['genotype'].scan(BRCA_REGEX).flatten.uniq
-            raw_genotypes = record.raw_fields['genotype'].split(positive_gene[-1])
-            raw_genotypes[1].prepend(positive_gene[-1])
+            positive_genes = record.raw_fields['genotype'].scan(BRCA_REGEX).flatten.uniq
+            raw_genotypes = record.raw_fields['genotype'].split(positive_genes[-1])
+            raw_genotypes[1].prepend(positive_genes[-1])
             process_raw_genotypes(raw_genotypes, genotype, genotypes)
           end
 
@@ -319,10 +319,10 @@ module Import
           end
 
           def process_single_variant(genotype, record, genotypes)
-            positive_gene = get_gene(record)
+            positive_genes = get_gene(record)
 
-            if positive_gene.one?
-              process_positive_record(genotype, record, genotypes, positive_gene)
+            if positive_genes.one?
+              process_positive_record(genotype, record, genotypes, positive_genes)
             else
               process_unknown_status_record(genotype, genotypes)
             end
@@ -356,28 +356,28 @@ module Import
           end
 
           def process_multiple_variant_fs_record(genotype, record, genotypes)
-            positive_gene = record.raw_fields['genotype'].scan(BRCA_REGEX).flatten.uniq
-            if positive_gene.blank?
+            positive_genes = record.raw_fields['genotype'].scan(BRCA_REGEX).flatten.uniq
+            if positive_genes.blank?
               add_other_genes_with_status(@genes_set, genotype, genotypes, 4)
-            elsif positive_gene.size > 1
+            elsif positive_genes.size > 1
               process_multi_genes(genotype, record, genotypes)
             else
-              process_positive_record(genotype, record, genotypes, positive_gene)
+              process_positive_record(genotype, record, genotypes, positive_genes)
             end
-            negative_genes = @genes_set - positive_gene
+            negative_genes = @genes_set - positive_genes
             add_other_genes_with_status(negative_genes, genotype, genotypes, 1)
             genotypes
           end
 
           def process_single_variant_fs_record(genotype, record, genotypes)
             genotype_str = record.raw_fields['genotype'].to_s
-            positive_gene = genotype_str.scan(BRCA_REGEX).flatten.uniq
+            positive_genes = genotype_str.scan(BRCA_REGEX).flatten.uniq
 
-            if positive_gene.blank?
+            if positive_genes.blank?
               add_other_genes_with_status(@genes_set, genotype, genotypes, 4)
             else
-              process_positive_record(genotype, record, genotypes, positive_gene)
-              negative_genes = @genes_set - positive_gene
+              process_positive_record(genotype, record, genotypes, positive_genes)
+              negative_genes = @genes_set - positive_genes
               add_other_genes_with_status(negative_genes, genotype, genotypes, 1)
             end
 
@@ -481,11 +481,11 @@ module Import
 
           def get_gene(record)
             genotype_str = record.raw_fields['genotype'].to_s
-            positive_gene = genotype_str.scan(BRCA_REGEX).flatten.uniq
-            if positive_gene.size.zero?
-              positive_gene = record.raw_fields['karyotypingmethod'].scan(BRCA_REGEX).flatten.uniq
+            positive_genes = genotype_str.scan(BRCA_REGEX).flatten.uniq
+            if positive_genes.size.zero?
+              positive_genes = record.raw_fields['karyotypingmethod'].scan(BRCA_REGEX).flatten.uniq
             end
-            positive_gene
+            positive_genes
           end
 
           def only_protein_impact?(record)
