@@ -19,7 +19,6 @@ module Import
           end
 
           def process_variants_from_report
-             binding.pry if @testresult.scan(/Missense mutation also identified in BRCA2 exon 15 (c.7727G>C, p.Arg2500Thr)/i).size.positive?
             if ['P', '?'].include? @posnegtest.upcase
               @logger.debug 'ABNORMAL TEST'
               process_positive_records
