@@ -41,13 +41,12 @@ class NewcastleHandlerTest < ActiveSupport::TestCase
     assert_equal 'Full screen BRCA1 and BRCA2', @genotype.attribute_map['genetictestscope']
     type_record = build_raw_record('pseudo_id1' => 'bob')
     type_record.raw_fields['service category'] = 'B'
-    @logger.expects(:info).with('ADDED SCOPE FROM MOLECULAR TESTING TYPE')
     @handler.process_test_scope(@genotype, type_record)
     assert_equal 'Full screen BRCA1 and BRCA2', @genotype.attribute_map['genetictestscope']
     targeted_record = build_raw_record('pseudo_id1' => 'bob')
     targeted_record.raw_fields['service category'] = 'B'
     targeted_record.raw_fields['moleculartestingtype'] = 'Carrier'
-    @logger.expects(:info).with('ADDED SCOPE FROM MOLECULAR TESTING TYPE')
+    @logger.expects(:info).with('ADDED SCOPE FROM INVESTIGATION CODE/MOLECULAR TESTING TYPE')
     @handler.process_test_scope(@genotype, targeted_record)
     assert_equal 'Targeted BRCA mutation test', @genotype.attribute_map['genetictestscope']
   end

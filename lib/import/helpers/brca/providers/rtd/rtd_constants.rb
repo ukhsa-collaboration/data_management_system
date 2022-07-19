@@ -48,6 +48,11 @@ module Import
                                      consultantcode
                                      servicereportidentifier].freeze
 
+            NON_PATHEGENIC_CODES = ['nmd',
+                                    'likely benign',
+                                    'benign',
+                                    'non-pathological variant'].freeze
+
             TEST_STATUS_NO_GENOTYPE = %w[het variant pathogenic abnormal hemi other verify
                                          no-result completed low].freeze
 
@@ -84,8 +89,6 @@ module Import
                                 (?<variant>del|dup|ins)|
                                 x(?<exons>[0-9]+-?[0-9]+)\s?(?<variant>del|dup|ins)|
                                 x(?<exons>[0-9]+-?[0-9]?)\s?(?<variant>del|dup|ins)/ix.freeze
-
-            NON_PATHOGENICITY_REGEX = /nmd|Likely benign|Benign|non-pathological\svariant/ix.freeze
             # rubocop:enable Lint/MixedRegexpCaptureTypes
           end
         end

@@ -24,11 +24,9 @@ module Import
                                             FIELD_NAME_MAPPINGS)
             add_organisationcode_testresult(genotype)
             add_variantpathclass(genotype, record)
-
             process_test_scope(genotype, record)
             process_test_status(genotype, record)
             final_results = process_variant_records(genotype, record)
-
             final_results.each { |cur_genotype| @persister.integrate_and_store(cur_genotype) }
           end
 
@@ -63,16 +61,8 @@ module Import
 
             if %w[o c a2].include?(servicecategory)
               add_scope_from_service_category(servicecategory, genotype)
-
-            elsif TEST_SCOPE_MAP.key?(investigationcode)
-
-              genotype.add_test_scope(TEST_SCOPE_MAP[investigationcode])
-              @logger.info 'ADDED SCOPE FROM INVESTIGATION CODE'
-
-            elsif TEST_SCOPE_FROM_TYPE_MAP.key?(moleculartestingtype)
-
-              genotype.add_test_scope(TEST_SCOPE_FROM_TYPE_MAP[moleculartestingtype])
-              @logger.info 'ADDED SCOPE FROM MOLECULAR TESTING TYPE'
+            else
+              add_scope_from_inv_code_mol_type(investigationcode, moleculartestingtype, genotype)
             end
           end
 
@@ -111,6 +101,12 @@ module Import
             else
               @logger.info 'Test scope not determined via service category'
             end
+          end
+
+          def add_scope_from_inv_code_mol_type(inv_code, mol_type, genotype)
+            scope = TEST_SCOPE_MAP[inv_code].presence || TEST_SCOPE_FROM_TYPE_MAP[mol_type]
+            genotype.add_test_scope(scope)
+            @logger.info 'ADDED SCOPE FROM INVESTIGATION CODE/MOLECULAR TESTING TYPE'
           end
 
           def process_fullscreen_records(genotype, record, genotypes)
@@ -187,23 +183,23 @@ module Import
           def positive_rec?(record)
             gene = record.raw_fields['gene']
             variant = get_variant(record)
-            return true if gene.present? && !variant.blank? && pathogenic?(record)
+            return true if gene.present? && variant.present? && pathogenic?(record)
           end
 
           def full_screen?(genotype)
-            return if genotype.attribute_map['genetictestscope'].nil?
+            return false if genotype.attribute_map['genetictestscope'].nil?
 
             genotype.attribute_map['genetictestscope'].scan(/Full screen/i).size.positive?
           end
 
           def targeted?(genotype)
-            return if genotype.attribute_map['genetictestscope'].nil?
+            return false if genotype.attribute_map['genetictestscope'].nil?
 
             genotype.attribute_map['genetictestscope'].scan(/Targeted/i).size.positive?
           end
 
           def no_scope?(genotype)
-            return if genotype.attribute_map['genetictestscope'].nil?
+            return false if genotype.attribute_map['genetictestscope'].nil?
 
             genotype.attribute_map['genetictestscope'].scan(/Unable/i).size.positive?
           end
@@ -217,9 +213,10 @@ module Import
           end
 
           def pathogenic?(record)
-            varpathclass = record.raw_fields['variantpathclass']
-            return true if varpathclass.blank?
-            return true unless varpathclass.scan(NON_PATHOGENICITY_REGEX).size.positive?
+            varpathclass = record.raw_fields['variantpathclass']&.downcase
+            return true if NON_PATHEGENIC_CODES.exclude? varpathclass
+
+            false
           end
 
           def process_exonic_variant(genotype, variant)
