@@ -24,12 +24,12 @@ module Import
                                             FIELD_NAME_MAPPINGS)
             add_organisationcode_testresult(genotype)
             add_variantpathclass(genotype, record)
-            process_test_type(genotype, record)
+
             process_test_scope(genotype, record)
+            process_test_status(genotype, record)
             final_results = process_variant_records(genotype, record)
-            final_results.map do |x|
-              @persister.integrate_and_store(x)
-            end
+
+            final_results.each { |cur_genotype| @persister.integrate_and_store(cur_genotype) }
           end
 
           def add_organisationcode_testresult(genotype)
@@ -61,7 +61,7 @@ module Import
             investigationcode = record.raw_fields['investigation code']&.downcase&.strip
             servicecategory = record.raw_fields['service category']&.downcase&.strip
 
-            if servicecategory.present? && %w[o c a2].include?(servicecategory)
+            if %w[o c a2].include?(servicecategory)
               add_scope_from_service_category(servicecategory, genotype)
 
             elsif TEST_SCOPE_MAP.key?(investigationcode)
@@ -73,9 +73,21 @@ module Import
 
               genotype.add_test_scope(TEST_SCOPE_FROM_TYPE_MAP[moleculartestingtype])
               @logger.info 'ADDED SCOPE FROM MOLECULAR TESTING TYPE'
+            end
+          end
 
+          def process_test_status(genotype, record)
+            gene = record.raw_fields['gene']
+            variant = get_variant(record)
+            teststatus = record.raw_fields['teststatus']
+            if gene.present? && variant.present? && pathogenic?(record)
+              genotype.add_status(2)
+            elsif gene.present? && variant.blank?
+              genotype.add_status(4)
+            elsif teststatus.present? && teststatus.scan(/fail/i).size.positive?
+              genotype.add_status(9)
             else
-              @logger.info 'NOTHING TO BE DONE'
+              genotype.add_status(1)
             end
           end
 
@@ -83,10 +95,8 @@ module Import
             genotypes = []
             if full_screen?(genotype)
               process_fullscreen_records(genotype, record, genotypes)
-            elsif targeted?(genotype)
+            elsif targeted?(genotype) || no_scope?(genotype)
               process_targeted_screen(genotype, record, genotypes)
-            else
-              process_no_testscope_records(genotype, record, genotypes)
             end
             genotypes
           end
@@ -104,95 +114,64 @@ module Import
           end
 
           def process_fullscreen_records(genotype, record, genotypes)
-            gene = record.raw_fields['gene']
-            genotype.add_gene(gene) if gene.present?
-
+            gene = get_gene(record)
+            genotype.add_gene(gene)
             variant = get_variant(record)
-            if variant.nil?
-              process_normal_full_screen(genotype, record, genotypes)
-            elsif positive_cdna?(variant) || positive_exonvariant?(variant)
-              if [7, 8].include? genotype.other_gene
-                genotype_dup = genotype.dup
-                genotype_dup.add_gene(genotype.other_gene)
-                genotype_dup.add_status(1)
-                genotypes.append(genotype_dup)
-              end
+            if positive_rec?(record)
+              add_fs_negative_gene(genotype, genotypes)
               process_variants(genotype, variant)
               genotypes.append(genotype)
+            elsif gene.present? # for other status records
+              genotypes.append(genotype)
+              add_fs_negative_gene(genotype, genotypes)
+            else
+              process_null_gene_rec(genotype, genotypes)
+            end
+
+            genotypes
+          end
+
+          def add_fs_negative_gene(genotype, genotypes)
+            if [7, 8].include? genotype.other_gene
+              genotype_dup = genotype.dup
+              genotype_dup.add_gene(genotype.other_gene)
+              genotype_dup.add_status(1)
+              genotypes.append(genotype_dup)
+            else # if main gene is not 'BRCA1/BRCA2' then add 2 negative tests for them
+              [7, 8].each do |gene|
+                genotype_dup = genotype.dup
+                genotype_dup.add_status(1)
+                genotype_dup.add_gene(gene)
+                genotypes.append(genotype_dup)
+              end
             end
             genotypes
           end
 
-          def process_normal_full_screen(genotype, record, genotypes)
-            teststatus = record.raw_fields['teststatus']
-            %w[BRCA1 BRCA2].each do |gene|
-              if (genotype.get('gene').nil? && pathogenic?(record)) ||
-                 TEST_STATUS_NO_GENOTYPE.include?(teststatus)
-                genotype.add_status(4)
-              elsif teststatus.blank? || teststatus&.scan(/nmd/i)&.size&.positive?
-                genotype.add_status(1)
-              elsif teststatus&.scan(/fail/i)&.size&.positive?
-                genotype.add_status(9)
-              end
+          def process_null_gene_rec(genotype, genotypes)
+            %w[BRCA1 BRCA2].each do |brca_gene|
               genotype_dup = genotype.dup
-              genotype_dup.add_gene(gene)
+              genotype_dup.add_gene(brca_gene)
               genotypes.append(genotype_dup)
             end
-            genotypes
           end
 
           def process_targeted_screen(genotype, record, genotypes)
-            investigation_code = record.raw_fields['investigation code']
-            gene = record.raw_fields['gene']
-            if investigation_code == 'BRCA1+2' && gene.nil?
-              genotype.add_gene(nil)
-            else
-              genotype.add_gene(investigation_code) if investigation_code.present?
-              genotype.add_gene(gene) if gene.present?
-            end
-
+            genotype.add_gene(get_gene(record))
             variant = get_variant(record)
-            if variant.nil?
-              process_normal_targeted(genotype, record)
-            elsif positive_cdna?(variant) || positive_exonvariant?(variant)
-              process_variants(genotype, variant)
-            else # Malformed genotypes unable to extract
-              genotype.add_status(2)
-            end
+            process_variants(genotype, variant) if positive_rec?(record)
             genotypes.append(genotype)
             genotypes
           end
 
-          def process_normal_targeted(genotype, record)
-            teststatus = record.raw_fields['teststatus']&.strip
-            if (genotype.get('gene').present? && teststatus.blank?) ||
-               (genotype.get('gene').blank? && pathogenic?(record)) ||
-               teststatus.blank? ||
-               TEST_STATUS_NO_GENOTYPE.include?(teststatus)
-              genotype.add_status(4)
-            elsif teststatus.scan(/fail/i).size.positive?
-              genotype.add_status(9)
-            elsif teststatus.scan(/nmd/i).size.positive?
-              genotype.add_status(1)
-            end
-          end
-
-          def process_no_testscope_records(genotype, record, genotypes)
+          def get_gene(record)
+            positive_genes = []
             gene = record.raw_fields['gene']
-            genotype.add_gene(gene) if gene.present?
-
-            variant = get_variant(record)
-            teststatus = record.raw_fields['teststatus']
-            if variant.nil?
-              if genotype.get('gene').nil? &&
-                 (pathogenic?(record) || teststatus.blank?)
-                genotype.add_status(4)
-              end
-            elsif positive_cdna?(variant) || positive_exonvariant?(variant)
-              process_variants(genotype, variant)
+            positive_genes = gene.scan(BRCA_REGEX).flatten.uniq unless gene.nil?
+            if positive_genes.size.zero?
+              positive_genes = record.raw_fields['investigation code'].scan(BRCA_REGEX).flatten.uniq
             end
-            genotypes.append(genotype)
-            genotypes
+            positive_genes[0] unless positive_genes.nil?
           end
 
           def process_variants(genotype, variant)
@@ -203,6 +182,12 @@ module Import
 
           def get_variant(record)
             record.raw_fields['genotype'].presence || record.raw_fields['variant name']
+          end
+
+          def positive_rec?(record)
+            gene = record.raw_fields['gene']
+            variant = get_variant(record)
+            return true if gene.present? && !variant.blank? && pathogenic?(record)
           end
 
           def full_screen?(genotype)
@@ -217,6 +202,12 @@ module Import
             genotype.attribute_map['genetictestscope'].scan(/Targeted/i).size.positive?
           end
 
+          def no_scope?(genotype)
+            return if genotype.attribute_map['genetictestscope'].nil?
+
+            genotype.attribute_map['genetictestscope'].scan(/Unable/i).size.positive?
+          end
+
           def positive_cdna?(variant)
             variant.scan(CDNA_REGEX).size.positive?
           end
@@ -227,11 +218,8 @@ module Import
 
           def pathogenic?(record)
             varpathclass = record.raw_fields['variantpathclass']
-            true if !varpathclass.nil? && varpathclass.scan(PATHOGENICITY_REGEX).size.positive?
-          end
-
-          def normal?(variant)
-            true if variant.nil? || (!positive_exonvariant?(variant) && !positive_cdna?(variant))
+            return true if varpathclass.blank?
+            return true unless varpathclass.scan(NON_PATHOGENICITY_REGEX).size.positive?
           end
 
           def process_exonic_variant(genotype, variant)
@@ -239,7 +227,6 @@ module Import
 
             genotype.add_exon_location($LAST_MATCH_INFO[:exons])
             genotype.add_variant_type($LAST_MATCH_INFO[:variant])
-            genotype.add_status(2)
             @logger.debug "SUCCESSFUL exon variant parse for: #{variant}"
           end
 
@@ -247,7 +234,6 @@ module Import
             return unless variant.scan(CDNA_REGEX).size.positive?
 
             genotype.add_gene_location($LAST_MATCH_INFO[:cdna])
-            genotype.add_status(2)
             @logger.debug "SUCCESSFUL cdna change parse for: #{$LAST_MATCH_INFO[:cdna]}"
           end
 
