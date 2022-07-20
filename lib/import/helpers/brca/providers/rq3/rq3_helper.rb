@@ -11,13 +11,14 @@ module Import
               indication = record.raw_fields['indication']
               reason = record.raw_fields['reason']
               report = record.raw_fields['report']
-              moltesttype = record.raw_fields['moleculartestingtype']
+              moltesttype = record.raw_fields['moleculartestingtype']&.downcase&.strip
               if (indication == 'AZOVCA') || (reason == 'Mainstreaming Test')
                 genotype.add_test_scope(:full_screen)
               elsif !report.nil? && report =~ REPORT_GENETICTESTSCOPE_REGEX
                 genotype.add_test_scope(:targeted_mutation)
-              elsif TEST_SCOPE_MAP_BRCA[moltesttype.downcase.strip]
-                scope = TEST_SCOPE_MAP_BRCA[moltesttype.strip.downcase]
+              else
+                scope = TEST_SCOPE_MAP_BRCA[moltesttype]
+                scope = :no_genetictestscope if scope.blank?
                 genotype.add_test_scope(scope)
               end
             end
@@ -26,6 +27,7 @@ module Import
               genotype.attribute_map['organisationcode_testresult'] = '699F0'
             end
 
+            # rubocop:disable Metrics/AbcSize to maintain readability
             def process_positive_records
               if @testresult.scan(BRCA_REGEX).empty?
                 process_result_without_brca_genes
@@ -43,6 +45,7 @@ module Import
                 process_empty_testreport_results
               end
             end
+            # rubocop:enable Metrics/AbcSize
 
             def check_cdna_variant?
               @testresult.scan(CDNA_REGEX).size.positive? ||
@@ -235,7 +238,9 @@ module Import
             end
 
             def full_screen?
-              @genotype.attribute_map['genetictestscope'] == 'Full screen BRCA1 and BRCA2'
+              return if @genotype.attribute_map['genetictestscope'].nil?
+
+              @genotype.attribute_map['genetictestscope'].scan(/Full screen/i).size.positive?
             end
 
             def process_negative_records

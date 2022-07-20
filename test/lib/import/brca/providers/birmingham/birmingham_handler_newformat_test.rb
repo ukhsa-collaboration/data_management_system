@@ -269,7 +269,25 @@ class BirminghamHandlerNewformatTest < ActiveSupport::TestCase
     assert_equal 1, genotypes[0].attribute_map['teststatus']
     assert_nil genotypes[0].attribute_map['codingdnasequencechange']
   end
-  
+
+  test 'process_multigene_single_protein' do
+    multigene_single_protein_record = build_raw_record('pseudo_id1' => 'bob')
+    multigene_single_protein_record.raw_fields['teststatus'] = 'Heterozygous missense variant (c.1688G>T) identified in exon 11 of the BRCA1 gene and a heterozygous intronic variant (c.251-20T>G; p.Arg563Leu) in intron 4 of the BRCA2 gene.'
+    @logger.expects(:debug).with('ABNORMAL TEST')
+    @logger.expects(:debug).with('SUCCESSFUL gene parse for BRCA1')
+    @logger.expects(:debug).with('SUCCESSFUL gene parse for BRCA2')
+    @handler.process_genetictestscope(@genotype, multigene_single_protein_record)
+    assert_equal @genotype.attribute_map['genetictestscope'], 'Full screen BRCA1 and BRCA2'
+    processor = variant_processor_for(multigene_single_protein_record)
+    genotypes = processor.process_variants_from_report
+    assert_equal 2, genotypes.size
+    assert_equal 'c.1688G>T', genotypes[0].attribute_map['codingdnasequencechange']
+    assert_equal 'c.251-20T>G', genotypes[1].attribute_map['codingdnasequencechange']
+    assert_nil genotypes[0].attribute_map['proteinimpact']
+    # we do not capture proteins when cdnas are more than proteins to avoid wrong assosciation
+    assert_nil genotypes[1].attribute_map['proteinimpact']
+  end
+
   private
 
   def build_raw_record(options = {})
