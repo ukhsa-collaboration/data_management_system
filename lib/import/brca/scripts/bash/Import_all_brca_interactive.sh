@@ -23,7 +23,7 @@ $BRAKE import:brca fname="$(echo "$x" | sed -e 's:.*pseudonymised_data/\(.*\):\1
 done
 }
 
-RTD () {                                                                         
+RTD () {
 echo $DIRPATH/$FILEPATH
 PROV='RTD'
 IFS=$'\n'
