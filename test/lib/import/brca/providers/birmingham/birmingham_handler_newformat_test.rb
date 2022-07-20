@@ -17,36 +17,36 @@ class BirminghamHandlerNewformatTest < ActiveSupport::TestCase
   end
 
   test 'process_multiple_tests_from_fullscreen' do
-    @logger.expects(:debug).with('ABNORMAL TEST')
-    @logger.expects(:debug).with('Found BRCA2 for list ["BRCA2"]')
-    @logger.expects(:debug).with('SUCCESSFUL gene parse for BRCA2')
-    @logger.expects(:debug).with('SUCCESSFUL gene parse for BRCA1')
-    @genotype.attribute_map['genetictestscope'] = 'Full screen BRCA1 and BRCA2'
+    @handler.process_genetictestscope(@genotype, @record)
+    assert_equal 'Full screen BRCA1 and BRCA2', @genotype.attribute_map['genetictestscope']
     processor = variant_processor_for(@record)
-    assert_equal 2, processor.process_variants_from_report.size
+    genotypes = processor.process_variants_from_report
+    assert_equal 2, genotypes.size
+    assert_equal 8, genotypes[0].attribute_map['gene']
+    assert_equal 7, genotypes[1].attribute_map['gene']
+    assert_equal 2, genotypes[1].attribute_map['teststatus']
   end
 
   test 'process_mutation_from_fullscreen' do
-    @logger.expects(:debug).with('ABNORMAL TEST')
-    @logger.expects(:debug).with('Found BRCA2 for list ["BRCA2"]')
-    @logger.expects(:debug).with('SUCCESSFUL gene parse for BRCA2')
-    @logger.expects(:debug).with('SUCCESSFUL gene parse for BRCA1')
     @genotype.attribute_map['genetictestscope'] = 'Full screen BRCA1 and BRCA2'
     processor = variant_processor_for(@record)
-    assert_equal 'p.Thr1256Argfsx', processor.process_variants_from_report[1].attribute_map['proteinimpact']
+    genotypes = processor.process_variants_from_report
+    assert_equal 8, genotypes[0].attribute_map['gene']
+    assert_equal 7, genotypes[1].attribute_map['gene']
+    assert_equal 2, genotypes[1].attribute_map['teststatus']
+    assert_equal 'p.Thr1256Argfsx', genotypes[1].attribute_map['proteinimpact']
   end
 
   test 'negative_tests_from_fullscreen' do
     negative_record = build_raw_record('pseudo_id1' => 'bob')
     negative_record.raw_fields['overall2'] = 'N'
-    @logger.expects(:debug).with('NORMAL TEST FOUND')
-    @logger.expects(:debug).with('Found BRCA1 for list ["BRCA1", "BRCA2"]')
-    @logger.expects(:debug).with('SUCCESSFUL gene parse for BRCA1')
-    @logger.expects(:debug).with('Found BRCA2 for list ["BRCA1", "BRCA2"]')
-    @logger.expects(:debug).with('SUCCESSFUL gene parse for BRCA2')
-    @genotype.attribute_map['genetictestscope'] = 'Full screen BRCA1 and BRCA2'
+    @handler.process_genetictestscope(@genotype, negative_record)
+    assert_equal 'Full screen BRCA1 and BRCA2', @genotype.attribute_map['genetictestscope']
     processor = variant_processor_for(negative_record)
-    assert_equal 2, processor.process_variants_from_report.size
+    genotypes = processor.process_variants_from_report
+    assert_equal 2, genotypes.size
+    assert_equal 1, genotypes[0].attribute_map['teststatus']
+    assert_equal 1, genotypes[1].attribute_map['teststatus']
   end
 
   test 'process_chromosomevariants_from_record' do
@@ -54,36 +54,52 @@ class BirminghamHandlerNewformatTest < ActiveSupport::TestCase
     chromovariants_record.raw_fields['teststatus'] = 'Molecular analysis shows presence of a deletion (exon 16) in the BRCA1 gene'
     chromovariants_record.raw_fields['report'] = 'DNA from this patient has undergone Multiplex Ligation-dependent Probe Amplification (MLPA) to detect deletions and duplications in the BRCA1 and BRCA2 genes.  Long range PCR has also been used to amplify across the deletion to confirm the MLPA result.'
     chromovariants_record.mapped_fields['report'] = 'DNA from this patient has undergone Multiplex Ligation-dependent Probe Amplification (MLPA) to detect deletions and duplications in the BRCA1 and BRCA2 genes.  Long range PCR has also been used to amplify across the deletion to confirm the MLPA result.'
-    @logger.expects(:debug).with('ABNORMAL TEST')
-    @logger.expects(:debug).with('Found BRCA2 for list ["BRCA2"]')
-    @logger.expects(:debug).with('SUCCESSFUL gene parse for BRCA2')
-    @logger.expects(:debug).with('SUCCESSFUL gene parse for BRCA1')
-    @genotype.attribute_map['genetictestscope'] = 'Full screen BRCA1 and BRCA2'
+    @handler.process_genetictestscope(@genotype, chromovariants_record)
+    assert_equal 'Full screen BRCA1 and BRCA2', @genotype.attribute_map['genetictestscope']
     processor = variant_processor_for(chromovariants_record)
-    assert_equal 2, processor.process_variants_from_report.size
+    genotypes = processor.process_variants_from_report
+    assert_equal 2, genotypes.size
+    assert_equal 8, genotypes[0].attribute_map['gene']
+    assert_equal 1, genotypes[0].attribute_map['teststatus']
+    assert_equal 7, genotypes[1].attribute_map['gene']
+    assert_equal 2, genotypes[1].attribute_map['teststatus']
+    assert_equal '16', genotypes[1].attribute_map['exonintroncodonnumber']
   end
 
   test 'process_multiple_variants_single_gene' do
     multiple_cdna_record = build_raw_record('pseudo_id1' => 'bob')
     multiple_cdna_record.raw_fields['teststatus'] = 'Heterozygous missense variant (c.1688G>T; p.Arg563Leu) identified in exon 11 of the BRCA2 gene and a heterozygous intronic variant (c.251-20T>G) in intron 4 of the BRCA2 gene.'
-    @logger.expects(:debug).with('ABNORMAL TEST')
-    @logger.expects(:debug).with('Found BRCA1 for list ["BRCA1"]')
-    @logger.expects(:debug).with('SUCCESSFUL gene parse for BRCA1')
-    @logger.expects(:debug).with('SUCCESSFUL gene parse for BRCA2')
-    @logger.expects(:debug).with('SUCCESSFUL gene parse for BRCA2')
-    @genotype.attribute_map['genetictestscope'] = 'Full screen BRCA1 and BRCA2'
+    @handler.process_genetictestscope(@genotype, multiple_cdna_record)
+    assert_equal 'Full screen BRCA1 and BRCA2', @genotype.attribute_map['genetictestscope']
     processor = variant_processor_for(multiple_cdna_record)
-    assert_equal 3, processor.process_variants_from_report.size
+    genotypes = processor.process_variants_from_report
+    assert_equal 3, genotypes.size
+    assert_equal 7, genotypes[0].attribute_map['gene']
+    assert_equal 1, genotypes[0].attribute_map['teststatus']
+    assert_equal 8, genotypes[1].attribute_map['gene']
+    assert_equal 2, genotypes[1].attribute_map['teststatus']
+    assert_equal 'c.1688G>T', genotypes[1].attribute_map['codingdnasequencechange']
+    assert_nil genotypes[1].attribute_map['proteinimpact']
+    assert_equal 8, genotypes[2].attribute_map['gene']
+    assert_equal 2, genotypes[2].attribute_map['teststatus']
+    assert_equal 'c.251-20T>G', genotypes[2].attribute_map['codingdnasequencechange']
+    assert_nil genotypes[2].attribute_map['proteinimpact']
 
     multiple_cdna_multiple_genes_record = build_raw_record('pseudo_id1' => 'bob')
     multiple_cdna_multiple_genes_record.raw_fields['teststatus'] = 'Heterozygous missense variant (c.1688G>T; p.Arg563Leu) identified in exon 11 of the BRCA1 gene and a heterozygous intronic variant (c.251-20T>G) in intron 4 of the BRCA2 gene.'
-    @logger.expects(:debug).with('ABNORMAL TEST')
-    @logger.expects(:debug).with('SUCCESSFUL gene parse for BRCA1')
-    @logger.expects(:debug).with('SUCCESSFUL gene parse for BRCA2')
     @handler.process_genetictestscope(@genotype, multiple_cdna_multiple_genes_record)
     assert_equal @genotype.attribute_map['genetictestscope'], 'Full screen BRCA1 and BRCA2'
     processor = variant_processor_for(multiple_cdna_multiple_genes_record)
-    assert_equal 2, processor.process_variants_from_report.size
+    genotypes = processor.process_variants_from_report
+    assert_equal 2, genotypes.size
+    assert_equal 7, genotypes[0].attribute_map['gene']
+    assert_equal 2, genotypes[0].attribute_map['teststatus']
+    assert_equal 'c.1688G>T', genotypes[0].attribute_map['codingdnasequencechange']
+    assert_nil genotypes[0].attribute_map['proteinimpact']
+    assert_equal 8, genotypes[1].attribute_map['gene']
+    assert_equal 2, genotypes[1].attribute_map['teststatus']
+    assert_equal 'c.251-20T>G', genotypes[1].attribute_map['codingdnasequencechange']
+    assert_nil genotypes[1].attribute_map['proteinimpact']
   end
 
   test 'process_result_without_brca_genes' do
@@ -226,9 +242,6 @@ class BirminghamHandlerNewformatTest < ActiveSupport::TestCase
     positive_malformed_record.raw_fields['report'] = 'PCR fragments localised to the coding regions of exon 11 of the familial breast-/ovarian cancer genes, BRCA1 and BRCA2, have undergone molecular analysis to detect mutations previously identified in this family.'
     processor = variant_processor_for(positive_malformed_record)
     @handler.process_genetictestscope(@genotype, positive_malformed_record)
-    @logger.expects(:debug).with('ABNORMAL TEST')
-    @logger.expects(:debug).with('SUCCESSFUL gene parse for BRCA1')
-    @logger.expects(:debug).with('SUCCESSFUL gene parse for BRCA2')
     genotypes = processor.process_variants_from_report
     assert_equal 2, genotypes.size
     assert_equal genotypes[0].attribute_map['genetictestscope'], 'Targeted BRCA mutation test'
@@ -273,9 +286,6 @@ class BirminghamHandlerNewformatTest < ActiveSupport::TestCase
   test 'process_multigene_single_protein' do
     multigene_single_protein_record = build_raw_record('pseudo_id1' => 'bob')
     multigene_single_protein_record.raw_fields['teststatus'] = 'Heterozygous missense variant (c.1688G>T) identified in exon 11 of the BRCA1 gene and a heterozygous intronic variant (c.251-20T>G; p.Arg563Leu) in intron 4 of the BRCA2 gene.'
-    @logger.expects(:debug).with('ABNORMAL TEST')
-    @logger.expects(:debug).with('SUCCESSFUL gene parse for BRCA1')
-    @logger.expects(:debug).with('SUCCESSFUL gene parse for BRCA2')
     @handler.process_genetictestscope(@genotype, multigene_single_protein_record)
     assert_equal @genotype.attribute_map['genetictestscope'], 'Full screen BRCA1 and BRCA2'
     processor = variant_processor_for(multigene_single_protein_record)

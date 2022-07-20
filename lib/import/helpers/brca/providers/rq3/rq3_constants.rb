@@ -6,7 +6,7 @@ module Import
           module Rq3Constants
             PASS_THROUGH_FIELDS_BRCA = %w[age sex consultantcode servicereportidentifier
                                           providercode authoriseddate receiveddate
-                                          moleculartestingtype specimentype ].freeze
+                                          moleculartestingtype specimentype].freeze
 
             TEST_SCOPE_MAP_BRCA = { '100kgp confirmation' => :full_screen,
                                     'confirmation' => :targeted_mutation,
