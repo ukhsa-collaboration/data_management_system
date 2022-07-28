@@ -47,7 +47,6 @@ class NewcastleHandlerColorectalTest < ActiveSupport::TestCase
     targeted_record = build_raw_record('pseudo_id1' => 'bob')
     targeted_record.raw_fields['service category'] = 'Cabbage'
     targeted_record.raw_fields['moleculartestingtype'] = 'carrier'
-    @logger.expects(:debug).with('ADDED SCOPE FROM TYPE')
     @handler.add_test_scope(@genotype, targeted_record)
     assert_equal 'Targeted Colorectal Lynch or MMR', @genotype.attribute_map['genetictestscope']
   end
