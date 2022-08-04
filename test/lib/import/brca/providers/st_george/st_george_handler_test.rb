@@ -8,6 +8,7 @@ class StGeorgeHandlerTest < ActiveSupport::TestCase
       @handler = Import::Brca::Providers::StGeorge::StGeorgeHandler.new(EBatch.new)
     end
     @logger = Import::Log.get_logger
+    @logger.level = Logger::FATAL
   end
 
   test 'process_moltesttype' do
