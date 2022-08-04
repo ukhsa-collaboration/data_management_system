@@ -9,7 +9,6 @@ class BirminghamHandlerNewformatTest < ActiveSupport::TestCase
       @handler = Import::Brca::Providers::Birmingham::BirminghamHandlerNewformat.new(EBatch.new)
     end
     @logger = Import::Log.get_logger
-    @logger.level = Logger::FATAL
   end
 
   test 'process_genetictestscope' do

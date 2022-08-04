@@ -10,7 +10,6 @@ class NewcastleHandlerTest < ActiveSupport::TestCase
       @handler = Import::Brca::Providers::Newcastle::NewcastleHandler.new(EBatch.new)
     end
     @logger = Import::Log.get_logger
-    @logger.level = Logger::FATAL
   end
 
 

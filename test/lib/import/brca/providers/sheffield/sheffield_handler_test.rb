@@ -9,7 +9,6 @@ class SheffieldHandlerTest < ActiveSupport::TestCase
     end
 
     @logger = Import::Log.get_logger
-    @logger.level = Logger::FATAL
   end
 
   test 'add_test_scope_from_geno_karyo' do
