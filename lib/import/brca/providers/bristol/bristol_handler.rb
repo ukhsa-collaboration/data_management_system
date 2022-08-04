@@ -16,32 +16,86 @@ module Import
           CDNA_REGEX = /c\.(?<cdna>[0-9]+[^\s|^, ]+)/ .freeze
           PROTEIN_REGEX = /p.(?:\((?<impact>.*)\))/ .freeze
 
+          TESTSTATUS_MAP = { 'Benign'=>             :negative,
+                             'Likely Benign'=>      :negative,
+                             'Deleterious'=>        :positive,
+                             'Likely Deleterious'=> :positive,
+                             'Likely Pathogenic'=>  :positive,
+                             'Pathogenic'=>         :positive,
+                             'Unknown'=>            :positive }
+                             
           def process_fields(record)
             genotype = Import::Brca::Core::GenotypeBrca.new(record)
-            add_simple_fields(genotype, record)
-            process_cdna_change(genotype, record)
-            add_protein_impact(genotype, record)
-            add_organisationcode_testresult(genotype)
-            @persister.integrate_and_store(genotype)
-          end
-
-          def add_organisationcode_testresult(genotype)
-            genotype.attribute_map['organisationcode_testresult'] = '698V0'
-          end
-
-          def add_simple_fields(genotype, record)
             genotype.add_passthrough_fields(record.mapped_fields,
                                             record.raw_fields,
                                             PASS_THROUGH_FIELDS)
-            # extractGeneAndLocation(record.raw_fields['chrpos'], genotype)
-            genotype.add_gene(record.mapped_fields['gene'].to_i)
+            # add_simple_fields(genotype, record)
+            process_cdna_change(genotype, record)
+            add_protein_impact(genotype, record)
+            add_organisationcode_testresult(genotype)
             genotype.add_gene_location(record.mapped_fields['codingdnasequencechange'])
             genotype.add_protein_impact(record.mapped_fields['proteinimpact'])
             genotype.add_variant_class(record.mapped_fields['variantpathclass'])
             genotype.add_received_date(record.raw_fields['received date'])
             process_genomic_change(genotype, record)
             genotype.add_test_scope(:full_screen)
+            process_test_status(genotype, record)
             genotype.add_method('ngs')
+            # process_gene(genotype, record)
+            res = process_gene(genotype, record)
+            binding.pry if res.size < 2# Added by Francesco
+            res.each { |cur_genotype| @persister.integrate_and_store(cur_genotype) }
+            # genotype.add_gene(record.mapped_fields['gene'].to_i)
+            # @persister.integrate_and_store(genotype)
+          end
+
+          def add_organisationcode_testresult(genotype)
+            genotype.attribute_map['organisationcode_testresult'] = '698V0'
+          end
+
+          def process_negative_record(record, negative_gene, genotypes)
+            duplicated_genotype = Import::Brca::Core::GenotypeBrca.new(record)
+            duplicated_genotype.add_gene(negative_gene.join())
+            duplicated_genotype.add_status(1)
+            duplicated_genotype.add_test_scope(:full_screen)
+            duplicated_genotype.add_passthrough_fields(record.mapped_fields,
+                                            record.raw_fields,
+                                            PASS_THROUGH_FIELDS)
+            genotypes.append(duplicated_genotype)
+          end
+
+          def process_gene(genotype, record)
+            retur if record.raw_fields['gene'].nil?
+
+            genotypes = []
+            negative_gene = %w[BRCA1 BRCA2] - [record.raw_fields['gene']]
+            process_negative_record(record, negative_gene, genotypes)
+            genotype.add_gene(record.raw_fields['gene'])
+            genotypes.append(genotype)
+          end
+
+          # def add_simple_fields(genotype, record)
+          #
+          #   # extractGeneAndLocation(record.raw_fields['chrpos'], genotype)
+          #   genotype.add_gene_location(record.mapped_fields['codingdnasequencechange'])
+          #   genotype.add_protein_impact(record.mapped_fields['proteinimpact'])
+          #   genotype.add_variant_class(record.mapped_fields['variantpathclass'])
+          #   genotype.add_received_date(record.raw_fields['received date'])
+          #   process_genomic_change(genotype, record)
+          #   genotype.add_test_scope(:full_screen)
+          #   process_test_status(genotype, record)
+          #   genotype.add_method('ngs')
+          #   genotype.add_gene(record.mapped_fields['gene'].to_i)
+          #
+          # end
+
+          def process_test_status(genotype, record)
+            return if record.raw_fields['variantpathclass'].nil?
+            
+            varpathclass_field = record.raw_fields['variantpathclass']
+            if TESTSTATUS_MAP[varpathclass_field].present?
+              genotype.add_status(TESTSTATUS_MAP[varpathclass_field])
+            end
           end
 
           def process_cdna_change(genotype, record)
