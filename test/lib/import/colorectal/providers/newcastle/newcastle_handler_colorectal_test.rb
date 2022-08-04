@@ -8,7 +8,6 @@ class NewcastleHandlerColorectalTest < ActiveSupport::TestCase
       @handler = Import::Colorectal::Providers::Newcastle::NewcastleHandlerColorectal.new(EBatch.new)
     end
     @logger = Import::Log.get_logger
-    @logger.level = Logger::FATAL
   end
 
   private

@@ -52,7 +52,6 @@ module Import
               @logger.debug 'Found A2'
               genocolorectal.add_test_scope(:targeted_mutation)
             end
-            genocolorectal
           end
 
           def add_scope_from_inv_code_mol_type(inv_code, mol_type, genocolorectal)
@@ -129,8 +128,6 @@ module Import
             else # for other status null gene record
               process_null_gene_rec(genocolorectal, genocolorectals)
             end
-
-            genocolorectals
           end
 
           def add_fs_negative_genes(gene, genocolorectal, genocolorectals, _record)
@@ -141,7 +138,6 @@ module Import
               genocolo_other.add_gene_colorectal(neg_gene)
               genocolorectals.append(genocolo_other)
             end
-            genocolorectals
           end
 
           def process_null_gene_rec(genocolorectal, genocolorectals)
@@ -162,13 +158,11 @@ module Import
             genocolorectal.add_gene_colorectal(gene)
             process_variants(genocolorectal, variant) if positive_rec?(genocolorectal)
             genocolorectals.append(genocolorectal)
-            genocolorectals
           end
 
           def get_gene(record)
-            positive_genes = []
             gene = record.raw_fields['gene']
-            positive_genes = gene.scan(COLORECTAL_GENES_REGEX).flatten.uniq unless gene.nil?
+            positive_genes = gene.nil? ? [] : gene.scan(COLORECTAL_GENES_REGEX).flatten.uniq
             if positive_genes.size.zero?
               positive_genes = record.raw_fields['investigation code'].
                                scan(COLORECTAL_GENES_REGEX).flatten.uniq
@@ -196,9 +190,7 @@ module Import
 
           def pathogenic?(record)
             varpathclass = record.raw_fields['variantpathclass']&.downcase
-            return true if NON_PATHEGENIC_CODES.exclude? varpathclass
-
-            false
+            NON_PATHEGENIC_CODES.exclude? varpathclass
           end
 
           def process_variants(genocolorectal, variant)
@@ -230,7 +222,6 @@ module Import
               @logger.debug "FAILED protein parse for: #{variant}"
             end
           end
-
         end
       end
     end

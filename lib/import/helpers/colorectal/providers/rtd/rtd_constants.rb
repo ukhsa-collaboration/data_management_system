@@ -73,7 +73,7 @@ module Import
                                 ([0-9]+[?+>_-]+[0-9]+[?+>_-]+[ACGTdelinsup]+)|
                                 ([0-9]+[ACGTdelinsup]+)|
                                 ([+>_-][0-9]+[ACGTdelinsup>]+)
-                                )\]?/ix.freeze
+                                )\]?/ix
 
             EXON_VARIANT_REGEX = /(?<variant>del|dup|ins).+ex(?<on>on)?(?<s>s)?\s
                                   (?<exons>[0-9]+(?<dgs>-[0-9]+)?)|
@@ -87,12 +87,12 @@ module Import
                                 ex(?<on>on)?(?<s>s)?\s(?<exons>[0-9]+(?<dgs>\sto\s[0-9]+)?)\s
                                 (?<variant>del|dup|ins)|
                                 x(?<exons>[0-9]+-?[0-9]+)\s?(?<variant>del|dup|ins)|
-                                x(?<exons>[0-9]+-?[0-9]?)\s?(?<variant>del|dup|ins)/ix.freeze
+                                x(?<exons>[0-9]+-?[0-9]?)\s?(?<variant>del|dup|ins)/ix
 
             PROTEIN_REGEX = /p\.[\[(]?(?<impact>([a-z]+[0-9]+[a-z]+([^[:alnum:]][0-9]+)?)|
-                                   ([a-z]+[0-9]+[^[:alnum:]]))[)\]]?/ix.freeze
+                                   ([a-z]+[0-9]+[^[:alnum:]]))[)\]]?/ix
 
-            IMPACT_REGEX = /.p\.(?<impact>[A-Za-z]+[0-9]+[A-Za-z]+)/i.freeze
+            IMPACT_REGEX = /.p\.(?<impact>[A-Za-z]+[0-9]+[A-Za-z]+)/i
             # rubocop:enable Lint/MixedRegexpCaptureTypes
             COLORECTAL_GENES_REGEX = /(?<colorectal>APC|
                                                   BMPR1A|
@@ -108,7 +108,7 @@ module Import
                                                   SMAD4|
                                                   STK11|
                                                   GREM1|
-                                                  NTHL1)/ix.freeze # Added by Francesco
+                                                  NTHL1)/ix
             HNPCC = %w[MLH1 MSH2 MSH6 PMS2 EPCAM].freeze
             HNPCCMLPA = %w[MLH1 MSH2 MSH6 EPCAM].freeze
             COLORECTALCANCER = %w[APC BMPR1A EPCAM GREM1 MLH1 MSH2 MSH6 MUTYH NTHL1 PMS2
