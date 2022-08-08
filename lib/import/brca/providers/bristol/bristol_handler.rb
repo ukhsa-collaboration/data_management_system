@@ -29,7 +29,6 @@ module Import
             genotype.add_passthrough_fields(record.mapped_fields,
                                             record.raw_fields,
                                             PASS_THROUGH_FIELDS)
-            # add_simple_fields(genotype, record)
             process_cdna_change(genotype, record)
             add_protein_impact(genotype, record)
             add_organisationcode_testresult(genotype)
@@ -41,12 +40,8 @@ module Import
             genotype.add_test_scope(:full_screen)
             process_test_status(genotype, record)
             genotype.add_method('ngs')
-            # process_gene(genotype, record)
             res = process_gene(genotype, record)
-            binding.pry if res.size < 2# Added by Francesco
             res.each { |cur_genotype| @persister.integrate_and_store(cur_genotype) }
-            # genotype.add_gene(record.mapped_fields['gene'].to_i)
-            # @persister.integrate_and_store(genotype)
           end
 
           def add_organisationcode_testresult(genotype)
@@ -73,21 +68,6 @@ module Import
             genotype.add_gene(record.raw_fields['gene'])
             genotypes.append(genotype)
           end
-
-          # def add_simple_fields(genotype, record)
-          #
-          #   # extractGeneAndLocation(record.raw_fields['chrpos'], genotype)
-          #   genotype.add_gene_location(record.mapped_fields['codingdnasequencechange'])
-          #   genotype.add_protein_impact(record.mapped_fields['proteinimpact'])
-          #   genotype.add_variant_class(record.mapped_fields['variantpathclass'])
-          #   genotype.add_received_date(record.raw_fields['received date'])
-          #   process_genomic_change(genotype, record)
-          #   genotype.add_test_scope(:full_screen)
-          #   process_test_status(genotype, record)
-          #   genotype.add_method('ngs')
-          #   genotype.add_gene(record.mapped_fields['gene'].to_i)
-          #
-          # end
 
           def process_test_status(genotype, record)
             return if record.raw_fields['variantpathclass'].nil?
