@@ -14,7 +14,7 @@ module Import
                                    practitionercode
                                    geneticaberrationtype].freeze
           CDNA_REGEX = /c\.(?<cdna>[0-9]+[^\s|^, ]+)/ .freeze
-          PROTEIN_REGEX = /p.(?:\((?<impact>.*)\))/ .freeze
+          PROTEIN_REGEX = /p.\(?(?<impact>.*)\)?/ .freeze
 
           TESTSTATUS_MAP = { 'Benign'=>             :negative,
                              'Likely Benign'=>      :negative,
@@ -33,7 +33,8 @@ module Import
             add_protein_impact(genotype, record)
             add_organisationcode_testresult(genotype)
             genotype.add_gene_location(record.mapped_fields['codingdnasequencechange'])
-            genotype.add_protein_impact(record.mapped_fields['proteinimpact'])
+            # genotype.add_protein_impact(record.mapped_fields['proteinimpact'])
+            add_protein_impact(genotype, record)
             genotype.add_variant_class(record.mapped_fields['variantpathclass'])
             genotype.add_received_date(record.raw_fields['received date'])
             process_genomic_change(genotype, record)
@@ -60,7 +61,7 @@ module Import
           end
 
           def process_gene(genotype, record)
-            retur if record.raw_fields['gene'].nil?
+            return if record.raw_fields['gene'].nil?
 
             genotypes = []
             negative_gene = %w[BRCA1 BRCA2] - [record.raw_fields['gene']]
@@ -89,11 +90,11 @@ module Import
           end
 
           def add_protein_impact(genotype, record)
-            case record.mapped_fields['proteinimpact']
-            when PROTEIN_REGEX
-              genotype.add_protein_impact($LAST_MATCH_INFO[:impact])
-              @logger.debug 'SUCCESSFUL protein change parse for: ' \
-              "#{$LAST_MATCH_INFO[:impact]}"
+            return if record.mapped_fields['proteinimpact'].nil?
+
+            proteinfield = record.mapped_fields['proteinimpact']
+            if proteinfield.scan(PROTEIN_REGEX).presence
+              genotype.add_protein_impact(proteinfield.match(PROTEIN_REGEX)[:impact])
             end
           end
 
