@@ -13,17 +13,19 @@ module Import
                                    requesteddate
                                    practitionercode
                                    geneticaberrationtype].freeze
-          CDNA_REGEX = /c\.(?<cdna>[0-9]+[^\s|^, ]+)/ .freeze
-          PROTEIN_REGEX = /p.\(?(?<impact>.*)\)?/ .freeze
+          CDNA_REGEX = /c\.(?<cdna>[0-9]+[^\s|^, ]+)/
+          PROTEIN_REGEX = /p.\(?(?<impact>.*)\)?/
 
-          TESTSTATUS_MAP = { 'Benign'=>             :negative,
-                             'Likely Benign'=>      :negative,
-                             'Deleterious'=>        :positive,
-                             'Likely Deleterious'=> :positive,
-                             'Likely Pathogenic'=>  :positive,
-                             'Pathogenic'=>         :positive,
-                             'Unknown'=>            :positive }
-                             
+          TESTSTATUS_MAP = { 'Benign' => :negative,
+                             'Likely Benign' => :negative,
+                             'Deleterious' => :positive,
+                             'Likely Deleterious' => :positive,
+                             'Likely Pathogenic' => :positive,
+                             'Pathogenic' => :positive,
+                             'Unknown' => :positive }.freeze
+
+          # rubocop:disable  Metrics/MethodLength
+          # rubocop:disable  Metrics/AbcSize
           def process_fields(record)
             genotype = Import::Brca::Core::GenotypeBrca.new(record)
             genotype.add_passthrough_fields(record.mapped_fields,
@@ -44,6 +46,8 @@ module Import
             res = process_gene(genotype, record)
             res.each { |cur_genotype| @persister.integrate_and_store(cur_genotype) }
           end
+          # rubocop:enable  Metrics/MethodLength
+          # rubocop:enable  Metrics/AbcSize
 
           def add_organisationcode_testresult(genotype)
             genotype.attribute_map['organisationcode_testresult'] = '698V0'
@@ -51,12 +55,12 @@ module Import
 
           def process_negative_record(record, negative_gene, genotypes)
             duplicated_genotype = Import::Brca::Core::GenotypeBrca.new(record)
-            duplicated_genotype.add_gene(negative_gene.join())
+            duplicated_genotype.add_gene(negative_gene.join)
             duplicated_genotype.add_status(1)
             duplicated_genotype.add_test_scope(:full_screen)
             duplicated_genotype.add_passthrough_fields(record.mapped_fields,
-                                            record.raw_fields,
-                                            PASS_THROUGH_FIELDS)
+                                                       record.raw_fields,
+                                                       PASS_THROUGH_FIELDS)
             genotypes.append(duplicated_genotype)
           end
 
@@ -70,14 +74,16 @@ module Import
             genotypes.append(genotype)
           end
 
+          # rubocop:disable Style/GuardClause
           def process_test_status(genotype, record)
             return if record.raw_fields['variantpathclass'].nil?
-            
+
             varpathclass_field = record.raw_fields['variantpathclass']
             if TESTSTATUS_MAP[varpathclass_field].present?
               genotype.add_status(TESTSTATUS_MAP[varpathclass_field])
             end
           end
+          # rubocop:enable Style/GuardClause
 
           def process_cdna_change(genotype, record)
             case record.mapped_fields['codingdnasequencechange']
@@ -89,6 +95,7 @@ module Import
             end
           end
 
+          # rubocop:disable Style/GuardClause
           def add_protein_impact(genotype, record)
             return if record.mapped_fields['proteinimpact'].nil?
 
@@ -97,6 +104,7 @@ module Import
               genotype.add_protein_impact(proteinfield.match(PROTEIN_REGEX)[:impact])
             end
           end
+          # rubocop:enable Style/GuardClause
 
           def process_genomic_change(genotype, record)
             gchange = record.raw_fields['genomicchange']

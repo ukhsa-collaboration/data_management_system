@@ -1,6 +1,6 @@
 require 'test_helper'
-#require 'import/genotype.rb'
-#require 'import/brca/core/provider_handler'
+# require 'import/genotype.rb'
+# require 'import/brca/core/provider_handler'
 
 class BristolHandlerTest < ActiveSupport::TestCase
   def setup
@@ -13,7 +13,7 @@ class BristolHandlerTest < ActiveSupport::TestCase
     @logger.level = Logger::WARN
   end
 
-  PROTEIN_REGEX = /p.(?:\((?<impact>.*)\))/ .freeze
+  PROTEIN_REGEX = /p.(?:\((?<impact>.*)\))/
 
   test 'stdout reports missing extract path' do
     assert_match(/could not extract path to corrections file for/i, @importer_stdout)
@@ -50,7 +50,6 @@ class BristolHandlerTest < ActiveSupport::TestCase
     assert_equal 'p.Asp2723His', @genotype.attribute_map['proteinimpact']
     # assert_equal 'c.8167G>C', @genotype.attribute_map['codingdnasequencechange']
   end
-
 
   test 'process_genomic_change' do
     @handler.process_genomic_change(@genotype, @record)
