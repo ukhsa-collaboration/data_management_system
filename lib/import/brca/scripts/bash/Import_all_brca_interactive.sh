@@ -15,7 +15,7 @@ echo $DIRPATH/$FILEPATH
 PROV='RVJ'
 IFS=$'\n'
 for x in $(find  $DIRPATH/$FILEPATH -type f -name "*.pseudo" -path "*/$PROV/*"  \
--not -path "*/2017-05-09/*"    \
+-not -path "*/2017-05-09/*"\
 -not -path "*/2017-06-15/*"  )
 do
 IFS="$OIFS"
