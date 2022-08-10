@@ -6,23 +6,7 @@ module Import
       module Bristol
         # Process Bristol-specific record details into generalized internal genotype format
         class BristolHandler < Import::Brca::Core::ProviderHandler
-          PASS_THROUGH_FIELDS = %w[age consultantcode
-                                   servicereportidentifier
-                                   providercode
-                                   authoriseddate
-                                   requesteddate
-                                   practitionercode
-                                   geneticaberrationtype].freeze
-          CDNA_REGEX = /c\.(?<cdna>[0-9]+[^\s|^, ]+)/
-          PROTEIN_REGEX = /p.\(?(?<impact>.*)\)?/
-
-          TESTSTATUS_MAP = { 'Benign' => :negative,
-                             'Likely Benign' => :negative,
-                             'Deleterious' => :positive,
-                             'Likely Deleterious' => :positive,
-                             'Likely Pathogenic' => :positive,
-                             'Pathogenic' => :positive,
-                             'Unknown' => :positive }.freeze
+          include Import::Helpers::Brca::Providers::Rvj::RvjConstants
 
           # rubocop:disable  Metrics/MethodLength
           # rubocop:disable  Metrics/AbcSize
@@ -35,7 +19,6 @@ module Import
             add_protein_impact(genotype, record)
             add_organisationcode_testresult(genotype)
             genotype.add_gene_location(record.mapped_fields['codingdnasequencechange'])
-            # genotype.add_protein_impact(record.mapped_fields['proteinimpact'])
             add_protein_impact(genotype, record)
             genotype.add_variant_class(record.mapped_fields['variantpathclass'])
             genotype.add_received_date(record.raw_fields['received date'])
@@ -44,7 +27,7 @@ module Import
             process_test_status(genotype, record)
             genotype.add_method('ngs')
             res = process_gene(genotype, record)
-            res.each { |cur_genotype| @persister.integrate_and_store(cur_genotype) }
+            res&.each { |cur_genotype| @persister.integrate_and_store(cur_genotype) }
           end
           # rubocop:enable  Metrics/MethodLength
           # rubocop:enable  Metrics/AbcSize
