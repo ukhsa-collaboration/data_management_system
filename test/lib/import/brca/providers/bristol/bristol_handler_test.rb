@@ -1,6 +1,4 @@
 require 'test_helper'
-# require 'import/genotype.rb'
-# require 'import/brca/core/provider_handler'
 
 class BristolHandlerTest < ActiveSupport::TestCase
   def setup
@@ -31,7 +29,6 @@ class BristolHandlerTest < ActiveSupport::TestCase
     assert_equal 2, res.size
     assert_equal 1, res[0].attribute_map['teststatus']
     assert_equal 2, res[1].attribute_map['teststatus']
-    # assert_equal 'c.8167G>C', @genotype.attribute_map['codingdnasequencechange']
   end
 
   test 'process_normal_record' do
@@ -42,13 +39,11 @@ class BristolHandlerTest < ActiveSupport::TestCase
     assert_equal 2, res.size
     assert_equal 1, res[0].attribute_map['teststatus']
     assert_equal 1, res[1].attribute_map['teststatus']
-    # assert_equal 'c.8167G>C', @genotype.attribute_map['codingdnasequencechange']
   end
 
   test 'process_protein_impact' do
     @handler.add_protein_impact(@genotype, @record)
     assert_equal 'p.Asp2723His', @genotype.attribute_map['proteinimpact']
-    # assert_equal 'c.8167G>C', @genotype.attribute_map['codingdnasequencechange']
   end
 
   test 'process_genomic_change' do

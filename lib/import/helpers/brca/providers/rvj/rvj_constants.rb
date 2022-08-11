@@ -3,7 +3,7 @@ module Import
     module Brca
       module Providers
         module Rvj
-          # Constants used by LondonKgcHandlerColorectal
+          # Constants used by Bristol BRCA Handler
           module RvjConstants
             PASS_THROUGH_FIELDS = %w[age consultantcode
                                      servicereportidentifier
