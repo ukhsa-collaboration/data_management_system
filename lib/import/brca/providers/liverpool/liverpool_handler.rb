@@ -10,7 +10,7 @@ module Import
           include Import::Helpers::Brca::Providers::Rep::Constants
 
           def process_fields(record)
-            # return for colorectakl cases
+            # return for colorectal cases
             return if record.raw_fields['investigation'].match(/HNPCC|Peutz-Jegher\sSyndrome/i)
 
             genotype = Import::Brca::Core::GenotypeBrca.new(record)

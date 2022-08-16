@@ -20,8 +20,6 @@ module Import
 
             BRCA_REGEX = /(?<brca>BRCA1|BRCA2|MLH1|MSH2|MSH6|PMS2|STK11)/ix
 
-            COLORECTAL_INVESTIGATION_CODE = ['Peutz-Jegher Syndrome',
-                                             'HNPCC*'].freeze
             # rubocop:disable Lint/MixedRegexpCaptureTypes
             CDNA_REGEX = /c\.?,?\[?(?<cdna>
                                 ([0-9]+[+>_-][0-9][+>_-][0-9]+[+>_-][0-9][ACGTdelinsup]+)|
