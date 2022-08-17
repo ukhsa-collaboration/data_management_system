@@ -17,15 +17,11 @@ module Import
             genotype.add_passthrough_fields(record.mapped_fields,
                                             record.raw_fields,
                                             PASS_THROUGH_FIELDS)
-            add_organisationcode_testresult(genotype)
+            genotype.attribute_map['organisationcode_testresult'] = '69810'
             add_genetictestscope(genotype, record)
             add_test_status(genotype, record)
             result = process_variants_from_record(genotype, record)
             result.each { |cur_genotype| @persister.integrate_and_store(cur_genotype) }
-          end
-
-          def add_organisationcode_testresult(genotype)
-            genotype.attribute_map['organisationcode_testresult'] = '69810'
           end
 
           def add_genetictestscope(genotype, record)

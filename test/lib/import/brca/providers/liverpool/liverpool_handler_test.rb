@@ -36,12 +36,12 @@ class LiverpoolHandlerTest < ActiveSupport::TestCase
     abnormal_record = build_raw_record('pseudo_id1' => 'bob')
     abnormal_record.raw_fields['testresult'] = 'Heterozygous variant detected'
     @handler.add_test_status(@genotype, abnormal_record)
-    assert_equal true, @handler.abnormal?(@genotype)
+    assert @handler.abnormal?(@genotype)
 
     mosaic_record = build_raw_record('pseudo_id1' => 'bob')
     mosaic_record.raw_fields['testresult'] = 'Heterozygous variant detected (mosaic)'
     @handler.add_test_status(@genotype, mosaic_record)
-    assert_equal true, @handler.abnormal?(@genotype)
+    assert @handler.abnormal?(@genotype)
     assert_equal 6, @genotype.attribute_map['geneticinheritance']
 
     fail_record = build_raw_record('pseudo_id1' => 'bob')
@@ -67,6 +67,8 @@ class LiverpoolHandlerTest < ActiveSupport::TestCase
     assert_equal 'p.Glu143Ter', genotypes[0].attribute_map['proteinimpact']
     assert_equal 7, genotypes[0].attribute_map['gene']
   end
+
+  private
 
   def build_raw_record(options = {})
     default_options = {
