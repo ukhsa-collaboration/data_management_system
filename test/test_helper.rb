@@ -160,7 +160,7 @@ module ActiveSupport
       visit terms_and_conditions_path
       click_on 'Accept'
     end
-    
+
     def build_raw_record(options = {})
       default_options = {
         'pseudo_id1' => '',
