@@ -18,13 +18,13 @@ module Import
                                                   record.raw_fields,
                                                   PASS_THROUGH_FIELDS)
             genocolorectal.attribute_map['organisationcode_testresult'] = '69810'
-            add_gene_colorectaltictestscope(genocolorectal, record)
+            add_genetictestscope(genocolorectal, record)
             add_test_status(genocolorectal, record)
             result = process_variants_from_record(genocolorectal, record)
             result.each { |cur_genocolorectal| @persister.integrate_and_store(cur_genocolorectal) }
           end
 
-          def add_gene_colorectaltictestscope(genocolorectal, record)
+          def add_genetictestscope(genocolorectal, record)
             testscope = record.raw_fields['testscope']&.downcase&.strip
             genocolorectal.add_test_scope(TEST_SCOPE_MAP[testscope])
             return if genocolorectal.attribute_map['genetictestscope'].present?
