@@ -2,16 +2,14 @@ require 'test_helper'
 
 class LiverpoolHandlerColorectalTest < ActiveSupport::TestCase
   def setup
-    @record   = build_raw_record('pseudo_id1' => 'bob')
+    @record = build_raw_record('pseudo_id1' => 'bob')
     @genocolorectal = Import::Colorectal::Core::Genocolorectal.new(@record)
     @importer_stdout, @importer_stderr = capture_io do
       @handler = Import::Colorectal::Providers::Liverpool::LiverpoolHandlerColorectal.new(EBatch.new)
     end
     @logger = Import::Log.get_logger
   end
-  
-  private
-  
+
   test 'process_genetictestscope' do
     targ_record = build_raw_record('pseudo_id1' => 'bob')
     @handler.add_genetictestscope(@genocolorectal, targ_record)
@@ -68,7 +66,7 @@ class LiverpoolHandlerColorectalTest < ActiveSupport::TestCase
     assert_equal 'p.Glu143Ter', genotypes[0].attribute_map['proteinimpact']
     assert_equal 2804, genotypes[0].attribute_map['gene']
   end
-  
+
   test 'process_normal_fs' do
     normal_fs_record = build_raw_record('pseudo_id1' => 'bob')
     normal_fs_record.raw_fields['testscope'] = 'Full gene screen'
@@ -111,5 +109,4 @@ class LiverpoolHandlerColorectalTest < ActiveSupport::TestCase
       'codingdnasequencechange' => 'n/a',
       'proteinimpact' => 'n/a' }.to_json
   end
-  
 end
