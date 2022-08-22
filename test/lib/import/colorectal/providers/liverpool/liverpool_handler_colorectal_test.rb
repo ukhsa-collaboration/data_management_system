@@ -67,7 +67,6 @@ class LiverpoolHandlerColorectalTest < ActiveSupport::TestCase
     assert_equal 2804, genotypes[0].attribute_map['gene']
   end
 
-
   test 'process_normal_fs' do
     normal_fs_record = build_raw_record('pseudo_id1' => 'bob')
     normal_fs_record.raw_fields['testscope'] = 'Full gene screen'
@@ -111,5 +110,4 @@ class LiverpoolHandlerColorectalTest < ActiveSupport::TestCase
       'codingdnasequencechange' => 'n/a',
       'proteinimpact' => 'n/a' }.to_json
   end
-
 end
