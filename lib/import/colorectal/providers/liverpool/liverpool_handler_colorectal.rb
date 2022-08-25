@@ -74,7 +74,7 @@ module Import
             return unless variant.scan(EXON_VARIANT_REGEX).size.positive?
 
             genocolorectal.add_exon_location($LAST_MATCH_INFO[:exons])
-            genocolorectal.add_variant_type($LAST_MATCH_INFO[:variant])
+            genocolorectal.add_variant_type($LAST_MATCH_INFO[:variant]&.downcase)
             @logger.debug "SUCCESSFUL exon variant parse for: #{$LAST_MATCH_INFO[:exons]}"
           end
 
