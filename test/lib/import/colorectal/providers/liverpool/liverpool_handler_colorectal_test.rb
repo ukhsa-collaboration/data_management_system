@@ -84,6 +84,7 @@ class LiverpoolHandlerColorectalTest < ActiveSupport::TestCase
     assert_nil genotypes[0].attribute_map['proteinimpact']
     assert_equal '2-6', genotypes[0].attribute_map['exonintroncodonnumber']
     assert_equal 2804, genotypes[0].attribute_map['gene']
+    assert_equal 3, genotypes[0].attribute_map['sequencevarianttype']
   end
 
   private
