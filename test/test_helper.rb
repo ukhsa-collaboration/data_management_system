@@ -161,19 +161,6 @@ module ActiveSupport
       click_on 'Accept'
     end
 
-    def build_raw_record(options = {})
-      default_options = {
-        'pseudo_id1' => '',
-        'pseudo_id2' => '',
-        'encrypted_demog' => '',
-        'clinical.to_json' => clinical_json,
-        'encrypted_rawtext_demog' => '',
-        'rawtext_clinical.to_json' => rawtext_clinical_json
-      }
-
-      Import::Brca::Core::RawRecord.new(default_options.merge!(options))
-    end
-
     def within_row(text)
       within :xpath, "//table//tr[td[contains(.,\"#{text}\")]]" do
         yield
@@ -190,8 +177,8 @@ def empty_schema(output)
   schema
 end
 
-# Add BRCA test helper common methods.
-module BRCAImportTestHelper
+# Add Germline test helper common methods.
+module GermlineImportTestHelper
   def build_raw_record(options = {})
     default_options = {
       'pseudo_id1' => '',
@@ -307,7 +294,7 @@ require 'integration_test_helper'
 ActionDispatch::IntegrationTest.include(IntegrationTestHelper)
 
 ActiveSupport::TestCase.include(PaperTrailHelper)
-ActiveSupport::TestCase.include(BRCAImportTestHelper)
+ActiveSupport::TestCase.include(GermlineImportTestHelper)
 
 ActionDispatch::IntegrationTest.include(PaperTrailHelper)
 ActionDispatch::IntegrationTest.include(ActionMailerHelper)
