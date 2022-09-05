@@ -10,7 +10,7 @@ module Import
           include Import::Helpers::Colorectal::Providers::Rep::Constants
 
           def process_fields(record)
-            # return for colorectal cases
+            # return for brca cases
             return if record.raw_fields['investigation'].match(/BRCA/i)
 
             genocolorectal = Import::Colorectal::Core::Genocolorectal.new(record)
