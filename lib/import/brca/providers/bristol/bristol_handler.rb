@@ -50,10 +50,11 @@ module Import
           def process_gene(genotype, record)
             return if record.raw_fields['gene'].nil?
 
+            positive_raw_gene = record.raw_fields['gene']
             genotypes = []
-            negative_gene = %w[BRCA1 BRCA2] - [record.raw_fields['gene']]
+            negative_gene = %w[BRCA1 BRCA2] - [positive_raw_gene]
             process_negative_record(record, negative_gene, genotypes)
-            genotype.add_gene(record.raw_fields['gene'])
+            genotype.add_gene(positive_raw_gene)
             genotypes.append(genotype)
           end
 
