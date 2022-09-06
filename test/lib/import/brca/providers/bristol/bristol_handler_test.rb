@@ -8,7 +8,7 @@ class BristolHandlerTest < ActiveSupport::TestCase
       @handler = Import::Brca::Providers::Bristol::BristolHandler.new(EBatch.new)
     end
     @logger = Import::Log.get_logger
-    @logger.level = Logger::WARN
+    # @logger.level = Logger::WARN
   end
 
   PROTEIN_REGEX = /p.(?:\((?<impact>.*)\))/
