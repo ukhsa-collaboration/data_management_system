@@ -44,25 +44,10 @@ PROV='RR8'
 IFS=$'\n'
 for x in $(find  $DIRPATH/$FILEPATH -type f -name "*.pseudo" -path "*/$PROV/*"  \
 -not -path "*/2017-03-17/*" \
-! -name "3a4d3dc703789864fa6d2b8f5d9fe60749205979_01.01.2013 to 30.09.2018_010113_300918.xlsx.pseudo" \
-! -name "c658a0516d5e91acefc59ece77126c50b6a774cc_01.01.2006 to 31.03.2018_MMR gene 2006_31032018.xlsx.pseudo" \
-! -name "cadc0b639036cbbce5a1bc51e630bde90e8d1ee0_01.10.2018 to 27.12.2019_other cancers 011018_271219.xlsx.pseudo" \
-! -name "abb7505fa1c13e0d675e969d52f357002b560dab_01.04.2018 to 27.12.2019_MMR 010418_271219.xlsx.pseudo" \
-! -name "41ae35e88b2e9f2b41f1e1b22ea6a9a010ca7885_03.2020_NDR - Colorectal.xls.pseudo" \
-! -name "a8e43ecadd553e06d8dce4631de725d50f6f85a0_08.2019_NDR - Colorectal.xls.pseudo" \
-! -name "0ca547381e5644e9bfafc86ed56ba317a5a00b84_28.12.2019 to 30.11.2020_MMR 281219_301120.xlsx.pseudo" )
-do
-IFS="$OIFS"
-$BRAKE import:brca fname="$(echo "$x" | sed -e 's:.*pseudonymised_data/\(.*\):\1:')" prov_code=$PROV
-done
-}
-
-RR8_2 () {
-PROV='RR8'
-IFS=$'\n'
-for x in $(find  $DIRPATH/$FILEPATH  -type f  \
-( -name "cadc0b639036cbbce5a1bc51e630bde90e8d1ee0_01.10.2018 to 27.12.2019_other cancers 011018_271219.xlsx.pseudo" -o -name "4d5700e750e232c4b598de579d478191d3d4a528_28.12.2019 to 30.11.2020_other cancers and familial tests 281219_301120.xlsx.pseudo" \
-) -path "*/$PROV/*" )
+  ! -name "3a4d3dc703789864fa6d2b8f5d9fe60749205979_01.01.2013 to 30.09.2018_010113_300918.xlsx.pseudo" \
+  ! -name *MMR* \
+  ! -name *other* \
+  ! -name *Colorectal*)
 do
 IFS="$OIFS"
 $BRAKE import:brca fname="$(echo "$x" | sed -e 's:.*pseudonymised_data/\(.*\):\1:')" prov_code=$PROV
