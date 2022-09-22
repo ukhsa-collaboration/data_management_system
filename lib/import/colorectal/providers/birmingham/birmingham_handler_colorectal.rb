@@ -1,4 +1,3 @@
-
 module Import
   module Colorectal
     module Providers

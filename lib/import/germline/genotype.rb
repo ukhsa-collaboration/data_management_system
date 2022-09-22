@@ -3,14 +3,15 @@ require 'possibly'
 #require_relative 'central_logger'
 require_relative 'amino_acids'
 module Import
-  # This class forms the core intermediary between raw records coming in, and formatted records
-  # ready for database inseration. As field values are added, the inseration methods attempt
-  # to convert the field values into the codes used by the schema. Roughly speaking, each
+  # Roughly speaking, each
   # Genotype object would compare to a SequenceVariant level record, if all tests (including
   # negative ones)produced sequence variants.
   # However, each genotype also contains all the information available about test and result
   # level fields, so that the storage processor can match and create the appropriate tables
   module Germline
+    # This class forms the core intermediary between raw records coming in, and formatted records
+    # ready for database inseration. As field values are added, the inseration methods attempt
+    # to convert the field values into the codes used by the schema.
     class Genotype
     include AminoAcids
     def initialize(raw_record, attribute_map = {})
@@ -569,6 +570,6 @@ module Import
         end
       end
     end
-  end
+    end
   end
 end
