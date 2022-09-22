@@ -6,7 +6,7 @@ module Import
     module Providers
       module Leeds
         # Process Leeds-specific record details into generalized internal genotype format
-        class LeedsHandlerDeprecated < Import::Brca::Core::ProviderHandler
+        class LeedsHandlerDeprecated < Import::Germline::ProviderHandler
           TEST_SCOPE_MAP = { 'diagnostic'           => :full_screen,
                              'mutation screening'   => :full_screen,
                              'confirmation'         => :targeted_mutation,
@@ -37,7 +37,7 @@ module Import
           end
 
           def process_fields(record)
-            genotype = Import::Brca::Core::Genotype.new(record)
+            genotype = Import::Germline::Genotype.new(record)
             genotype.add_passthrough_fields(record.mapped_fields, record.raw_fields,
                                             PASS_THROUGH_FIELDS,
                                             FIELD_NAME_MAPPINGS)

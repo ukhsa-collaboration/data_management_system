@@ -10,7 +10,8 @@ module Import
   # negative ones)produced sequence variants.
   # However, each genotype also contains all the information available about test and result
   # level fields, so that the storage processor can match and create the appropriate tables
-  class Genotype
+  module Germline
+    class Genotype
     include AminoAcids
     def initialize(raw_record, attribute_map = {})
       @pseudo_id1 = raw_record.pseudo_id1
@@ -521,15 +522,15 @@ module Import
 
     def add_typed_location(extracted)
       case extracted
-      when Import::ExtractionUtilities::ExactLocation
+      when Import::Utility::ExtractionUtilities::ExactLocation
         add_gene_location(extracted.cdna)
         add_protein_impact(extracted.protein)
         0
-      when Import::ExtractionUtilities::ExonLocation
+      when Import::Utility::ExtractionUtilities::ExonLocation
         add_exon_location(extracted.exon)
         add_variant_type(extracted.mods)
         0
-      when Import::ExtractionUtilities::ParseFailure
+      when Import::Utility::ExtractionUtilities::ParseFailure
         @logger.warn "Could not parse genotype: #{extracted.raw}"
         1
       else
@@ -568,5 +569,6 @@ module Import
         end
       end
     end
+  end
   end
 end

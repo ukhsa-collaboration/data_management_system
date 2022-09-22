@@ -6,7 +6,7 @@ module Import
     module Providers
       module StGeorge
         # Process St George-specific record details into generalized internal genotype format
-        class StGeorgeHandler < Import::Brca::Core::ProviderHandler
+        class StGeorgeHandler < Import::Germline::ProviderHandler
           PASS_THROUGH_FIELDS = %w[age sex consultantcode collecteddate
                                    receiveddate authoriseddate servicereportidentifier
                                    providercode receiveddate sampletype].freeze

@@ -6,7 +6,7 @@ module Import
     module Providers
       module Leeds
         # Leeds importer for colorectal
-        class LeedsHandlerColorectal < Import::Brca::Core::ProviderHandler
+        class LeedsHandlerColorectal < Import::Germline::ProviderHandler
           TEST_SCOPE_MAP_COLO_COLO = { 'carrier test' => :targeted_mutation,
                                        'diagnostic' => :full_screen,
                                        'diagnostic; fap' => :full_screen,

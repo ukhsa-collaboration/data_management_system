@@ -12,7 +12,7 @@ module Import
       # However, each genotype also contains all the information available about test
       # and result level fields, so that the storage processor can match and create the
       # appropriate tables
-      class Genocolorectal < Import::Genotype
+      class Genocolorectal < Import::Germline::Genotype
         #--------------------- Schema code mapping tables --------------------------
 
         COLORECTAL_MAP = { 'APC' => 358,
@@ -116,7 +116,7 @@ module Import
           when :polish_screen
             @attribute_map['genetictestscope'] = 'Polish Colorectal Lynch or MMR'
           when :no_genetictestscope
-            @attribute_map['genetictestscope'] = 'Unable to assign genetictestscope'
+            @attribute_map['genetictestscope'] = 'Unable to assign Colorectal Lynch or MMR genetictestscope'
           else
             @logger.warn "Bad key given to addTestScope: #{scope}"
           end

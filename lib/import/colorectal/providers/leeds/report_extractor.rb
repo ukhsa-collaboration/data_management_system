@@ -1,6 +1,6 @@
 
 module Import
-  include ExtractionUtilities
+  include Utility::ExtractionUtilities
   module Colorectal
     module Providers
       module Leeds
