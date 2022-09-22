@@ -8,7 +8,7 @@ module Import
         # rubocop:disable Metrics/AbcSize
         # rubocop:disable Metrics/MethodLength
         # Process Salisbury-specific record details into generalized internal genotype format
-        class SalisburyHandlerColorectal < Import::Brca::Core::ProviderHandler
+        class SalisburyHandlerColorectal < Import::Germline::ProviderHandler
           TEST_SCOPE_MAPPING_COLO = {
             'hnpcc mlpa' => :targeted_mutation,
             'hnpcc predictives' => :targeted_mutation,

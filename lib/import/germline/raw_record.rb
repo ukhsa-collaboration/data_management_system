@@ -9,8 +9,7 @@ require 'csv'
 
 
 module Import
-  module Brca
-    module Core
+  module Germline
       # Carry the fields from .pseudo parsing until they are converted into
       # a proper genotype object
       class RawRecord
@@ -72,5 +71,4 @@ module Import
         attr_reader :keys
       end
     end
-  end
 end

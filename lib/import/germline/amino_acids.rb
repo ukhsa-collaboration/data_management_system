@@ -2,7 +2,8 @@
 # of amino acids, principally so we can identify them in protein impact
 # strings when needed
 module Import
-  module AminoAcids
+  module Germline
+   module AminoAcids
     AMINO_ACID_CODE_MAP = { 'Ala' => 'A',
                             'Arg' => 'R',
                             'Asn' => 'N',
@@ -29,5 +30,6 @@ module Import
     def triplet_codes
       AMINO_ACID_CODE_MAP.keys.map(&:downcase)
     end
+  end
   end
 end
