@@ -1,4 +1,3 @@
-
 module Import
   module Germline
     # Base class from which all code which creates specialized, provider-specific
