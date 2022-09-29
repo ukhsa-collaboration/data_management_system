@@ -5,6 +5,7 @@ module Import
   module Colorectal
     module Providers
       module Sheffield
+        # rubocop:disable Metrics/ClassLength
         # Process Sheffield-specific record details into generalized internal genotype format
         class SheffieldHandlerColorectal < Import::Germline::ProviderHandler
           include Import::Helpers::Colorectal::Providers::Rcu::Constants
@@ -421,6 +422,7 @@ module Import
             @logger.debug "SUCCESSFUL exon extraction for: #{genotype_str}"
           end
         end
+        # rubocop:enable Metrics/ClassLength
       end
     end
   end

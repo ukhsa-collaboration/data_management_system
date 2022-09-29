@@ -4,6 +4,7 @@ module Import
   module Brca
     module Providers
       module Leeds
+        # rubocop:disable Metrics/ClassLength
         # Process Leeds-specific record details into generalized internal genotype format
         class LeedsHandler < Import::Germline::ProviderHandler
           TEST_SCOPE_MAP = { 'diagnostic' => :full_screen,
@@ -243,6 +244,7 @@ module Import
             super
           end
         end
+        # rubocop:enable Metrics/ClassLength
       end
     end
   end
