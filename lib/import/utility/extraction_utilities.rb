@@ -4,6 +4,10 @@ module Import
   module Utility
     # Extraction utilities code
     module ExtractionUtilities
+      # rubocop:disable Layout/LineLength
+      # rubocop:disable Style/OptionalBooleanParameter
+      # rubocop:disable Metrics/MethodLength
+
       # Common utility methods
       class CommonUtility
         # TODO: this pile of regexs is a mess and needs to be cleaned up
@@ -67,6 +71,7 @@ module Import
           # TODO: this really needs to write to a more sensible place
           @write_csv = write_csv
           @csv = CSV.open('extractions.csv', 'a') if @write_csv
+          super
         end
 
         # Prefer the version below, which produces type-wrapped results
@@ -81,9 +86,9 @@ module Import
             { cdna: $LAST_MATCH_INFO[:cdna].tr('<', '>'),
               protein: $LAST_MATCH_INFO[:protein],
               remainder: $LAST_MATCH_INFO[:remainder] }
-          when /#{EXON_LOC}/i
-            # For now, just placeholder...
-            {}
+          # when /#{EXON_LOC}/i
+          #   # For now, just placeholder...
+          #   {}
           else
             {}
           end
@@ -146,6 +151,9 @@ module Import
         extractor = LocationExtractor.new
         extractor.extract('c.777_888delA')
       end
+      # rubocop:enable Layout/LineLength
+      # rubocop:enable Style/OptionalBooleanParameter
+      # rubocop:enable Metrics/MethodLength
     end
   end
 end
