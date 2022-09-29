@@ -5,6 +5,7 @@ module Import
   module Colorectal
     module Providers
       module Leeds
+        # rubocop:disable Metrics/ClassLength
         # Leeds importer for colorectal
         class LeedsHandlerColorectal < Import::Germline::ProviderHandler
           TEST_SCOPE_MAP_COLO_COLO = { 'carrier test' => :targeted_mutation,
@@ -682,6 +683,7 @@ module Import
             super
           end
         end
+        # rubocop:enable Metrics/ClassLength
       end
     end
   end

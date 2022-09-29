@@ -5,6 +5,7 @@ module Import
   module Brca
     module Providers
       module Sheffield
+        # rubocop:disable Metrics/ClassLength
         # Process Sheffield-specific record details into generalized internal genotype format
         class SheffieldHandler < Import::Germline::ProviderHandler
           include Import::Helpers::Brca::Providers::Rcu::RcuConstants
@@ -536,6 +537,7 @@ module Import
             @logger.debug "SUCCESSFUL exon extraction for: #{genotype_str}"
           end
         end
+        # rubocop:enable Metrics/ClassLength
       end
     end
   end

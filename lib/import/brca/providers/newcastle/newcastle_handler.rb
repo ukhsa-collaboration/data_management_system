@@ -5,6 +5,7 @@ module Import
   module Brca
     module Providers
       module Newcastle
+        # rubocop:disable Metrics/ClassLength
         # Process Newcastle-specific record details into generalized internal genotype format
         class NewcastleHandler < Import::Germline::ProviderHandler
           include Import::Helpers::Brca::Providers::Rtd::RtdConstants
@@ -248,6 +249,7 @@ module Import
                          "#{@variants_processed_counter} processed"
           end
         end
+        # rubocop:enable Metrics/ClassLength
       end
     end
   end
