@@ -2,7 +2,6 @@ module Import
   module Brca
     module Providers
       module LondonGosh
-        # rubocop:disable Metrics/ClassLength
         # BRCA extractor for London Gosh provider
         class LondonGoshHandler < Import::Germline::ProviderHandler
           PASS_THROUGH_FIELDS = %w[age consultantcode servicereportidentifier providercode
@@ -196,7 +195,6 @@ module Import
             extract_reference_transcript(record, genotype) if reference_transcript_present?(record)
           end
         end
-        # rubocop:enable Metrics/ClassLength
       end
     end
   end

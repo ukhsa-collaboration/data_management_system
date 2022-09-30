@@ -2,7 +2,6 @@ module Import
   module Brca
     module Providers
       module Oxford
-        # rubocop:disable Metrics/ClassLength
         # Process Oxford-specific record details into generalized internal genotype format
         class OxfordHandler < Import::Germline::ProviderHandler
           TEST_SCOPE_MAP = { 'brca_multiplicom'           => :full_screen,
@@ -262,7 +261,6 @@ module Import
             genotype.add_variant_class(varpathclass)
           end
         end
-        # rubocop:enable Metrics/ClassLength
       end
     end
   end

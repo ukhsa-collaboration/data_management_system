@@ -9,11 +9,6 @@ module Import
   # However, each genotype also contains all the information available about test and result
   # level fields, so that the storage processor can match and create the appropriate tables
   module Germline
-    # rubocop:disable Metrics/ClassLength
-    # rubocop:disable Style/OptionalBooleanParameter
-    # rubocop:disable Metrics/MethodLength
-    # rubocop:disable Metrics/CyclomaticComplexity
-
     # This class forms the core intermediary between raw records coming in, and formatted records
     # ready for database inseration. As field values are added, the inseration methods attempt
     # to convert the field values into the codes used by the schema.
@@ -506,9 +501,5 @@ module Import
         end
       end
     end
-    # rubocop:enable Metrics/ClassLength
-    # rubocop:enable Style/OptionalBooleanParameter
-    # rubocop:enable Metrics/MethodLength
-    # rubocop:enable Metrics/CyclomaticComplexity
   end
 end

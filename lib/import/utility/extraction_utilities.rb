@@ -4,10 +4,6 @@ module Import
   module Utility
     # Extraction utilities code
     module ExtractionUtilities
-      # rubocop:disable Layout/LineLength
-      # rubocop:disable Style/OptionalBooleanParameter
-      # rubocop:disable Metrics/MethodLength
-
       # Common utility methods
       class CommonUtility
         # TODO: this pile of regexs is a mess and needs to be cleaned up
@@ -151,9 +147,6 @@ module Import
         extractor = LocationExtractor.new
         extractor.extract('c.777_888delA')
       end
-      # rubocop:enable Layout/LineLength
-      # rubocop:enable Style/OptionalBooleanParameter
-      # rubocop:enable Metrics/MethodLength
     end
   end
 end
