@@ -5,7 +5,6 @@ module Import
   module Colorectal
     module Providers
       module Newcastle
-        # rubocop:disable Metrics/ClassLength
         # Process Newcastle-specific record details into generalized internal genotype format
         class NewcastleHandlerColorectal < Import::Germline::ProviderHandler
           include Import::Helpers::Colorectal::Providers::Rtd::RtdConstants
@@ -227,7 +226,6 @@ module Import
             end
           end
         end
-        # rubocop:enable Metrics/ClassLength
       end
     end
   end

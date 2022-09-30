@@ -2,7 +2,6 @@ module Import
   module Colorectal
     module Providers
       module Oxford
-        # rubocop:disable Metrics/ClassLength
         # Process Oxford-specific record details into generalized internal genotype format
         class OxfordHandlerColorectal < Import::Germline::ProviderHandler
           TEST_METHOD_MAP = { 'Sequencing, Next Generation Panel (NGS)' => :ngs,
@@ -214,7 +213,6 @@ module Import
             end
           end
         end
-        # rubocop:enable Metrics/ClassLength
       end
     end
   end
