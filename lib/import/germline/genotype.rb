@@ -115,7 +115,7 @@ module Import
       attr_reader :attribute_map, :pseudo_id1, :pseudo_id2, :raw_record
 
       # ------------------------- Comparators ------------------------------
-      def similar_record(other_genotype, field_list, strict = true)
+      def similar_record(other_genotype, field_list, strict: true)
         # Establish that it is the same patient
         id_comp = @raw_record.pseudo_id1 == other_genotype.pseudo_id1 &&
                   @raw_record.pseudo_id2 == other_genotype.pseudo_id2

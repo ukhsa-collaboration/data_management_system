@@ -15,9 +15,10 @@ module Import
         VARIANT  = '(?:familial)?(?<variantclass>(?: likely) pathogenic)?' \
         ' BRCA(?<brca>1|2) (?:mutation|sequence variant)'.freeze
         ZYGOSITY = '(?<zygosity>[a-z]+)zygous'.freeze
-        GENE_LOCATION = '(?<location>c\.[^ \.]+) ?(?<protein>\(p\.[^)]*\))?'.freeze
-        EXON_LOCATION = 'exons? (?<exons>\d+[a-z0-9]*(?:-\d+[a-z0-9]*)?)'.freeze
-        LOCATION_REGEX = /(#{GENE_LOCATION}(?: in (?:brca(?:1|2) )?#{EXON_LOCATION})?|#{EXON_LOCATION})/i
+        GENE_LOCATION = '(?<location>c\.[^\s\.]+)\s?(?<protein>\(p\.[^)]*\))?'.freeze
+        EXON_LOCATION = 'exons?\s(?<exons>\d+[a-z0-9]*(?:-\d+[a-z0-9]*)?)'.freeze
+        LOCATION_REGEX = /(#{GENE_LOCATION}(?:\sin\s(?:brca(?:1|2)\s)?#{EXON_LOCATION})?|
+                         #{EXON_LOCATION})/ix
 
         ZYGOSITY_REGEX = /(?<zygosity>[a-z]+)zygous/
 
@@ -63,7 +64,7 @@ module Import
         CDNA = '\\*?\\d+((_|-|\\+)\\d+)? ?([a-z]+(?:>|<)[a-z]+|(del|dup|ins)' \
         ' ?(?:[atcg]*|[0-9]*))*(?=(?:\\s|$|\\()|,)'.freeze
 
-        def initialize(write_csv = false)
+        def initialize(write_csv: false)
           # TODO: this really needs to write to a more sensible place
           @write_csv = write_csv
           @csv = CSV.open('extractions.csv', 'a') if @write_csv
@@ -93,7 +94,8 @@ module Import
         # Experimental new version
         def extract_type(raw_string)
           case raw_string
-          when /^c\.? *(?<cdna>#{CDNA}),?;? *(?:\(?p\. ?\(?(?<protein>[^)\s]+(?: ?fs(?:\*|Ter)\d*))\)?)?(?<remainder>.*)/i
+          when /^c\.?\s*(?<cdna>#{CDNA}),?;?\s*(?:\(?p\.\s?\(?(?<protein>[^)\s]+(?:\s?fs(?:\*|
+            Ter)\d*))\)?)?(?<remainder>.*)/ix
             if @write_csv
               @csv << ["c.#{$LAST_MATCH_INFO[:cdna]}",
                        "p.#{$LAST_MATCH_INFO[:protein]}",
@@ -102,8 +104,9 @@ module Import
             ExactLocation.new($LAST_MATCH_INFO[:cdna],
                               $LAST_MATCH_INFO[:protein],
                               $LAST_MATCH_INFO[:remainder])
-          when /(?<del_dup1>del|dup)? ?(?:exons?|exon\(s\)|ex|x) ?(?<exons>\d+[0-9]*(?:[a-z](?![a-z]))? ?(?:(?:to|-) ?(?:\d+(?:[a-z] )?|\d+))?) ?(?<del_dup2>del(?:etion)?|dup(?:lication)?)?$/i
-            # when /(?<mod>del|dup)? ?(?:ex|x|exon(:?s|(s))?) ?(?<exons>\d+[a-z0-9]*(?:-\d+[a-z0-9]*)?)/i
+          when /(?<del_dup1>del|dup)?\s?(?:exons?|exon\(s\)|ex|
+            x)\s?(?<exons>\d+[0-9]*(?:[a-z](?![a-z]))?\s?(?:(?:to|-)\s?(?:\d+(?:[a-z]\s)?|
+            \d+))?)\s?(?<del_dup2>del(?:etion)?|dup(?:lication)?)?$/ix
             # For now, just placeholder...
             mods = [$LAST_MATCH_INFO[:del_dup1],
                     $LAST_MATCH_INFO[:del_dup2]].reject(&:nil?)
@@ -144,7 +147,7 @@ module Import
       end
 
       if __FILE__ == $PROGRAM_NAME
-        extractor = LocationExtractor.new
+        extractor = LocationExtractor.new(write_csv: false)
         extractor.extract('c.777_888delA')
       end
     end
