@@ -8,7 +8,6 @@ module Import
             include Import::Helpers::Brca::Providers::Rq3::Rq3Constants
 
             def check_positive_record?
-              positive_record?
               ['P', '?', 'UV', 'PATHOGENIC'].include? @posnegtest.upcase
             end
 
@@ -95,7 +94,7 @@ module Import
             def process_result_without_brca_genes
               positive_gene = BRCA_MALFORMED_GENE_MAPPING[@testresult]
               if full_screen?
-                genelist = sometimes_tested? ? unique_brca_genes_from(@testreport) : @genelist
+                genelist = sometimes_tested? || @genelist.nil? ? unique_brca_genes_from(@testreport) : @genelist
                 negativegenes = genelist - [positive_gene]
                 process_negative_genes(negativegenes)
               end
@@ -273,7 +272,7 @@ module Import
 
             def process_negative_records
               if full_screen?
-                negativegenes = sometimes_tested? ? unique_brca_genes_from(@testreport) : @genelist
+                negativegenes = sometimes_tested? || @genelist.nil? ? unique_brca_genes_from(@testreport) : @genelist
               else
                 testreport_genes = unique_brca_genes_from(@testreport)
                 negativegenes = testreport_genes.flatten.uniq
@@ -285,11 +284,12 @@ module Import
               return unless full_screen?
 
               genelist = sometimes_tested? ? unique_brca_genes_from(@testreport) : @genelist
-              negativegenes = genelist - unique_brca_genes_from(@testresult)
+              negativegenes = genelist.present? ? genelist - unique_brca_genes_from(@testresult) :  unique_brca_genes_from(@testresult)
               process_negative_genes(negativegenes)
             end
 
             def process_negative_genes(negativegenes)
+              binding.pry if negativegenes.nil?
               negativegenes.each do |negativegene|
                 duplicated_genotype = @genotype.dup
                 @logger.debug "Found #{negativegene} for list #{negativegenes}"
