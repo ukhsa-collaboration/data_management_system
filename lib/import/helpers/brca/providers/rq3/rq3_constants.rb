@@ -19,7 +19,8 @@ module Import
                                     'ajp screen' => :aj_screen }.freeze
 
             BRCA_GENES_MAP = { 'AZOVCA' => %w[BRCA1 BRCA2],
-                               'BROV' => %w[BRCA1 BRCA2] }.freeze
+                               'BROV' => %w[BRCA1 BRCA2],
+                               'OVARIAN' => %w[BRCA1 BRCA2]}.freeze
 
             REPORT_GENETICTESTSCOPE_REGEX = /previously\sidentified\sin\sthis\sfamily|
                                             previously\sreported\sin\sthis\sfamily|
