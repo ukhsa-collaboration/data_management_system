@@ -7,6 +7,17 @@ module Import
           module Rq3Helper
             include Import::Helpers::Brca::Providers::Rq3::Rq3Constants
 
+            def check_positive_record?
+              positive_record?
+              ['P', '?', 'UV', 'PATHOGENIC'].include? @posnegtest.upcase
+            end
+
+            def check_negative_record?
+              (@posnegtest.upcase == 'N' || @posnegtest.upcase == 'NORMAL') &&
+                @testresult.scan(/INTERNAL REPORT/i).size.zero? &&
+                !@testreport.nil?
+            end
+
             def process_genetictestscope(genotype, record)
               indication = record.raw_fields['indication']
               reason = record.raw_fields['reason']
@@ -27,7 +38,6 @@ module Import
               genotype.attribute_map['organisationcode_testresult'] = '699F0'
             end
 
-            # rubocop:disable Metrics/AbcSize to maintain readability
             def process_positive_records
               if @testresult.scan(BRCA_REGEX).empty?
                 process_result_without_brca_genes
@@ -37,7 +47,26 @@ module Import
                 process_testresult_cdna_variants
               elsif @testresult.scan(CHR_VARIANTS_REGEX).size.positive?
                 process_chr_variants
-              elsif @testresult.scan(CHR_MALFORMED_REGEX).size.positive?
+              elsif check_malformed_variants?
+                process_malformed_variants
+              end
+              # elsif @testresult.scan(CHR_MALFORMED_REGEX).size.positive?
+              #   process_chr_malformed_variants
+              # elsif check_malformed_cdna_variant?
+              #   process_positive_malformed_variants
+              # elsif check_emptyreport_result?
+              #   process_empty_testreport_results
+              # end
+            end
+
+            def check_malformed_variants?
+              @testresult.scan(CHR_MALFORMED_REGEX).size.positive? ||
+                check_malformed_cdna_variant? ||
+                check_emptyreport_result?
+            end
+
+            def process_malformed_variants
+              if @testresult.scan(CHR_MALFORMED_REGEX).size.positive?
                 process_chr_malformed_variants
               elsif check_malformed_cdna_variant?
                 process_positive_malformed_variants
@@ -45,7 +74,6 @@ module Import
                 process_empty_testreport_results
               end
             end
-            # rubocop:enable Metrics/AbcSize
 
             def check_cdna_variant?
               @testresult.scan(CDNA_REGEX).size.positive? ||
