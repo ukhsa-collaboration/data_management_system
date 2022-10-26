@@ -19,8 +19,7 @@ module Import
                                     'ajp screen' => :aj_screen }.freeze
 
             BRCA_GENES_MAP = { 'AZOVCA' => %w[BRCA1 BRCA2],
-                               'BROV' => %w[BRCA1 BRCA2],
-                               'OVARIAN' => %w[BRCA1 BRCA2]}.freeze
+                               'BROV' => %w[BRCA1 BRCA2]}.freeze
 
             REPORT_GENETICTESTSCOPE_REGEX = /previously\sidentified\sin\sthis\sfamily|
                                             previously\sreported\sin\sthis\sfamily|
@@ -41,7 +40,7 @@ module Import
 
             # rubocop:disable Lint/MixedRegexpCaptureTypes
             BRCA_REGEX = /(?<brca>BRCA1|BRCA2|PALB2|ATM|CHEK2|TP53|MLH1|
-                          MSH2|MSH6|PMS2|STK11|PTEN|BRIP1|NBN|RAD51C|RAD51D)/ix.freeze
+                          MSH2|MSH6|PMS2|STK11|PTEN|BRIP1|NBN|RAD51C|RAD51D|CDKN2A)/ix.freeze
 
             CDNA_REGEX = /c\.(?<cdna>[0-9]+[+>_-][0-9][+>_-][0-9]+[+>_-][0-9][ACGTdelinsup]+|
                          [0-9]+[+>_-][0-9]+[ACGTdelinsup][+>_-][ACGTdelinsup]|
