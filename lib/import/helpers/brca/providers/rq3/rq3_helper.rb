@@ -49,13 +49,6 @@ module Import
               elsif check_malformed_variants?
                 process_malformed_variants
               end
-              # elsif @testresult.scan(CHR_MALFORMED_REGEX).size.positive?
-              #   process_chr_malformed_variants
-              # elsif check_malformed_cdna_variant?
-              #   process_positive_malformed_variants
-              # elsif check_emptyreport_result?
-              #   process_empty_testreport_results
-              # end
             end
 
             def check_malformed_variants?
@@ -94,8 +87,9 @@ module Import
             def process_result_without_brca_genes
               positive_gene = BRCA_MALFORMED_GENE_MAPPING[@testresult]
               if full_screen?
-                genelist = sometimes_tested? || @genelist.nil? ? unique_brca_genes_from(@testreport) : @genelist
+                genelist = @genelist.nil? ? unique_brca_genes_from(@testreport) : @genelist
                 negativegenes = genelist - [positive_gene]
+                binding.pry if ['CDKN2A'].include? negativegenes
                 process_negative_genes(negativegenes)
               end
               @genotype.add_gene(positive_gene)
@@ -272,7 +266,7 @@ module Import
 
             def process_negative_records
               if full_screen?
-                negativegenes = sometimes_tested? || @genelist.nil? ? unique_brca_genes_from(@testreport) : @genelist
+                negativegenes = @genelist.nil? ? unique_brca_genes_from(@testreport) : @genelist
               else
                 testreport_genes = unique_brca_genes_from(@testreport)
                 negativegenes = testreport_genes.flatten.uniq
@@ -283,15 +277,15 @@ module Import
             def process_full_screen_negative_genes
               return unless full_screen?
 
-              genelist = sometimes_tested? ? unique_brca_genes_from(@testreport) : @genelist
+              genelist = @genelist.nil? ? unique_brca_genes_from(@testreport) : @genelist
               negativegenes = genelist.present? ? genelist - unique_brca_genes_from(@testresult) :  unique_brca_genes_from(@testresult)
               process_negative_genes(negativegenes)
             end
 
             def process_negative_genes(negativegenes)
-              binding.pry if negativegenes.nil?
               negativegenes.each do |negativegene|
                 duplicated_genotype = @genotype.dup
+                binding.pry if negativegenes == 'CDKN2A'
                 @logger.debug "Found #{negativegene} for list #{negativegenes}"
                 duplicated_genotype.add_status(1)
                 duplicated_genotype.add_gene(negativegene)
