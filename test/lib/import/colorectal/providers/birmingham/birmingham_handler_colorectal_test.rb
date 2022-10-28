@@ -142,6 +142,33 @@ class BirminghamHandlerColorectalTest < ActiveSupport::TestCase
     assert_equal 1, processor.process_variants_from_report.size
   end
 
+  test 'process_variants_from_report_new_format' do
+    pathogenic_record = build_raw_record('pseudo_id1' => 'bob')
+    pathogenic_record.raw_fields['indication'] = 'PHTS'
+    pathogenic_record.raw_fields['overall2'] = 'Pathogenic'
+    pathogenic_record.raw_fields['teststatus'] = 'The previously reported heterozygous splice site variant c.802-1G>C in the PTEN gene is now considered likely pathogenic.'
+    processor = variant_processor_for(pathogenic_record)
+    genocolorectals = processor.process_variants_from_report
+    assert_equal 2, genocolorectals[0].attribute_map['teststatus']
+
+    normal_record = build_raw_record('pseudo_id1' => 'bob')
+    normal_record.raw_fields['indication'] = 'PHTS'
+    normal_record.raw_fields['overall2'] = 'Normal'
+    normal_record.raw_fields['teststatus'] = 'Molecular analysis shows no evidence of the familial pathogenic variant in the PTEN gene.'
+    processor = variant_processor_for(normal_record)
+    genocolorectals2 = processor.process_variants_from_report
+    assert_equal 1, genocolorectals2[0].attribute_map['teststatus']
+
+    uv_record = build_raw_record('pseudo_id1' => 'bob')
+    uv_record.raw_fields['indication'] = 'PHTS'
+    uv_record.raw_fields['overall2'] = 'UV'
+    uv_record.raw_fields['teststatus'] = 'Heterozygous inframe deletion variant of uncertain significance c.69_74del p.(Asp24_Leu25del) detected in the PTEN gene'
+    processor = variant_processor_for(uv_record)
+    genocolorectals3 =  processor.process_variants_from_report
+    assert_equal 2, genocolorectals3[0].attribute_map['teststatus']
+    assert_equal 3, genocolorectals3[0].attribute_map['variantpathclass']
+  end
+
   private
 
   def variant_processor_for(record)
