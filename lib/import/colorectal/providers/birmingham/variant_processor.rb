@@ -20,6 +20,7 @@ module Import
 
           def process_variants_from_report
             return @genotypes unless @genelist
+
             case @posnegtest.upcase
             when 'P', '?', 'UV', 'PATHOGENIC'
               process_positive_records
