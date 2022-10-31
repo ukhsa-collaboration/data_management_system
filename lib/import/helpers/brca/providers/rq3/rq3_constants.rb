@@ -49,8 +49,8 @@ module Import
                          [0-9]+[+>_-][0-9]+[+>_-][0-9]+[0-9]+[ACGTdelinsup]+|
                          [0-9]+[ACGTdelinsup]+)/x.freeze
 
-            NO_EVIDENCE_REGEX = /no evidence.*?[^cp]\.|no further.*?[^cp]\./i.freeze
-
+            # NO_EVIDENCE_REGEX = /no evidence.*?[^cp]|no further.*?[^cp]\./i.freeze
+            NO_EVIDENCE_REGEX = /no evidence.+(?:\n|\,|\.)[^cp]|no further.*?[^cp]\./i.freeze
             PROTEIN_REGEX = /p\.\(?(?<impact>.[a-z]+[0-9]+[a-z]+([^[:alnum:]][0-9]+)?|
             [a-z]+[0-9]+[^[:alnum:]])/ix.freeze
 

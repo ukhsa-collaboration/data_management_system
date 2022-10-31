@@ -89,13 +89,13 @@ module Import
               if full_screen?
                 genelist = @genelist.nil? ? unique_brca_genes_from(@testreport) : @genelist
                 negativegenes = genelist - [positive_gene]
-                binding.pry if ['CDKN2A'].include? negativegenes
                 process_negative_genes(negativegenes)
               end
               @genotype.add_gene(positive_gene)
               @genotype.add_gene_location(get_cdna_for_positive_cases(@testresult))
               @genotype.add_protein_impact(get_protein_impact(@testresult))
               @genotype.add_status(2)
+              @genotype.add_variant_class(3) if @posnegtest.upcase == 'UV'
               @genotypes.append(@genotype)
             end
 
@@ -112,6 +112,8 @@ module Import
               process_cdna(true_variant, @genotype)
               process_protein_impact(true_variant, @genotype)
               process_exon(true_variant, @genotype)
+              # binding.pry if @genotype.attribute_map['servicereportidentifier'] == 'D14.23136'
+              @genotype.add_variant_class(3) if @posnegtest.upcase == 'UV'
               @genotypes.append(@genotype)
             end
 
@@ -132,6 +134,7 @@ module Import
                 process_cdna(@testresult, @genotype)
                 process_protein_impact(@testresult, @genotype)
                 process_exon(@testresult, @genotype)
+                @genotype.add_variant_class(3) if @posnegtest.upcase == 'UV'
                 @genotypes.append(@genotype)
               else
                 process_multigene_multivariants
@@ -172,6 +175,7 @@ module Import
                 abnormal_genotype.add_gene_location(cdna)
                 abnormal_genotype.add_protein_impact(protein)
                 abnormal_genotype.add_status(2)
+                abnormal_genotype.add_variant_class(3) if @posnegtest.upcase == 'UV'
                 @genotypes.append(abnormal_genotype)
               end
             end
@@ -187,6 +191,7 @@ module Import
                 genes = unique_brca_genes_from(testresult)
                 gene = genes.one? ? genes : genes - [split_gene]
                 genotype_dup.add_gene(gene[0])
+                genotype_dup.add_variant_class(3) if @posnegtest.upcase == 'UV'
                 process_split_testresult(testresult, genotype_dup)
                 @genotypes.append(genotype_dup)
               end
@@ -215,6 +220,7 @@ module Import
               @genotype.add_variant_type(testcolumn.scan(CHR_VARIANTS_REGEX).uniq.join)
               process_exon(@testresult, @genotype)
               @genotype.add_status(2)
+              @genotype.add_variant_class(3) if @posnegtest.upcase == 'UV'
               @genotypes.append(@genotype)
             end
 
@@ -227,6 +233,7 @@ module Import
               duplicated_genotype.add_gene_location(get_cdna_for_positive_cases(@testresult))
               process_protein_impact(@testresult, duplicated_genotype)
               process_exon(@testresult, duplicated_genotype)
+              duplicated_genotype.add_variant_class(3) if @posnegtest.upcase == 'UV'
               @genotypes.append(duplicated_genotype)
             end
 
@@ -242,6 +249,7 @@ module Import
                   duplicated_genotype.add_status(2)
                   duplicated_genotype.add_gene(gene)
                   duplicated_genotype.add_gene_location('')
+                  duplicated_genotype.add_variant_class(3) if @posnegtest.upcase == 'UV'
                   @genotypes.append(duplicated_genotype)
                 end
               end
@@ -251,7 +259,9 @@ module Import
               @genotype.add_status(2)
               @genotype.add_gene(unique_brca_genes_from(@testresult).join)
               @genotype.add_gene_location('')
+              @genotype.add_variant_class(3) if @posnegtest.upcase == 'UV'
               @genotypes.append(@genotype)
+              
             end
 
             def unique_brca_genes_from(string)
@@ -285,7 +295,6 @@ module Import
             def process_negative_genes(negativegenes)
               negativegenes.each do |negativegene|
                 duplicated_genotype = @genotype.dup
-                binding.pry if negativegenes == 'CDKN2A'
                 @logger.debug "Found #{negativegene} for list #{negativegenes}"
                 duplicated_genotype.add_status(1)
                 duplicated_genotype.add_gene(negativegene)
@@ -361,9 +370,6 @@ module Import
               genotype.add_exon_location($LAST_MATCH_INFO[:exons])
             end
 
-            def sometimes_tested?
-              @record.raw_fields['indication'] == 'BRCA'
-            end
           end
         end
       end
