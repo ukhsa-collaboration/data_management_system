@@ -351,9 +351,9 @@ module Import
 
             def sometimes_tested?
               @record.raw_fields['indication'] == 'BRCA' ||
-              @record.raw_fields['indication'] == 'PANCA' ||
-              @record.raw_fields['indication'] == 'OVARIAN' ||
-              @record.raw_fields['indication'] == 'LFS'
+                @record.raw_fields['indication'] == 'PANCA' ||
+                @record.raw_fields['indication'] == 'OVARIAN' ||
+                @record.raw_fields['indication'] == 'LFS'
             end
           end
         end
