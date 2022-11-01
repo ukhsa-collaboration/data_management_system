@@ -37,6 +37,7 @@ module Import
               genotype.attribute_map['organisationcode_testresult'] = '699F0'
             end
 
+            # rubocop:disable Metrics/AbcSize to maintain readability
             def process_positive_records
               if @testresult.scan(BRCA_REGEX).empty?
                 process_result_without_brca_genes
@@ -46,19 +47,7 @@ module Import
                 process_testresult_cdna_variants
               elsif @testresult.scan(CHR_VARIANTS_REGEX).size.positive?
                 process_chr_variants
-              elsif check_malformed_variants?
-                process_malformed_variants
-              end
-            end
-
-            def check_malformed_variants?
-              @testresult.scan(CHR_MALFORMED_REGEX).size.positive? ||
-                check_malformed_cdna_variant? ||
-                check_emptyreport_result?
-            end
-
-            def process_malformed_variants
-              if @testresult.scan(CHR_MALFORMED_REGEX).size.positive?
+              elsif @testresult.scan(CHR_MALFORMED_REGEX).size.positive?
                 process_chr_malformed_variants
               elsif check_malformed_cdna_variant?
                 process_positive_malformed_variants
@@ -66,6 +55,7 @@ module Import
                 process_empty_testreport_results
               end
             end
+            # rubocop:enable Metrics/AbcSize
 
             def check_cdna_variant?
               @testresult.scan(CDNA_REGEX).size.positive? ||
@@ -87,7 +77,7 @@ module Import
             def process_result_without_brca_genes
               positive_gene = BRCA_MALFORMED_GENE_MAPPING[@testresult]
               if full_screen?
-                genelist = @genelist.nil? ? unique_brca_genes_from(@testreport) : @genelist
+                genelist = sometimes_tested? ? unique_brca_genes_from(@testreport) : @genelist
                 negativegenes = genelist - [positive_gene]
                 process_negative_genes(negativegenes)
               end
@@ -95,7 +85,6 @@ module Import
               @genotype.add_gene_location(get_cdna_for_positive_cases(@testresult))
               @genotype.add_protein_impact(get_protein_impact(@testresult))
               @genotype.add_status(2)
-              @genotype.add_variant_class(3) if @posnegtest.upcase == 'UV'
               @genotypes.append(@genotype)
             end
 
@@ -112,8 +101,6 @@ module Import
               process_cdna(true_variant, @genotype)
               process_protein_impact(true_variant, @genotype)
               process_exon(true_variant, @genotype)
-              # binding.pry if @genotype.attribute_map['servicereportidentifier'] == 'D14.23136'
-              @genotype.add_variant_class(3) if @posnegtest.upcase == 'UV'
               @genotypes.append(@genotype)
             end
 
@@ -134,7 +121,6 @@ module Import
                 process_cdna(@testresult, @genotype)
                 process_protein_impact(@testresult, @genotype)
                 process_exon(@testresult, @genotype)
-                @genotype.add_variant_class(3) if @posnegtest.upcase == 'UV'
                 @genotypes.append(@genotype)
               else
                 process_multigene_multivariants
@@ -175,7 +161,6 @@ module Import
                 abnormal_genotype.add_gene_location(cdna)
                 abnormal_genotype.add_protein_impact(protein)
                 abnormal_genotype.add_status(2)
-                abnormal_genotype.add_variant_class(3) if @posnegtest.upcase == 'UV'
                 @genotypes.append(abnormal_genotype)
               end
             end
@@ -191,7 +176,6 @@ module Import
                 genes = unique_brca_genes_from(testresult)
                 gene = genes.one? ? genes : genes - [split_gene]
                 genotype_dup.add_gene(gene[0])
-                genotype_dup.add_variant_class(3) if @posnegtest.upcase == 'UV'
                 process_split_testresult(testresult, genotype_dup)
                 @genotypes.append(genotype_dup)
               end
@@ -220,7 +204,6 @@ module Import
               @genotype.add_variant_type(testcolumn.scan(CHR_VARIANTS_REGEX).uniq.join)
               process_exon(@testresult, @genotype)
               @genotype.add_status(2)
-              @genotype.add_variant_class(3) if @posnegtest.upcase == 'UV'
               @genotypes.append(@genotype)
             end
 
@@ -233,7 +216,6 @@ module Import
               duplicated_genotype.add_gene_location(get_cdna_for_positive_cases(@testresult))
               process_protein_impact(@testresult, duplicated_genotype)
               process_exon(@testresult, duplicated_genotype)
-              duplicated_genotype.add_variant_class(3) if @posnegtest.upcase == 'UV'
               @genotypes.append(duplicated_genotype)
             end
 
@@ -249,7 +231,6 @@ module Import
                   duplicated_genotype.add_status(2)
                   duplicated_genotype.add_gene(gene)
                   duplicated_genotype.add_gene_location('')
-                  duplicated_genotype.add_variant_class(3) if @posnegtest.upcase == 'UV'
                   @genotypes.append(duplicated_genotype)
                 end
               end
@@ -259,9 +240,7 @@ module Import
               @genotype.add_status(2)
               @genotype.add_gene(unique_brca_genes_from(@testresult).join)
               @genotype.add_gene_location('')
-              @genotype.add_variant_class(3) if @posnegtest.upcase == 'UV'
               @genotypes.append(@genotype)
-              
             end
 
             def unique_brca_genes_from(string)
@@ -276,7 +255,7 @@ module Import
 
             def process_negative_records
               if full_screen?
-                negativegenes = @genelist.nil? ? unique_brca_genes_from(@testreport) : @genelist
+                negativegenes = sometimes_tested? ? unique_brca_genes_from(@testreport) : @genelist
               else
                 testreport_genes = unique_brca_genes_from(@testreport)
                 negativegenes = testreport_genes.flatten.uniq
@@ -287,8 +266,8 @@ module Import
             def process_full_screen_negative_genes
               return unless full_screen?
 
-              genelist = @genelist.nil? ? unique_brca_genes_from(@testreport) : @genelist
-              negativegenes = genelist.present? ? genelist - unique_brca_genes_from(@testresult) :  unique_brca_genes_from(@testresult)
+              genelist = sometimes_tested? ? unique_brca_genes_from(@testreport) : @genelist
+              negativegenes = genelist - unique_brca_genes_from(@testresult)
               process_negative_genes(negativegenes)
             end
 
@@ -370,6 +349,12 @@ module Import
               genotype.add_exon_location($LAST_MATCH_INFO[:exons])
             end
 
+            def sometimes_tested?
+              @record.raw_fields['indication'] == 'BRCA' ||
+              @record.raw_fields['indication'] == 'PANCA' ||
+              @record.raw_fields['indication'] == 'OVARIAN' ||
+              @record.raw_fields['indication'] == 'LFS'
+            end
           end
         end
       end
