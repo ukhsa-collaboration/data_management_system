@@ -17,6 +17,13 @@ module Import
                 !@testreport.nil?
             end
 
+            def add_variantpathclass_uv_records(genotype_object)
+              return if @posnegtest.nil?
+              if @posnegtest == 'UV'
+                genotype_object.attribute_map['variantpathclass'] = 3
+              end
+            end
+
             def process_genetictestscope(genotype, record)
               indication = record.raw_fields['indication']
               reason = record.raw_fields['reason']
@@ -85,6 +92,7 @@ module Import
               @genotype.add_gene_location(get_cdna_for_positive_cases(@testresult))
               @genotype.add_protein_impact(get_protein_impact(@testresult))
               @genotype.add_status(2)
+              add_variantpathclass_uv_records(@genotype)
               @genotypes.append(@genotype)
             end
 
@@ -101,6 +109,7 @@ module Import
               process_cdna(true_variant, @genotype)
               process_protein_impact(true_variant, @genotype)
               process_exon(true_variant, @genotype)
+              add_variantpathclass_uv_records(@genotype)
               @genotypes.append(@genotype)
             end
 
@@ -121,6 +130,7 @@ module Import
                 process_cdna(@testresult, @genotype)
                 process_protein_impact(@testresult, @genotype)
                 process_exon(@testresult, @genotype)
+                add_variantpathclass_uv_records(@genotype)
                 @genotypes.append(@genotype)
               else
                 process_multigene_multivariants
@@ -161,6 +171,7 @@ module Import
                 abnormal_genotype.add_gene_location(cdna)
                 abnormal_genotype.add_protein_impact(protein)
                 abnormal_genotype.add_status(2)
+                add_variantpathclass_uv_records(abnormal_genotype)
                 @genotypes.append(abnormal_genotype)
               end
             end
@@ -177,6 +188,7 @@ module Import
                 gene = genes.one? ? genes : genes - [split_gene]
                 genotype_dup.add_gene(gene[0])
                 process_split_testresult(testresult, genotype_dup)
+                add_variantpathclass_uv_records(genotype_dup)
                 @genotypes.append(genotype_dup)
               end
             end
@@ -204,6 +216,7 @@ module Import
               @genotype.add_variant_type(testcolumn.scan(CHR_VARIANTS_REGEX).uniq.join)
               process_exon(@testresult, @genotype)
               @genotype.add_status(2)
+              add_variantpathclass_uv_records(@genotype)
               @genotypes.append(@genotype)
             end
 
@@ -216,6 +229,7 @@ module Import
               duplicated_genotype.add_gene_location(get_cdna_for_positive_cases(@testresult))
               process_protein_impact(@testresult, duplicated_genotype)
               process_exon(@testresult, duplicated_genotype)
+              add_variantpathclass_uv_records(duplicated_genotype)
               @genotypes.append(duplicated_genotype)
             end
 
@@ -231,6 +245,7 @@ module Import
                   duplicated_genotype.add_status(2)
                   duplicated_genotype.add_gene(gene)
                   duplicated_genotype.add_gene_location('')
+                  add_variantpathclass_uv_records(duplicated_genotype)
                   @genotypes.append(duplicated_genotype)
                 end
               end
@@ -240,6 +255,7 @@ module Import
               @genotype.add_status(2)
               @genotype.add_gene(unique_brca_genes_from(@testresult).join)
               @genotype.add_gene_location('')
+              add_variantpathclass_uv_records(@genotype)
               @genotypes.append(@genotype)
             end
 
