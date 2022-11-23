@@ -89,24 +89,22 @@ module Import
               case @testresult.scan(CDNA_REGEX).size
               when 1
                 process_mutyh_single_cdna_variants
-                negativegenes = @genelist - ['MUTYH']
-                process_negative_genes(negativegenes)
               when 2
                 genes = ['MUTYH'] * @testresult.scan(CDNA_REGEX).size
                 cdnas = @testresult.scan(CDNA_REGEX).flatten
                 proteins = @testresult.scan(PROTEIN_REGEX).flatten
                 positive_results = genes.zip(cdnas, proteins)
                 positive_multiple_cdna_variants(positive_results)
-                if full_screen?(@record)
-                  negativegenes = @genelist - ['MUTYH']
-                  process_negative_genes(negativegenes)
-                end
               end
+              return unless full_screen?(@record)
+
+              negativegenes = @genelist - ['MUTYH']
+              process_negative_genes(negativegenes)
             end
 
             def process_testreport_cdna_variants
-              if @testreport.scan(CDNA_REGEX).size == 2 &&
-                 @testreport.scan(COLORECTAL_GENES_REGEX).uniq.size == 1
+              genes_size = @testreport.scan(COLORECTAL_GENES_REGEX).uniq.size
+              if genes_size == 1
                 @genocolorectal.add_gene_colorectal(unique_colorectal_genes_from(@testreport).join)
                 @genocolorectal.add_gene_location(@testreport.scan(CDNA_REGEX).join)
                 @genocolorectal.add_status(2)
@@ -114,14 +112,17 @@ module Import
                   @genocolorectal.add_protein_impact(@testreport.scan(PROTEIN_REGEX).join)
                 end
                 @genotypes.append(@genocolorectal)
-              elsif @testreport.scan(CDNA_REGEX).size == 2 &&
-                    @testreport.scan(COLORECTAL_GENES_REGEX).uniq.size == 2
-                genes = colorectal_genes_from(@testreport)
-                cdnas = @testreport.scan(CDNA_REGEX).flatten
-                proteins = @testreport.scan(PROTEIN_REGEX).flatten
-                positive_results = genes.zip(cdnas, proteins)
-                positive_multiple_cdna_variants(positive_results)
+              elsif genes_size == 2 && @testreport.scan(CDNA_REGEX).size == 2
+                process_multicdnavariants
               end
+            end
+
+            def process_multicdnavariants
+              genes = colorectal_genes_from(@testreport)
+              cdnas = @testreport.scan(CDNA_REGEX).flatten
+              proteins = @testreport.scan(PROTEIN_REGEX).flatten
+              positive_results = genes.zip(cdnas, proteins)
+              positive_multiple_cdna_variants(positive_results)
             end
 
             def process_malformed_variants
@@ -129,11 +130,10 @@ module Import
                  (@testresult =~ /High risk haplotype identified in this patient/ &&
                  @testreport.scan(/APC/i).size.positive?)
                 gene = 'APC'
-                @genocolorectal.add_gene_colorectal('APC')
               elsif @testreport.match(COLORECTAL_GENES_REGEX)
                 gene = @testreport.match(COLORECTAL_GENES_REGEX)[0]
-                @genocolorectal.add_gene_colorectal(gene)
               end
+              @genocolorectal.add_gene_colorectal(gene)
               if full_screen?(@record)
                 negativegenes = @genelist - [gene]
                 process_negative_genes(negativegenes)
@@ -170,23 +170,32 @@ module Import
             def process_chromosomal_variant(testcolumn)
               colorectal_genes = unique_colorectal_genes_from(testcolumn)
               if colorectal_genes.one?
-                if testcolumn.scan(CHR_VARIANTS_REGEX).size == 1
-                  @genocolorectal.add_variant_type(testcolumn.scan(CHR_VARIANTS_REGEX).join)
-                else
-                  @genocolorectal.add_variant_type(testcolumn.scan(CHR_VARIANTS_REGEX)[1])
-                end
+                varianttype = get_varianttype(testcolumn)
+                @genocolorectal.add_variant_type(varianttype)
                 @genocolorectal.add_gene_colorectal(colorectal_genes.join)
                 @genocolorectal.add_status(2)
                 @genotypes.append(@genocolorectal)
               elsif colorectal_genes.size > 1
                 genes = colorectal_genes_from(testcolumn)
-                chromosomalvariants = if testcolumn.scan(CHR_VARIANTS_REGEX).size == 1
-                                        testcolumn.scan(CHR_VARIANTS_REGEX).flatten * genes.size
-                                      else
-                                        testcolumn.scan(CHR_VARIANTS_REGEX).flatten
-                                      end
+                chromosomalvariants = get_chromosomalvariants(testcolumn, genes)
                 positive_results = genes.zip(chromosomalvariants)
                 positive_multiple_chromosomal_variants(positive_results)
+              end
+            end
+
+            def get_chromosomalvariants(testcolumn, genes)
+              if testcolumn.scan(CHR_VARIANTS_REGEX).size == 1
+                testcolumn.scan(CHR_VARIANTS_REGEX).flatten * genes.size
+              else
+                testcolumn.scan(CHR_VARIANTS_REGEX).flatten
+              end
+            end
+
+            def get_varianttype(testcolumn)
+              if testcolumn.scan(CHR_VARIANTS_REGEX).size == 1
+                testcolumn.scan(CHR_VARIANTS_REGEX).join
+              else
+                testcolumn.scan(CHR_VARIANTS_REGEX)[1]
               end
             end
 
@@ -227,15 +236,7 @@ module Import
                 process_full_screen_negatives
                 @genocolorectal.add_gene_colorectal(unique_colorectal_genes_from(@testresult).join)
               else
-                if full_screen?(@record)
-                  if sometimes_tested?(@record)
-                    genelist = unique_colorectal_genes_from(@testreport)
-                    negativegenes = genelist - unique_colorectal_genes_from(@testresult)
-                  else
-                    negativegenes = @genelist - [unique_colorectal_genes_from(@testresult)[0]]
-                  end
-                  process_negative_genes(negativegenes)
-                end
+                process_fs_single_cdnavariant if full_screen?(@record)
                 @genocolorectal.add_gene_colorectal(unique_colorectal_genes_from(@testresult)[0])
               end
               @genocolorectal.add_gene_location(@testresult.scan(CDNA_REGEX).join)
@@ -244,6 +245,16 @@ module Import
                 @genocolorectal.add_protein_impact(@testresult.scan(PROTEIN_REGEX).join)
               end
               @genotypes.append(@genocolorectal)
+            end
+
+            def process_fs_single_cdnavariant
+              if sometimes_tested?(@record)
+                genelist = unique_colorectal_genes_from(@testreport)
+                negativegenes = genelist - unique_colorectal_genes_from(@testresult)
+              else
+                negativegenes = @genelist - [unique_colorectal_genes_from(@testresult)[0]]
+              end
+              process_negative_genes(negativegenes)
             end
 
             def sometimes_tested?(record)
