@@ -19,9 +19,8 @@ module Import
 
             def add_variantpathclass_uv_records(genotype_object)
               return if @posnegtest.nil?
-              if @posnegtest == 'UV'
-                genotype_object.attribute_map['variantpathclass'] = 3
-              end
+
+              genotype_object.attribute_map['variantpathclass'] = 3 if @posnegtest == 'UV'
             end
 
             def process_genetictestscope(genotype, record)

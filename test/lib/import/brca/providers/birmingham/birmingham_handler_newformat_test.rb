@@ -70,8 +70,6 @@ class BirminghamHandlerNewformatTest < ActiveSupport::TestCase
     assert_equal 'p.Thr1256Argfsx', genotypes[1].attribute_map['proteinimpact']
   end
 
-
-
   test 'negative_tests_from_fullscreen_newformat' do
     negative_record_newformat = build_raw_record('pseudo_id1' => 'bob')
     negative_record_newformat.raw_fields['overall2'] = 'Normal'
@@ -83,7 +81,6 @@ class BirminghamHandlerNewformatTest < ActiveSupport::TestCase
     assert_equal 1, genotypes[0].attribute_map['teststatus']
     assert_equal 1, genotypes[1].attribute_map['teststatus']
   end
-  
 
   test 'process_chromosomevariants_from_record' do
     chromovariants_record = build_raw_record('pseudo_id1' => 'bob')
@@ -352,7 +349,6 @@ class BirminghamHandlerNewformatTest < ActiveSupport::TestCase
     assert_equal 3, genotypes[0].attribute_map['variantpathclass']
     # we do not capture proteins when cdnas are more than proteins to avoid wrong assosciation
   end
-
 
   private
 
