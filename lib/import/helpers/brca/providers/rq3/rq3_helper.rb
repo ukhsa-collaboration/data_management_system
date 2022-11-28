@@ -8,7 +8,7 @@ module Import
             include Import::Helpers::Brca::Providers::Rq3::Rq3Constants
 
             def check_positive_record?
-              ['P', '?', 'UV', 'PATHOGENIC'].include? @posnegtest.upcase
+              %w[P ? UV PATHOGENIC].include? @posnegtest.upcase
             end
 
             def check_negative_record?
