@@ -87,7 +87,11 @@ end
 add_custom_centos_7_binaries('red-arrow', ['red-arrow-10.0.1-x86_64-linux.gem',
                                            'red-parquet-10.0.1-x86_64-linux.gem'])
 
-gem 'ruby-oci8'
+group :oracle do
+  # Enable running without Oracle
+  gem 'ruby-oci8'
+end
+
 gem 'pg'
 gem 'net-ldap'
 gem 'will_paginate', '~> 3.3'
