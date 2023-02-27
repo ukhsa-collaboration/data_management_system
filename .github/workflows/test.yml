@@ -36,6 +36,8 @@ jobs:
 
       # Prep the whole stack in test-only mode:
       RAILS_ENV: test
+      # TODO: Install apache-arrow, parquet-glib-devel etc. then remove the following line:
+      BUNDLE_WITHOUT: rdc
 
     steps:
     - uses: actions/checkout@v2
@@ -85,6 +87,10 @@ jobs:
     - name: Run Brakeman analysis
       run: bundle exec brakeman
 
+    env:
+      # TODO: Install apache-arrow, parquet-glib-devel etc. then remove the following line:
+      BUNDLE_WITHOUT: rdc
+
   bundle-audit:
     runs-on: ubuntu-latest
 
@@ -102,6 +108,10 @@ jobs:
         bundler-cache: true
     - name: Audit the bundle
       run: bundle exec bundle-audit check --update
+
+    env:
+      # TODO: Install apache-arrow, parquet-glib-devel etc. then remove the following line:
+      BUNDLE_WITHOUT: rdc
 
   # A utility job upon which Branch Protection can depend,
   # thus remaining agnostic of the matrix.
