@@ -24,10 +24,7 @@ unless defined?(BUNDLER_OVERRIDE_PUMA) && BUNDLER_OVERRIDE_PUMA
   gem 'puma-daemon', require: false
 end
 
-gem 'activerecord-oracle_enhanced-adapter', '>= 5.2.3'
-
 gem 'activerecord-import'
-gem 'activerecord-import-oracle_enhanced'
 
 #gem "prototype-rails"
 
@@ -89,6 +86,8 @@ add_custom_centos_7_binaries('red-arrow', ['red-arrow-10.0.1-x86_64-linux.gem',
 
 group :oracle do
   # Enable running without Oracle
+  gem 'activerecord-oracle_enhanced-adapter', '>= 5.2.3'
+  gem 'activerecord-import-oracle_enhanced'
   gem 'ruby-oci8'
 end
 

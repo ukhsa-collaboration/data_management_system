@@ -21,3 +21,7 @@ jobs:
     - name: Run RuboCop against BASE..HEAD changes
       run: bundle exec rake rubocop:diff origin/${GITHUB_BASE_REF#*/}
 
+    env:
+      # TODO: Install apache-arrow, parquet-glib-devel etc., remove rdc from the following line:
+      # TODO: Install oracle client libraries, remove oracle from the following line:
+      BUNDLE_WITHOUT: rdc:oracle
