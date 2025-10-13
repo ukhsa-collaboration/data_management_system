@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 
 gem 'activemodel-caution', '6.1.7.3' # must match rails version
-gem 'rails', '~> 6.1.7.3'
+gem 'rails', '~> 6.1.7.4'
 
 # Use old psych for YAML on Ruby 3.1 until we move to Rails 7.0.4
 # so that we can continue to use aliases in config/locales/en.yml
@@ -51,18 +51,18 @@ end
 gem 'turbolinks', '~> 5.x'
 gem 'parser', '3.1.2.0' # supports ruby 3.0.4
 
-gem 'webpacker'
+gem 'webpacker', '>= 5.4.4'
 
 gem 'daemons'
 gem 'delayed_job', '~> 4.1'
 gem 'delayed_job_active_record'
 
-gem 'devise', '~> 4.7', '>=  4.7.1'
+gem 'devise', '4.9.0'
 gem 'cancancan', '~> 3.0'
 gem 'highline'
 gem 'cocoon'
-gem 'paper_trail', '~> 12.0'
-gem 'paper_trail-association_tracking'
+gem 'paper_trail', '~> 13.0', '>= 13.0.0'
+gem 'paper_trail-association_tracking', '>= 2.3.0'
 gem 'will_paginate'
 gem 'possibly'
 gem 'pry'
@@ -76,11 +76,11 @@ gem 'pry'
 # gem 'capistrano-rails', group: :development
 
 gem 'ndr_authenticate', '~> 0.3', '>= 0.3.3'
-gem 'ndr_error', '~> 2.0'
+gem 'ndr_error', '~> 2.3', '>= 2.3.2'
 gem 'ndr_import'
 gem 'ndr_pseudonymise', '~> 0.4.1'
 gem 'ndr_support', '~> 5.9'
-gem 'ndr_ui'
+gem 'ndr_ui', '>= 3.3.2'
 gem 'ndr_workflow', '~> 1.2', '>= 1.2.2'
 
 gem 'axlsx'
@@ -91,8 +91,8 @@ gem 'regexp-examples'
 gem 'loofah', '>= 2.3.1' # address CVE-2019-15587
 gem 'nokogiri', '~> 1.11'
 
-gem 'jquery-rails'
-gem 'jquery-ui-rails'
+gem 'jquery-rails', '>= 4.5.0'
+gem 'jquery-ui-rails', '>= 7.0.0'
 
 group :test do
   gem 'simplecov'
@@ -101,7 +101,7 @@ group :test do
 
   gem 'mocha'
   gem "capistrano", ">= 2.5.0", "< 3.0", :require => false # Capistrano 3.0 has some potentially incompatible changes. Leave version unchanged until move to Rails 3 complete
-  gem 'capybara-email'
+  gem 'capybara-email', '>= 3.0.2'
 end
 
 group :development, :test do
@@ -111,7 +111,7 @@ group :development, :test do
   # Explicit requirement needed until ndr_dev_support bumps the webdrivers dependency to the
   # minimum required for Apple silicon machines
   gem 'webdrivers', '>= 5.2.0'
-  gem 'ndr_dev_support', '~> 7.0'
+  gem 'ndr_dev_support', '~> 7.1', '>= 7.1.0'
   # gem 'ndr_dev_support', branch: 'flakey_tests', git: 'https://github.com/PublicHealthEngland/ndr_dev_support.git'
 end
 
@@ -126,9 +126,9 @@ group :development do
   gem 'terminal-notifier-guard', require: (mac_osx ? 'terminal-notifier-guard' : false)
 
   # Access an IRB console on exception pages or by using <%= console %> in views
-  gem 'web-console'
+  gem 'web-console', '>= 4.2.0'
 
-  gem 'rack-mini-profiler'
+  gem 'rack-mini-profiler', '>= 2.3.2'
 
   # Spring speeds up development by keeping your application running in the background.
   # Read more: https://github.com/rails/spring
