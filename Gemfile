@@ -57,7 +57,7 @@ gem 'daemons'
 gem 'delayed_job', '~> 4.1'
 gem 'delayed_job_active_record'
 
-gem 'devise', '~> 4.7', '>=  4.7.1'
+gem 'devise', '4.9.0'
 gem 'cancancan', '~> 3.0'
 gem 'highline'
 gem 'cocoon'
@@ -75,7 +75,7 @@ gem 'pry'
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
 
-gem 'ndr_authenticate', '~> 0.3', '>= 0.3.3'
+gem 'ndr_authenticate', '~> 0.3', '>= 0.3.5'
 gem 'ndr_error', '~> 2.0'
 gem 'ndr_import'
 gem 'ndr_pseudonymise', '~> 0.4.1'
